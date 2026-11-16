@@ -1,0 +1,33 @@
+﻿SAUVEGARDE DE L'APPLICATION « LE SAKURA »
+Date : 16 novembre 2026 (version 16)
+
+Contenu du dossier
+- passerelle.html : l'application complète (un seul fichier, le logo est inclus dedans).
+- logo-le-sakura.png : le logo d'origine.
+
+Pour ouvrir l'application
+Double-cliquez sur passerelle.html : elle s'ouvre dans votre navigateur (Chrome, Edge, Firefox…).
+
+Version en ligne
+https://claude.ai/artifact/WVQQ5tg9JaMhdnUeP7V3v3
+Les anciennes versions restent aussi enregistrées sur claude.ai.
+
+Ce que contient l'application à cette date
+- Page de garde avec profils et mots de passe, verrouillage automatique.
+- Accueil (informations de la direction) et Agenda mensuel en couleurs (réservés à la direction).
+- Transmissions de l'équipe pluridisciplinaire.
+- Médicaments : fiche par résident, cases à cocher matin / midi / soir / coucher, si besoin et laxatifs.
+- Selles : matin / midi / soir avec dessins (échelle de Bristol).
+- Contention : fiche guidée en 6 étapes, tableau des paramètres heure par heure.
+- Sanctions réparatrices, dossiers des résidents, rendez-vous médicaux, activités,
+  retours en famille, horaires de l'équipe, messagerie.
+
+Attention
+Les comptes, mots de passe et informations saisies DANS l'application sont enregistrés
+dans le navigateur de chaque appareil. Ce dossier sauvegarde l'application elle-même,
+pas ces saisies.
+
+Sauvegarder les saisies (à partir de la version 16)
+Connectée en tant que directrice, allez sur Accueil puis « Sauvegarder ou restaurer
+les données » : « Télécharger le fichier » ou « Copier les données ». Pour les
+retrouver, utilisez « Restaurer » sur le même écran.

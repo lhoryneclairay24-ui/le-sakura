@@ -1,0 +1,38 @@
+METTRE « LE SAKURA » EN LIGNE (une seule fois, environ 10 minutes)
+
+Ce dossier contient « index.html » : c'est l'application que les lanceurs
+« Le Sakura » et « Le Sakura Direction » iront chercher sur Internet à chaque ouverture.
+
+1. Créer un compte gratuit
+   - Allez sur https://github.com et touchez « Sign up ».
+   - Choisissez un nom d'utilisateur (exemple : lesakura-fam). Notez-le bien.
+
+2. Créer l'espace de l'application
+   - Une fois connectée, touchez le « + » en haut à droite, puis « New repository ».
+   - Repository name : le-sakura
+   - Cochez « Public », puis touchez « Create repository ».
+
+3. Déposer l'application
+   - Sur la page qui s'affiche, touchez « uploading an existing file ».
+   - Faites glisser le fichier « index.html » de ce dossier.
+   - Touchez « Commit changes » en bas.
+
+4. Activer la mise en ligne
+   - Touchez « Settings » (en haut), puis « Pages » (dans la colonne de gauche).
+   - Sous « Branch », choisissez « main », laissez « / (root) », puis « Save ».
+   - Attendez 1 à 2 minutes. L'adresse sera : https://VOTRE-NOM.github.io/le-sakura/
+
+5. Donnez votre nom d'utilisateur GitHub à Claude
+   Claude créera alors les deux lanceurs « Le Sakura » et « Le Sakura Direction ».
+
+ENSUITE, À CHAQUE MODIFICATION
+Claude met à jour « index.html » dans ce dossier. Il suffit de le redéposer sur GitHub
+(étape 3 : « Add file » > « Upload files », glisser le fichier, « Commit changes »).
+Tous les lanceurs, même déjà envoyés, affichent alors la nouvelle version.
+
+À SAVOIR
+- L'adresse est publique : toute personne qui la connaît peut ouvrir l'application
+  (avec des données d'exemple sur son propre appareil). N'y mettez jamais de vraies
+  données de résidents.
+- Utilisez pour cette application un mot de passe que vous n'utilisez nulle part ailleurs,
+  et donnez à Christophe un mot de passe plus solide que son prénom.
