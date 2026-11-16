@@ -105,7 +105,24 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .pickshift{display:grid;gap:2px;padding:12px;border-radius:12px;border:1.5px solid var(--line);cursor:pointer;text-align:left;font:inherit;min-height:62px;background:var(--surface);color:var(--fg)}
 .pickshift.cur{box-shadow:0 0 0 2.5px var(--accent)}
 .chgbox{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-color:var(--accent)}
-.tabs{flex:1;display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:2px;max-width:1500px;margin-inline:auto}
+.tabs{flex:1;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:2px;max-width:1200px;margin-inline:auto}
+.tab-wrap{position:relative;display:flex;min-width:0}
+.tab-wrap>.tab{flex:1}
+.subpop{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);min-width:240px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:6px;z-index:30;display:grid;gap:2px}
+.subitem{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:6px 10px;border:0;background:none;border-radius:8px;text-align:left;cursor:pointer;font:inherit;font-size:14px;color:var(--fg)}
+.subitem:hover{background:var(--surface-2)}
+.subitem[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.subitem .badge{margin-left:auto;position:static}
+.subnav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.subtab{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);cursor:pointer;font:inherit;font-size:14px;font-weight:600;color:var(--fg)}
+.subtab:hover{border-color:var(--accent)}
+.subtab[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.subtab .badge{min-width:18px;height:18px;font-size:11px}
+.nav-btn .chev{margin-left:auto;color:var(--muted);font-size:13px}
+.nav-btn.grp .badge{margin-left:auto}
+.nav-btn.grp .badge+.chev{margin-left:8px}
+.dsub{display:grid;gap:2px;margin:0 0 6px 22px;padding-left:12px;border-left:2px solid var(--line)}
+.nav-btn.sub{min-height:40px;font-size:14px}
 .tab{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:4px 8px;border:0;background:none;border-radius:10px;font-size:14.5px;cursor:pointer;color:var(--muted);position:relative;min-width:0}
 .tab svg{flex:none}
 .tab span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
@@ -116,7 +133,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .tab{flex-direction:column;gap:2px;font-size:12px;min-height:54px;padding:4px 2px}
 @media (max-width:1150px){
   .tabbar{position:static}
-  .tabs{grid-template-columns:repeat(8,minmax(0,1fr))}
+  .tabs{grid-template-columns:repeat(5,minmax(0,1fr))}
 }
 
 /* Menu latéral sur téléphone */
@@ -679,7 +696,7 @@ const VIEWS=[
  {id:"contention",label:"Contention",short:"Contention",ic:"shield"},
  {id:"sanctions",label:"Sanctions réparatrices",short:"Sanctions",ic:"repair"},
  {id:"retours",label:"Retours en famille",short:"Retours",ic:"house"},
- {id:"actus",label:"Messagerie",short:"Messages",ic:"chat"},
+ {id:"actus",label:"Problème technique",short:"Problème tech.",ic:"chat"},
  {id:"residents",label:"Dossiers des résidents",short:"Dossiers",ic:"users"}];
 
 /* ---------- Données d'exemple (fictives) ---------- */
@@ -920,7 +937,7 @@ const navBadge=id=>{
 const $=id=>document.getElementById(id);
 const TABS=VIEWS.map(v=>v.id);
 function renderNav(){
- const tabs=VIEWS.map(v=>{const b=navBadge(v.id);return `<button class="tab" data-act="go" data-v="${v.id}" title="${esc(v.label)}"${ui.view===v.id?' aria-current="page"':""}>${icon(v.ic,22)}<span>${esc(v.short||v.label)}</span>${b?`<span class="badge" aria-label="${b} à traiter">${b}</span>`:""}</button>`;}).join("");
+ const tabs=navTabs();
  const me=ST(state.me);
  const sess=me?`<div class="sessbar"><span class="sess-who">${staffAv(me)}<span>Connecté(e) : <strong>${esc(me.prenom+" "+me.nom)}</strong>${me.fonction?`<span class="muted"> · ${esc(me.fonction)}</span>`:""}</span>${me.admin&&!/direct/i.test(me.fonction||"")?`<span class="pill solid acc">Direction</span>`:""}</span><button class="btn sm ghost" data-act="logout">${icon("logout",16)} Se déconnecter</button></div>`:"";
  renderDrawer();
@@ -939,7 +956,7 @@ function render(){
  const drafts={};$("main").querySelectorAll("input[id],textarea[id]").forEach(el=>{if((el.tagName==="TEXTAREA"||["text","search",""].includes(el.type))&&el.value)drafts[el.id]=el.value;});
  renderNav();
  const fn=VIEW_FN[ui.view]||VIEW_FN.aujourdhui;
- $("main").innerHTML=fn();
+ $("main").innerHTML=subNav()+fn();
  Object.keys(drafts).forEach(id=>{const n=$(id);if(n&&!n.value)n.value=drafts[id];});
  const m=document.querySelector(".msgs");if(m)m.scrollTop=m.scrollHeight;
  if(aid){const n=$(aid);if(n){if(av!=null&&n.tagName!=="SELECT"&&n.value!==av)n.value=av;n.focus();try{if(ss)n.setSelectionRange(ss[0],ss[1]);}catch(e){}}}
@@ -2004,7 +2021,7 @@ function vActus(){
  let last="",mh="";
  msgs.forEach(m=>{const d=m.dt.slice(0,10);if(d!==last){mh+=`<p class="muted small" style="text-align:center">${esc(dayLabel(d))}</p>`;last=d;}
   mh+=`<div class="msg${m.par===state.me?" me":""}"><div class="by">${esc(sname(m.par))} · ${hm(m.dt.slice(11))}</div>${esc(m.texte)}</div>`;});
- return topbar("Messagerie","Échanges entre collègues")+
+ return topbar("Problème technique","Signalez un problème avec l'application, ou échangez avec l'équipe")+
   `<div class="card chat" style="max-width:760px"><div class="seg" role="group" aria-label="Canal">${CANAUX.map(([k,l])=>`<button data-act="canal" data-c="${k}" aria-pressed="${ui.canal===k}">${l}</button>`).join("")}</div>
    <div class="msgs" aria-live="polite">${mh||`<p class="empty">Aucun message dans ce canal.</p>`}</div>
    <form class="chat-form" id="chat-form"><input id="chat-input" autocomplete="off" placeholder="Écrire un message…" aria-label="Message"><button class="btn primary icon" type="submit" aria-label="Envoyer">${icon("send")}</button></form></div>`;
@@ -2061,7 +2078,7 @@ function toast(msg){const t=$("toast");t.textContent=msg;t.hidden=false;clearTim
 
 /* ---------- Navigation ---------- */
 function go(v){
- if(!VIEW_FN[v])v="aujourdhui";ui.contTable=null;closeDrawer();
+ if(!VIEW_FN[v])v="aujourdhui";ui.contTable=null;closeDrawer();navPop="";
  ui.view=v;
  if(location.hash.slice(1)!==v){try{history.replaceState(null,"","#"+v);}catch(e){location.hash=v;}}
  render();window.scrollTo(0,0);
@@ -2351,6 +2368,31 @@ A.backup=()=>dataBackup();
 A["cont-edit"]=d=>{if(!isAdmin()){toast("Seule la direction peut modifier une fiche de contention.");return;}contForm(d.id,d.s);};
 {const endOrig=A["cont-end"];A["cont-end"]=d=>{if(!isAdmin()){toast("Seule la direction peut lever une contention.");return;}endOrig(d);};}
 A["sh-edit"]=()=>shiftEditor();
+const NAV_GROUPS={"g-hor":{label:"Horaires",ic:"clock",items:["horaires","conges"]},"g-tr":{label:"Transmissions",ic:"note",items:["transmissions","cr","contention","sanctions","retours"]}};
+const NAV_ORDER=["aujourdhui","g-hor","agenda","activites","g-tr","medicaments","selles","actus","residents"];
+const SUBLABEL={horaires:"Planning",conges:"Congés et demandes",transmissions:"Transmissions",cr:"Comptes rendus médicaux",contention:"Contention",sanctions:"Sanctions réparatrices",retours:"Retours en famille"};
+var navPop="",drawerGroups={};
+function groupOf(id){return Object.keys(NAV_GROUPS).find(k=>NAV_GROUPS[k].items.includes(id))||"";}
+function grpBadge(g){return g.items.reduce((n,id)=>n+navBadge(id),0);}
+function subLabel(id){const v=VIEWS.find(x=>x.id===id);return SUBLABEL[id]||(v?v.label:id);}
+function navTabs(){return NAV_ORDER.map(k=>{
+ const g=NAV_GROUPS[k];
+ if(g){const cur=g.items.includes(ui.view),b=grpBadge(g),open=navPop===k;
+  return `<div class="tab-wrap"><button class="tab grp" data-act="grp" data-g="${k}" aria-expanded="${open}" aria-haspopup="true"${cur?' aria-current="page"':""} title="${esc(g.label)}">${icon(g.ic,22)}<span>${esc(g.label)} ${open?"▴":"▾"}</span>${b?`<span class="badge">${b}</span>`:""}</button>${open?`<div class="subpop" role="menu">${g.items.map(id=>{const v=VIEWS.find(x=>x.id===id),bb=navBadge(id);return `<button class="subitem" role="menuitem" data-act="go" data-v="${id}"${ui.view===id?' aria-current="page"':""}>${icon(v.ic,18)}<span>${esc(subLabel(id))}</span>${bb?`<span class="badge">${bb}</span>`:""}</button>`;}).join("")}</div>`:""}</div>`;}
+ const v=VIEWS.find(x=>x.id===k);if(!v)return "";const b=navBadge(k);
+ return `<button class="tab" data-act="go" data-v="${k}" title="${esc(v.label)}"${ui.view===k?' aria-current="page"':""}>${icon(v.ic,22)}<span>${esc(v.short||v.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}).join("");}
+function drawerTree(){return NAV_ORDER.map(k=>{
+ const g=NAV_GROUPS[k];
+ if(g){const cur=g.items.includes(ui.view),open=drawerGroups[k]!==undefined?drawerGroups[k]:cur,b=grpBadge(g);
+  return `<button class="nav-btn grp" data-act="dgrp" data-g="${k}" aria-expanded="${open}">${icon(g.ic)}<span>${esc(g.label)}</span>${b&&!open?`<span class="badge">${b}</span>`:""}<span class="chev" aria-hidden="true">${open?"▾":"▸"}</span></button>${open?`<div class="dsub">${g.items.map(id=>{const bb=navBadge(id);return `<button class="nav-btn sub" data-act="go" data-v="${id}"${ui.view===id?' aria-current="page"':""}><span>${esc(subLabel(id))}</span>${bb?`<span class="badge">${bb}</span>`:""}</button>`;}).join("")}</div>`:""}`;}
+ const v=VIEWS.find(x=>x.id===k);if(!v)return "";const b=navBadge(k);
+ return `<button class="nav-btn" data-act="go" data-v="${k}"${ui.view===k?' aria-current="page"':""}>${icon(v.ic)}<span>${esc(v.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}).join("");}
+function subNav(){const k=groupOf(ui.view);if(!k)return "";const g=NAV_GROUPS[k];
+ return `<nav class="subnav" aria-label="${esc(g.label)}">${g.items.map(id=>{const v=VIEWS.find(x=>x.id===id),b=navBadge(id);return `<button class="subtab" data-act="go" data-v="${id}"${ui.view===id?' aria-current="page"':""}>${icon(v.ic,18)}<span>${esc(subLabel(id))}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}).join("")}</nav>`;}
+A.grp=d=>{navPop=navPop===d.g?"":d.g;renderNav();};
+A.dgrp=d=>{const g=NAV_GROUPS[d.g],cur=g.items.includes(ui.view),open=drawerGroups[d.g]!==undefined?drawerGroups[d.g]:cur;drawerGroups[d.g]=!open;renderDrawer();};
+document.addEventListener("click",e=>{if(navPop&&!e.target.closest(".tab-wrap")){navPop="";renderNav();}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&navPop){navPop="";renderNav();}});
 var drawerOpen=false;
 function renderDrawer(){
  const d=$("drawer"),mb=$("mbar");if(!d||!mb)return;
@@ -2358,7 +2400,7 @@ function renderDrawer(){
  const total=VIEWS.reduce((n,v)=>n+navBadge(v.id),0);
  mb.innerHTML=`<button class="mbtn" data-act="drawer" aria-label="Ouvrir le menu" aria-expanded="${drawerOpen}" aria-controls="drawer">${icon("menu",26)}${total?`<span class="badge">${total}</span>`:""}</button><span class="mtitle">${esc(cur.label)}</span>${me?staffAv(me):""}`;
  d.innerHTML=`<div class="dhead">${LOGO}<div><strong>Le Sakura</strong>${me?`<span>${esc(me.prenom+" "+me.nom)}${me.fonction?" · "+esc(me.fonction):""}</span>`:""}</div><button class="btn icon ghost" data-act="drawer-close" aria-label="Fermer le menu">${icon("x")}</button></div>
-  <div class="dlist">${VIEWS.map(v=>{const b=navBadge(v.id);return `<button class="nav-btn" data-act="go" data-v="${v.id}"${ui.view===v.id?' aria-current="page"':""}>${icon(v.ic)}<span>${esc(v.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}).join("")}</div>
+  <div class="dlist">${drawerTree()}</div>
   <div class="dfoot"><button class="nav-btn out" data-act="logout">${icon("logout")}<span>Se déconnecter</span></button></div>`;
 }
 function openDrawer(){drawerOpen=true;renderDrawer();const d=$("drawer");d.classList.add("open");d.setAttribute("aria-hidden","false");$("dscrim").hidden=false;document.body.classList.add("noscroll");const f=d.querySelector('.nav-btn[aria-current]')||d.querySelector('.nav-btn');if(f)f.focus();}
