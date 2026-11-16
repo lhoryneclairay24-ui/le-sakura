@@ -119,6 +119,30 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   .tabs{grid-template-columns:repeat(8,minmax(0,1fr))}
 }
 
+/* Menu latéral sur téléphone */
+.mbar{display:none}
+.dscrim{position:fixed;inset:0;background:var(--scrim);z-index:44}
+.drawer{position:fixed;top:0;bottom:0;left:0;width:min(86vw,330px);background:var(--surface);z-index:45;transform:translateX(-102%);visibility:hidden;transition:transform .22s ease,visibility .22s;display:flex;flex-direction:column;box-shadow:var(--shadow);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px)}
+.drawer.open{transform:none;visibility:visible}
+.dhead{display:flex;align-items:center;gap:10px;padding:14px 12px;border-bottom:1px solid var(--line)}
+.dhead>div{flex:1;min-width:0;display:grid}
+.dhead strong{font-family:var(--font-display);font-size:18px;font-weight:600}
+.dhead span{font-size:13px;color:var(--muted)}
+.dlist{flex:1;overflow:auto;padding:8px;display:grid;gap:2px;align-content:start}
+.dfoot{padding:8px;border-top:1px solid var(--line)}
+.nav-btn.out{color:var(--bad);font-weight:700}
+body.noscroll{overflow:hidden}
+body.locked .mbar{display:none!important}
+@media (prefers-reduced-motion:reduce){.drawer{transition:none}}
+@media (max-width:860px){
+  .tabbar{display:none!important}
+  .mbar{display:flex;align-items:center;gap:10px;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line);padding-block:8px;padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px))}
+  .mbtn{position:relative;width:46px;height:46px;border:0;background:none;border-radius:10px;display:grid;place-items:center;cursor:pointer;color:var(--fg)}
+  .mbtn:hover{background:var(--surface-2)}
+  .mbtn .badge{position:absolute;top:2px;right:0;min-width:18px;height:18px;font-size:11px;padding:0 5px}
+  .mtitle{flex:1;min-width:0;font-family:var(--font-display);font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+
 /* Accueil */
 .posts{max-width:780px;display:grid;gap:14px}
 .welcome{display:flex;gap:16px;align-items:center;background:var(--accent-soft);border-color:transparent}
@@ -537,11 +561,14 @@ body.locked .app,body.locked .tabbar{display:none}
 
 <div class="app">
   <nav class="tabbar" id="tabbar" aria-label="Navigation principale"></nav>
+  <header class="mbar" id="mbar"></header>
   <main id="main"></main>
 </div>
 <div id="modal-root"></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <div class="gate" id="gate" hidden></div>
+<div class="dscrim" id="dscrim" hidden></div>
+<nav class="drawer" id="drawer" aria-label="Menu" aria-hidden="true"></nav>
 
 <script>
 (function(){
@@ -896,6 +923,7 @@ function renderNav(){
  const tabs=VIEWS.map(v=>{const b=navBadge(v.id);return `<button class="tab" data-act="go" data-v="${v.id}" title="${esc(v.label)}"${ui.view===v.id?' aria-current="page"':""}>${icon(v.ic,22)}<span>${esc(v.short||v.label)}</span>${b?`<span class="badge" aria-label="${b} à traiter">${b}</span>`:""}</button>`;}).join("");
  const me=ST(state.me);
  const sess=me?`<div class="sessbar"><span class="sess-who">${staffAv(me)}<span>Connecté(e) : <strong>${esc(me.prenom+" "+me.nom)}</strong>${me.fonction?`<span class="muted"> · ${esc(me.fonction)}</span>`:""}</span>${me.admin&&!/direct/i.test(me.fonction||"")?`<span class="pill solid acc">Direction</span>`:""}</span><button class="btn sm ghost" data-act="logout">${icon("logout",16)} Se déconnecter</button></div>`:"";
+ renderDrawer();
  $("tabbar").innerHTML=sess+`<div class="nav-brand">${LOGO}<span>Le Sakura</span></div><div class="tabs">${tabs}<button class="tab out" data-act="logout" title="Se déconnecter">${icon("logout",22)}<span>Déconnexion</span></button></div>`;
 }
 const staffAv=s=>`<span class="av sm" aria-hidden="true">${s.photo?`<img src="${esc(s.photo)}" alt="">`:esc(initials(s))}</span>`;
@@ -2033,7 +2061,7 @@ function toast(msg){const t=$("toast");t.textContent=msg;t.hidden=false;clearTim
 
 /* ---------- Navigation ---------- */
 function go(v){
- if(!VIEW_FN[v])v="aujourdhui";ui.contTable=null;
+ if(!VIEW_FN[v])v="aujourdhui";ui.contTable=null;closeDrawer();
  ui.view=v;
  if(location.hash.slice(1)!==v){try{history.replaceState(null,"","#"+v);}catch(e){location.hash=v;}}
  render();window.scrollTo(0,0);
@@ -2129,6 +2157,7 @@ document.addEventListener("submit",e=>{
  const n=$("chat-input");if(n)n.focus();
 });
 document.addEventListener("keydown",e=>{
+ if(e.key==="Escape"&&drawerOpen){closeDrawer();return;}
  if(e.key==="Escape"&&$("modal-root").innerHTML)closeModal();
  if((e.key==="Enter"||e.key===" ")&&e.target.matches&&e.target.matches('[role="button"][data-act]')){e.preventDefault();e.target.click();}
 });
@@ -2166,7 +2195,7 @@ async function hashPwd(pwd,salt){
  return sha256hex(salt+":"+pwd);
 }
 function readPhoto(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onerror=rej;fr.onload=()=>{const img=new Image();img.onerror=rej;img.onload=()=>{const z=256,c=document.createElement("canvas");c.width=c.height=z;const m=Math.min(img.width,img.height);c.getContext("2d").drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,z,z);res(c.toDataURL("image/jpeg",.85));};img.src=fr.result;};fr.readAsDataURL(file);});}
-function showGate(v){G.view=v;document.body.classList.add("locked");closeModal();$("gate").hidden=false;renderGate();window.scrollTo(0,0);}
+function showGate(v){closeDrawer();G.view=v;document.body.classList.add("locked");closeModal();$("gate").hidden=false;renderGate();window.scrollTo(0,0);}
 function enterApp(id){session=id;state.me=id;G.note="";touch(true);save();try{sessionStorage.setItem(SKEY,id);}catch(e){}G.adminOK=false;G.msg="";G.ok="";$("gate").hidden=true;$("gate").innerHTML="";document.body.classList.remove("locked");render();window.scrollTo(0,0);}
 function logout(){session=null;try{sessionStorage.removeItem(SKEY);}catch(e){}G.adminOK=false;G.msg="";G.ok="";showGate("profiles");}
 function showErr(m){const p=$("gate").querySelector(".gate-err");if(p)p.textContent=m;}
@@ -2322,6 +2351,21 @@ A.backup=()=>dataBackup();
 A["cont-edit"]=d=>{if(!isAdmin()){toast("Seule la direction peut modifier une fiche de contention.");return;}contForm(d.id,d.s);};
 {const endOrig=A["cont-end"];A["cont-end"]=d=>{if(!isAdmin()){toast("Seule la direction peut lever une contention.");return;}endOrig(d);};}
 A["sh-edit"]=()=>shiftEditor();
+var drawerOpen=false;
+function renderDrawer(){
+ const d=$("drawer"),mb=$("mbar");if(!d||!mb)return;
+ const me=ST(state.me),cur=VIEWS.find(v=>v.id===ui.view)||VIEWS[0];
+ const total=VIEWS.reduce((n,v)=>n+navBadge(v.id),0);
+ mb.innerHTML=`<button class="mbtn" data-act="drawer" aria-label="Ouvrir le menu" aria-expanded="${drawerOpen}" aria-controls="drawer">${icon("menu",26)}${total?`<span class="badge">${total}</span>`:""}</button><span class="mtitle">${esc(cur.label)}</span>${me?staffAv(me):""}`;
+ d.innerHTML=`<div class="dhead">${LOGO}<div><strong>Le Sakura</strong>${me?`<span>${esc(me.prenom+" "+me.nom)}${me.fonction?" · "+esc(me.fonction):""}</span>`:""}</div><button class="btn icon ghost" data-act="drawer-close" aria-label="Fermer le menu">${icon("x")}</button></div>
+  <div class="dlist">${VIEWS.map(v=>{const b=navBadge(v.id);return `<button class="nav-btn" data-act="go" data-v="${v.id}"${ui.view===v.id?' aria-current="page"':""}>${icon(v.ic)}<span>${esc(v.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}).join("")}</div>
+  <div class="dfoot"><button class="nav-btn out" data-act="logout">${icon("logout")}<span>Se déconnecter</span></button></div>`;
+}
+function openDrawer(){drawerOpen=true;renderDrawer();const d=$("drawer");d.classList.add("open");d.setAttribute("aria-hidden","false");$("dscrim").hidden=false;document.body.classList.add("noscroll");const f=d.querySelector('.nav-btn[aria-current]')||d.querySelector('.nav-btn');if(f)f.focus();}
+function closeDrawer(){if(!drawerOpen)return;drawerOpen=false;const d=$("drawer");if(d){d.classList.remove("open");d.setAttribute("aria-hidden","true");}const s=$("dscrim");if(s)s.hidden=true;document.body.classList.remove("noscroll");const b=document.querySelector(".mbtn");if(b)b.setAttribute("aria-expanded","false");}
+A.drawer=()=>openDrawer();
+A["drawer-close"]=()=>closeDrawer();
+$("dscrim").addEventListener("click",closeDrawer);
 const shiftMonth=(m,n)=>{let x=m;const step=n>0?nextMonth:prevMonth;for(let i=0;i<Math.abs(n);i++)x=step(x);return x;};
 A["hm-month"]=d=>{ui.hMonth=d.m;render();};
 A["hm-nav"]=d=>{ui.hMonth=d.n==="0"?monthOf(TODAY):shiftMonth(ui.hMonth,+d.n);render();};
