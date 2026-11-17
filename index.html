@@ -782,6 +782,26 @@ body.locked .app,body.locked .tabbar{display:none}
   .sheet{animation:up .18s ease-out}
   @keyframes up{from{transform:translateY(12px);opacity:.6}to{transform:none;opacity:1}}
 }
+.pa-card{padding:14px;margin-bottom:12px}
+.pa-table{width:100%;border-collapse:collapse;font-size:15px;line-height:1.45}
+.pa-table td,.pa-table th{border:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left}
+.pa-pc{width:96px;text-align:center!important}
+.pa-ph{display:inline-grid;place-items:center;width:76px;height:76px;border-radius:14px;overflow:hidden;background:var(--surface-2);font-weight:700;color:var(--muted);font-size:20px;flex:none}
+.pa-ph.big{width:64px;height:64px}
+.pa-ph img{width:100%;height:100%;object-fit:cover;display:block}
+.pa-act{width:24%;font-weight:400}
+.pa-by{display:block;margin-top:6px;font-size:12.5px;color:var(--muted)}
+.pa-k{width:120px;font-weight:600;color:var(--muted)}
+.pa-v{white-space:pre-wrap}
+.pa-lnk{background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit}
+.pa-un{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.pa-acts{display:grid;gap:8px}
+.pa-actbtn{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);text-align:left;cursor:pointer;font:inherit;width:100%}
+.pa-actbtn>span:nth-child(2){flex:1;display:grid;gap:2px}
+.pa-e{font-size:26px}
+.pa-fr{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+.pa-pr h2{font-size:16px;margin:16px 0 8px}
+@media (max-width:640px){.pa-table{font-size:14px}.pa-table td,.pa-table th{padding:6px}.pa-pc{width:56px}.pa-ph{width:46px;height:46px;font-size:15px}.pa-k{width:auto}.pa-card{padding:10px}}
 .unread-dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--bad,#c0392b);box-shadow:0 0 0 3px color-mix(in srgb,var(--bad,#c0392b) 22%,transparent);margin-right:8px;vertical-align:middle;flex:none}
 </style>
 
@@ -909,7 +929,7 @@ const VIEWS=[
  {id:"residents",label:"Dossiers des résidents",short:"Dossiers",ic:"users"}];
 /* Rôles et rubriques des transmissions */
 const ROLES=[["equipe","Équipe éducative et soignante"],["medical","Corps médical"],["technicien","Technicien de surface"],["ouvrier","Ouvrier"]];
-const TR_TABS=[["carnet","Carnet de l'éducateur","note","Le résumé de la journée, pour passer les informations aux collègues"],["admin","Point admin","users","Une fiche par résident : comment l'activité s'est passée, comportement, capacités"],["medical","Corps médical","steth","Informations importantes pour l'infirmerie et le médecin"],["direction","Direction","shield","Informations importantes pour la direction"],["technicien","Technicien de surface","drop","Ménage, entretien, hygiène des locaux"],["ouvrier","Ouvriers","repair","Réparations, travaux, matériel"]];
+const TR_TABS=[["carnet","Carnet de l'éducateur","note","Le résumé de la journée, pour passer les informations aux collègues"],["admin","Point admin","users","Pour chaque activité du planning : comportement et capacités de chaque résident"],["medical","Corps médical","steth","Informations importantes pour l'infirmerie et le médecin"],["direction","Direction","shield","Informations importantes pour la direction"],["technicien","Technicien de surface","drop","Ménage, entretien, hygiène des locaux"],["ouvrier","Ouvriers","repair","Réparations, travaux, matériel"]];
 const DEST=["medical","direction","technicien","ouvrier"];
 const TR_MOMENTS=["Matin","Après-midi","Soirée","Nuit","Journée entière"];
 const roleOf=s=>s?(s.role||"equipe"):"equipe";
@@ -1067,7 +1087,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 13:22";
+const BUILD_STAMP="17-11-2026 à 13:42";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -1114,7 +1134,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171322";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171342";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}scheduleSync();}
 save();
 const hNow=new Date().getHours()+new Date().getMinutes()/60;
@@ -1708,8 +1728,8 @@ function vTrans(){
  if(dest){const todo=list.filter(t=>t.statut!=="fait"),done=list.filter(t=>t.statut==="fait").slice(0,30);
   body=`<div class="section-title" style="margin-top:0"><h2>À faire (${todo.length})</h2></div>${todo.length?todo.map(trCard).join(""):`<p class="empty">Rien à faire pour le moment.</p>`}
    ${done.length?`<div class="section-title"><h2>Déjà fait</h2></div>${done.map(trCard).join("")}`:""}`;}
- else body=(k==="admin"?`<div class="toolbar"><select id="tr-r" aria-label="Filtrer par résident"><option value="">Tous les résidents</option>${resSorted().map(r=>`<option value="${r.id}"${ui.trR===r.id?" selected":""}>${esc(rname(r))}</option>`).join("")}</select></div>`:"")+(byDay(list)||`<p class="empty">Rien d'écrit pour le moment.</p>`);
- const lbl={carnet:"Écrire dans le carnet",admin:"Nouveau point admin"}[k]||"Nouvelle demande";
+ else body=(k==="admin"?`<div class="toolbar"><select id="tr-r" aria-label="Filtrer par résident"><option value="">Tous les résidents</option>${resSorted().map(r=>`<option value="${r.id}"${ui.trR===r.id?" selected":""}>${esc(rname(r))}</option>`).join("")}</select>${IS_DIR&&isAdmin()?`<button class="btn sm" data-act="pa-print">🖨️ Imprimer un résident</button>`:""}</div>`:"")+((k==="admin"?paList(list):byDay(list))||`<p class="empty">Rien d'écrit pour le moment.</p>`);
+ const lbl={carnet:"Écrire dans le carnet",admin:"Nouveau point admin",medical:"Nouvelle note"}[k]||"Nouvelle demande";
  return topbar(lim?`Transmissions · ${meta[1]}`:"Transmissions",esc(meta[3]),lim?"":`<button class="btn primary" data-act="tr-new">${icon("plus",18)} ${esc(lbl)}</button>`)+tabsH+
   (dest&&!lim?`<p class="muted small" style="margin:0 0 12px">${icon("info",16)} La demande reste « à faire » jusqu'à ce que ${k==="direction"?"la direction":"la personne concernée"} la marque « fait ».</p>`:"")+body;
 }
@@ -1726,7 +1746,7 @@ function trForm(kind,rid,id){
   {name:"capacites",label:"Capacités observées",type:"textarea",full:true,hint:"Ce qu'il ou elle a réussi seul(e), avec aide, les progrès…"},
   {name:"imp",label:"Important : à lire en priorité",type:"checkbox",full:true}
  ],submit:"Enregistrer",onSubmit:x=>{x.texte=[x.quand,x.deroule].filter(Boolean).join(" : ");edit(x);}});
- if(DEST.includes(kind))return openForm({title:t?"Modifier la demande":"Nouvelle demande",values:t||{kind,imp:false},fields:[
+ if(DEST.includes(kind))return openForm({title:t?(kind==="medical"?"Modifier la note":"Modifier la demande"):(kind==="medical"?"Nouvelle note":"Nouvelle demande"),values:t||{kind,imp:false},fields:[
   {name:"kind",label:"Pour qui ?",type:"select",options:DEST.map(k=>[k,TR_TABS.find(x=>x[0]===k)[1]]),required:true,full:true},
   {name:"objet",label:"Objet",required:true,full:true,hint:"Ex. : robinet qui fuit, sol glissant, fièvre de Résident n°3…"},
   {name:"lieu",label:"Lieu (facultatif)",full:true,hint:"Ex. : chambre 4, salle d'activités"},
@@ -3395,6 +3415,64 @@ NAV_ORDER.splice(NAV_ORDER.indexOf("activites"),1,"g-plan");
  return h.slice(0,i+9)+`<div class="tr-tabs"><button class="tr-tab on" aria-current="page">${icon("cal",22)}<span>Activités</span></button><button class="tr-tab" data-act="go" data-v="menus">🍽️<span>Menus de la semaine</span></button></div>`+h.slice(i+9);};}
 /* Dossiers après Commandes */
 NAV_ORDER.splice(NAV_ORDER.indexOf("g-dos"),1);NAV_ORDER.push("g-dos");
+/* Point admin : tableau par résident (photo, activités du planning, comportement, capacités) */
+function paPhoto(r,big){return `<span class="pa-ph${big?" big":""}" title="${esc(r?rname(r):"")}">${r&&r.photo?`<img src="${esc(r.photo)}" alt="">`:`<span>${esc(initials(r))}</span>`}</span>`;}
+const paMine=a=>a.anim===state.me||(a.staff||[]).includes(state.me);
+const paDate=t=>t.adate||t.dt.slice(0,10);
+const paDone=(aid,rid)=>state.transmissions.find(t=>trKind(t)==="admin"&&t.actId===aid&&t.rid===rid);
+function paTable(r,l,print){
+ const s=l.slice().sort((a,b)=>(a.adeb||a.dt.slice(11)).localeCompare(b.adeb||b.dt.slice(11)));const rows=[];
+ s.forEach((t,i)=>{const rr=[["Comportement",t.comportement],["Capacités",t.capacites]];if(t.deroule)rr.unshift(["Déroulement",t.deroule]);const f=rr.filter(x=>x[1]);if(!f.length)f.push(["—",""]);
+  f.forEach((x,j)=>rows.push((j===0?`<th scope="row" rowspan="${f.length}" class="pa-act"><strong>Activité ${i+1} :</strong> ${esc(t.quand||"—")}${print?"":`<span class="pa-by">${esc(sname(t.par))}${isAdmin()?` · <button class="pa-lnk" data-act="tr-edit" data-id="${t.id}">Modifier</button> · <button class="pa-lnk" data-act="tr-del" data-id="${t.id}">Supprimer</button>`:""}</span>`}</th>`:"")+`<td class="pa-k">${esc(x[0])}</td><td class="pa-v">${esc(x[1])}</td>`));});
+ return `<div class="table-wrap"><table class="pa-table"><tbody>${rows.map((h,i)=>`<tr>${i===0?`<td class="pa-pc" rowspan="${rows.length}">${paPhoto(r)}</td>`:""}${h}</tr>`).join("")}</tbody></table></div>`;}
+function paList(list){
+ const days=[...new Set(list.map(paDate))].sort().reverse();
+ return days.map(d=>{const L=list.filter(t=>paDate(t)===d),rids=[...new Set(L.map(t=>t.rid))];
+  return `<h2 class="day-label">${esc(dayLabel(d))}</h2>`+rids.map(rid=>{const l=L.filter(t=>t.rid===rid),un=l.some(t=>!t.lus.includes(state.me));
+   const lus=state.staff.filter(s=>l.every(t=>t.lus.includes(s.id))).map(s=>esc(sname(s.id)));
+   return `<article class="card pa-card">${un?`<div class="pa-un">${unDot()}<span class="small">Pas encore lu</span><button class="btn sm" data-act="pa-read" data-ids="${l.map(t=>t.id).join(",")}">${icon("check",16)} Marquer comme lu</button></div>`:""}${paTable(R(rid),l)}<p class="muted small" style="margin:8px 0 0">Lu par : ${lus.length?lus.join(", "):"personne"}</p></article>`;}).join("");}).join("");}
+A["pa-read"]=d=>{(d.ids||"").split(",").forEach(id=>{const t=state.transmissions.find(x=>x.id===id);if(t&&!t.lus.includes(state.me))t.lus.push(state.me);});save();render();toast("Marqué comme lu");};
+function paForm(){
+ const d=ui.paD||TODAY;
+ const acts=actOk().filter(a=>a.date===d&&(a.part||[]).length&&(isAdmin()||paMine(a))).sort((a,b)=>(a.debut||"").localeCompare(b.debut||""));
+ openModal("Point admin",`<div class="stack"><div class="field" style="max-width:220px"><label for="pa-d">Jour de l'activité</label><input type="date" id="pa-d" value="${esc(d)}" max="${TODAY}"></div>
+  <p class="muted small" style="margin:0">Choisissez l'activité que vous avez faite. Les résidents sont ceux inscrits au planning de la semaine.</p>
+  ${acts.length?`<div class="pa-acts">${acts.map(a=>{const n=a.part.filter(r=>paDone(a.id,r)).length;return `<button type="button" class="pa-actbtn" data-act="pa-act" data-id="${a.id}"><span class="pa-e" aria-hidden="true">${picto(apic(a)).e}</span><span><strong>${esc(a.titre)}</strong><span class="muted small">${hm(a.debut)}–${hm(a.fin)} · ${n} sur ${a.part.length} rempli${n>1?"s":""}</span></span>${icon("right",18)}</button>`;}).join("")}</div>`
+   :`<p class="empty">Aucune activité ${isAdmin()?"":"prévue pour vous "}ce jour-là dans le planning.</p>`}</div>`,true);
+ $("pa-d").addEventListener("change",e=>{ui.paD=e.target.value||TODAY;paForm();});
+}
+function paFill(aid){
+ const a=state.activites.find(x=>x.id===aid);if(!a)return;
+ const rs=(a.part||[]).map(R).filter(Boolean);
+ openModal(`Point admin · ${a.titre}`,`<form id="paf" class="stack" novalidate><p class="muted small" style="margin:0">${esc(cap(fmtDay(a.date)))}, ${hm(a.debut)}–${hm(a.fin)}. Remplissez chaque résident présent. Laissez vide un résident absent.</p>
+  ${rs.map(r=>{const t=paDone(a.id,r.id);return `<section class="pa-fr">${paPhoto(r,true)}<div class="stack" style="flex:1;min-width:0">${t?`<p class="muted small" style="margin:0">${icon("check",16)} Déjà rempli par ${esc(sname(t.par))}.</p>`:`<div class="field"><label for="pa-c-${r.id}">Comportement</label><textarea id="pa-c-${r.id}" rows="3" placeholder="Humeur, participation, relations, réactions…"></textarea></div><div class="field"><label for="pa-k-${r.id}">Capacités</label><textarea id="pa-k-${r.id}" rows="3" placeholder="Ce qu'il ou elle a mobilisé, réussi seul(e) ou avec aide…"></textarea></div>`}</div></section>`;}).join("")}
+  <p class="mnote" id="pa-err" role="alert"></p>
+  <div class="form-actions"><button type="button" class="btn" data-act="pa-back">Retour</button><button class="btn primary" type="submit">Enregistrer</button></div></form>`,true);
+ $("paf").addEventListener("submit",ev=>{ev.preventDefault();let n=0;
+  rs.forEach(r=>{if(paDone(a.id,r.id))return;const c=$("pa-c-"+r.id).value.trim(),k=$("pa-k-"+r.id).value.trim();if(!c&&!k)return;
+   state.transmissions.push({id:"t"+uid(),kind:"admin",dt:`${TODAY}T${nowHM()}`,par:state.me,lus:[state.me],rid:r.id,actId:a.id,adate:a.date,adeb:a.debut||"",quand:a.titre,comportement:c,capacites:k,texte:[a.titre,c,k].filter(Boolean).join(" · "),imp:false});n++;});
+  if(!n){$("pa-err").textContent="Écrivez au moins le comportement ou les capacités d'un résident.";return;}
+  save();closeModal();ui.trTab="admin";render();toast(n>1?`${n} points admin enregistrés`:"Point admin enregistré");});
+}
+A["pa-act"]=d=>paFill(d.id);
+A["pa-back"]=()=>paForm();
+{const _tf=trForm;trForm=(kind,rid,id)=>{const t=id?state.transmissions.find(x=>x.id===id):null,k=t?trKind(t):(kind||ui.trTab||"carnet");
+ if(k!=="admin")return _tf(kind,rid,id);
+ if(!t){ui.paD=TODAY;return paForm();}
+ openForm({title:"Modifier le point admin",values:t,fields:[
+  {name:"quand",label:"Activité",full:true},
+  ...(t.deroule?[{name:"deroule",label:"Déroulement",type:"textarea",full:true}]:[]),
+  {name:"comportement",label:"Comportement",type:"textarea",full:true},
+  {name:"capacites",label:"Capacités",type:"textarea",full:true}
+ ],submit:"Enregistrer",onSubmit:x=>{Object.assign(t,x,{texte:[x.quand,x.comportement,x.capacites].filter(Boolean).join(" · "),modifPar:state.me,modifLe:`${TODAY}T${nowHM()}`});toast("Modifié");}});};}
+A["pa-print"]=()=>{if(!isAdmin())return;const mon=mondayOf(TODAY);
+ openForm({title:"Imprimer le point admin d'un résident",values:{rid:ui.trR||resSorted()[0].id,du:addDays(mon,-7),au:TODAY},fields:[
+  {name:"rid",label:"Résident",type:"select",options:resOpts(),required:true,full:true},
+  {name:"du",label:"Du",type:"date",required:true},{name:"au",label:"Au (inclus)",type:"date",required:true}
+ ],submit:"Imprimer",onSubmit:x=>{const r=R(x.rid),l=state.transmissions.filter(t=>trKind(t)==="admin"&&t.rid===x.rid&&paDate(t)>=x.du&&paDate(t)<=x.au);
+  if(!l.length){toast("Aucun point admin pour ce résident sur cette période.");return;}
+  const days=[...new Set(l.map(paDate))].sort();const title=`Point admin du ${fmtDate(x.du)} au ${fmtDate(x.au)}`;
+  setTimeout(()=>{printHtml(prHead(title)+`<div class="pa-pr">${days.map(d=>`<h2>${esc(cap(fmtDay(d)))}</h2>${paTable(r,l.filter(t=>paDate(t)===d),true)}`).join("")}</div>`);logJ("consult","Impression",`${title} · ${rname(r)}`);},50);}});};
 
 /* ---------- Partage en ligne (base de données de l'artifact) ---------- */
 var syncDb=null,syncBase={},syncRemote={},syncChunks={},syncTimer=null,syncBusy=false,syncAgain=false,syncReady=false,syncPendingRemote=null,syncRO=false,syncStatus="local";
