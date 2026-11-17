@@ -123,6 +123,19 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .nav-btn.grp .badge+.chev{margin-left:8px}
 .dsub{display:grid;gap:2px;margin:0 0 6px 22px;padding-left:12px;border-left:2px solid var(--line)}
 .nav-btn.sub{min-height:40px;font-size:14px}
+.hub{margin:-4px 0 20px}
+.hub-h{font-size:16px;margin-bottom:10px;color:var(--muted)}
+.hub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:10px}
+.hub-tile{position:relative;display:flex;align-items:center;gap:12px;min-height:74px;padding:12px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);cursor:pointer;text-align:left;font:inherit;color:var(--fg)}
+.hub-tile:hover{border-color:var(--accent);background:var(--accent-soft)}
+.hub-tile svg{color:var(--accent);flex:none}
+.hub-tile .ht{display:grid;gap:2px;min-width:0}
+.hub-tile small{color:var(--muted);font-size:13px}
+.hub-tile .badge{position:absolute;top:8px;right:8px}
+.hub-tile.dis{opacity:.55;cursor:not-allowed}
+.hub-tile.dis:hover{border-color:var(--line);background:var(--surface)}
+.backlink{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px 0 6px;margin-bottom:10px;border:0;background:none;color:var(--accent);font:inherit;font-weight:700;cursor:pointer;border-radius:10px}
+.backlink:hover{background:var(--accent-soft)}
 .tab{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:4px 8px;border:0;background:none;border-radius:10px;font-size:14.5px;cursor:pointer;color:var(--muted);position:relative;min-width:0}
 .tab svg{flex:none}
 .tab span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
@@ -894,7 +907,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611161959";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171012";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}scheduleSync();}
 save();
 const hNow=new Date().getHours()+new Date().getMinutes()/60;
@@ -956,7 +969,7 @@ function render(){
  const drafts={};$("main").querySelectorAll("input[id],textarea[id]").forEach(el=>{if((el.tagName==="TEXTAREA"||["text","search",""].includes(el.type))&&el.value)drafts[el.id]=el.value;});
  renderNav();
  const fn=VIEW_FN[ui.view]||VIEW_FN.aujourdhui;
- $("main").innerHTML=subNav()+fn();
+ {const h=fn(),sn=subNav(),i=h.indexOf("</header>");$("main").innerHTML=(sn.startsWith('<button class="backlink"')||i<0)?sn+h:h.slice(0,i+9)+sn+h.slice(i+9);}
  Object.keys(drafts).forEach(id=>{const n=$(id);if(n&&!n.value)n.value=drafts[id];});
  const m=document.querySelector(".msgs");if(m)m.scrollTop=m.scrollHeight;
  if(aid){const n=$(aid);if(n){if(av!=null&&n.tagName!=="SELECT"&&n.value!==av)n.value=av;n.focus();try{if(ss)n.setSelectionRange(ss[0],ss[1]);}catch(e){}}}
@@ -1611,6 +1624,7 @@ const dShort=d=>fmtDay(d,{day:"numeric",month:"long"});
 function draftDiffers(m){const p=pubOf(m);if(!p)return true;const keys=new Set(Object.keys(state.shifts).filter(k=>k.startsWith(m)).concat(Object.keys(p.snap)));for(const k of keys)if((state.shifts[k]||"")!==(p.snap[k]||""))return true;return false;}
 const DEM_TYPES=[["conge","Congé"],["repos","Jour de repos"],["desid","Désiderata (horaire souhaité)"],["echange","Échange avec un collègue"],["autre","Autre"]];
 const demLabel=t=>(DEM_TYPES.find(x=>x[0]===t)||[0,"Demande"])[1];
+DEM_TYPES.splice(1,0,["conge_rdv","Congé pour rendez-vous médical"]);
 DEM_TYPES.push(["changement","Changement d'horaire"]);
 const monthDays=m=>{const out=[];let d=m+"-01";while(d.startsWith(m)){out.push(d);d=addDays(d,1);}return out;};
 const isWE=d=>{const w=new Date(d+"T12:00:00").getDay();return w===0||w===6;};
@@ -1640,7 +1654,7 @@ function demLists(list,emptyTxt,doneTitle){
  return `${pend.length?`<div class="med-grid">${pend.map(demItem).join("")}</div>`:`<p class="empty">${esc(emptyTxt)}</p>`}
   ${done.length?`<h3 style="font-size:15px;margin:18px 0 10px">${esc(doneTitle)}</h3><div class="med-grid">${done.map(demItem).join("")}</div>`:""}`;
 }
-function demForm(){
+function demForm(preType){
  const types=DEM_TYPES.filter(t=>t[0]!=="changement");
  const radio=(name,opts)=>`<div class="rchips" role="radiogroup">${opts.map(([k,l])=>`<label class="rchip"><input type="radio" class="sr" name="${name}" value="${esc(k)}"><span>${esc(l)}</span></label>`).join("")}</div>`;
  openModal("Faire une demande",`<form id="dform" class="stack" novalidate>
@@ -1652,6 +1666,7 @@ function demForm(){
   <p class="mnote" id="df-err" role="alert"></p>
   <div class="form-actions"><button type="button" class="btn" data-act="close">Annuler</button><button class="btn primary" type="submit">Envoyer la demande</button></div></form>`);
  const f=$("dform"),rv=n=>{const i=f.querySelector(`input[name="${n}"]:checked`);return i?i.value:"";};
+ if(preType){const r0=f.querySelector(`input[name="df-type"][value="${preType}"]`);if(r0){r0.checked=true;$("df-hwrap").hidden=preType!=="desid";}}
  const warn=()=>{const du=$("df-du").value,w=$("df-warn");if(!du){w.hidden=true;return;}const m=monthOf(du),ph=planPhase(m);w.hidden=false;
   w.textContent=ph==="final"?`Le planning de ${monthName(m)} est définitif : il n'est plus possible de faire une demande pour ce mois.`:ph==="open"?`Le planning de ${monthName(m)} est visible et provisoire : la direction peut encore l'ajuster jusqu'au ${dShort(lockDate(m))}.`:`Le planning de ${monthName(m)} est en préparation : votre demande pourra être prise en compte avant qu'il soit visible, le ${dShort(pubDate(m))}.`;};
  f.addEventListener("change",e=>{if(e.target.name==="df-type")$("df-hwrap").hidden=e.target.value!=="desid";if(e.target.id==="df-du"){if(!$("df-au").value||$("df-au").value<e.target.value)$("df-au").value=e.target.value;warn();}});
@@ -1756,7 +1771,8 @@ function vConges(){
   return topbar("Congés et demandes","Congés, repos, désiderata et changements d'horaire de l'équipe")+
    `<div class="section-title" style="margin-top:0"><h2>Demandes à traiter</h2></div>${demLists(all,"Aucune demande en attente.","Demandes traitées")}`;}
  const mine=state.demandes.filter(d=>d.sid===state.me);
- return topbar("Congés et demandes","Demandez un congé, un jour de repos, un désiderata ou autre",`<button class="btn primary" data-act="dem-new">${icon("plus",18)} Faire une demande</button>`)+
+ return topbar("Congés et demandes","Choisissez ce que vous voulez demander")+
+  `<div class="hub-grid" style="margin-bottom:18px">${[["desid","sun","Désiderata","Un horaire que vous souhaitez"],["conge","cal","Congé","Des jours de congé"],["conge_rdv","steth","Congé pour rendez-vous médical","Pour un rendez-vous ou un soin"],["repos","home","Jour de repos","Un jour sans travail"],["echange","users","Échange avec un collègue","Échanger un horaire"],["autre","note","Autre demande","Expliquez votre besoin"]].map(([t,ic,ti,s])=>hubTile({ic,t:ti,s,act:`data-act="dem-type" data-t="${t}"`})).join("")}${hubTile({ic:"edit",t:"Changer un horaire",s:openChangeMonth()?"Pour le planning du mois prochain":"Possible du 10 au 21 de chaque mois",act:'data-act="chg-new"',dis:!openChangeMonth()})}</div>`+
   `<div class="notice">${icon("info",18)}<span>Le planning d'un mois peut être ajusté selon les demandes jusqu'au 21 du mois précédent. Après, il est définitif. Pour changer un horaire déjà prévu, utilisez le bouton « Demander un changement d'horaire » de l'onglet Horaires.</span></div>
   <div class="section-title" style="margin-top:0"><h2>Mes demandes</h2></div>${demLists(mine,"Vous n'avez aucune demande en attente.","Mes demandes traitées")}`;
 }
@@ -2232,7 +2248,7 @@ function renderGate(){
   <button class="gate-btn solid" type="submit">Créer mon compte</button></form>`;
  }else if(v==="profiles"){
   const list=state.staff.filter(s=>s.hash);
-  h=`${brand}<h1>Qui se connecte ?</h1><p class="gate-sub" style="font-size:13px">${esc((window.SAKURA_CFG&&window.SAKURA_CFG.label)||"Le Sakura")} · mise à jour du 16-11-2026 à 19:59</p><div class="profiles">${list.map(s=>`<button class="prof" data-g="pick" data-id="${s.id}">${pav(s)}<span>${esc(isNum(s)?s.prenom+" "+s.nom:s.prenom)}</span></button>`).join("")}<button class="prof" data-g="add">${`<span class="pav add" aria-hidden="true">+</span>`}<span>Ajouter</span></button></div>
+  h=`${brand}<h1>Qui se connecte ?</h1><p class="gate-sub" style="font-size:13px">${esc((window.SAKURA_CFG&&window.SAKURA_CFG.label)||"Le Sakura")} · mise à jour du 17-11-2026 à 10:12</p><div class="profiles">${list.map(s=>`<button class="prof" data-g="pick" data-id="${s.id}">${pav(s)}<span>${esc(isNum(s)?s.prenom+" "+s.nom:s.prenom)}</span></button>`).join("")}<button class="prof" data-g="add">${`<span class="pav add" aria-hidden="true">+</span>`}<span>Ajouter</span></button></div>
   <button class="gate-btn" data-g="manage">Gérer les profils</button>`;
  }else if(v==="login"){
   const s=ST(G.id);
@@ -2377,18 +2393,34 @@ function grpBadge(g){return g.items.reduce((n,id)=>n+navBadge(id),0);}
 function subLabel(id){const v=VIEWS.find(x=>x.id===id);return SUBLABEL[id]||(v?v.label:id);}
 function navTabs(){return NAV_ORDER.map(k=>{
  const g=NAV_GROUPS[k];
- if(g){const cur=g.items.includes(ui.view),b=grpBadge(g),open=navPop===k;
-  return `<div class="tab-wrap"><button class="tab grp" data-act="grp" data-g="${k}" aria-expanded="${open}" aria-haspopup="true"${cur?' aria-current="page"':""} title="${esc(g.label)}">${icon(g.ic,22)}<span>${esc(g.label)} ${open?"▴":"▾"}</span>${b?`<span class="badge">${b}</span>`:""}</button>${open?`<div class="subpop" role="menu">${g.items.map(id=>{const v=VIEWS.find(x=>x.id===id),bb=navBadge(id);return `<button class="subitem" role="menuitem" data-act="go" data-v="${id}"${ui.view===id?' aria-current="page"':""}>${icon(v.ic,18)}<span>${esc(subLabel(id))}</span>${bb?`<span class="badge">${bb}</span>`:""}</button>`;}).join("")}</div>`:""}</div>`;}
+ if(g){const cur=g.items.includes(ui.view),b=grpBadge(g);
+  return `<button class="tab" data-act="go" data-v="${g.items[0]}" title="${esc(g.label)}"${cur?' aria-current="page"':""}>${icon(g.ic,22)}<span>${esc(g.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}
  const v=VIEWS.find(x=>x.id===k);if(!v)return "";const b=navBadge(k);
  return `<button class="tab" data-act="go" data-v="${k}" title="${esc(v.label)}"${ui.view===k?' aria-current="page"':""}>${icon(v.ic,22)}<span>${esc(v.short||v.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}).join("");}
 function drawerTree(){return NAV_ORDER.map(k=>{
  const g=NAV_GROUPS[k];
- if(g){const cur=g.items.includes(ui.view),open=drawerGroups[k]!==undefined?drawerGroups[k]:cur,b=grpBadge(g);
-  return `<button class="nav-btn grp" data-act="dgrp" data-g="${k}" aria-expanded="${open}">${icon(g.ic)}<span>${esc(g.label)}</span>${b&&!open?`<span class="badge">${b}</span>`:""}<span class="chev" aria-hidden="true">${open?"▾":"▸"}</span></button>${open?`<div class="dsub">${g.items.map(id=>{const bb=navBadge(id);return `<button class="nav-btn sub" data-act="go" data-v="${id}"${ui.view===id?' aria-current="page"':""}><span>${esc(subLabel(id))}</span>${bb?`<span class="badge">${bb}</span>`:""}</button>`;}).join("")}</div>`:""}`;}
+ if(g){const cur=g.items.includes(ui.view),b=grpBadge(g);
+  return `<button class="nav-btn" data-act="go" data-v="${g.items[0]}"${cur?' aria-current="page"':""}>${icon(g.ic)}<span>${esc(g.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}
  const v=VIEWS.find(x=>x.id===k);if(!v)return "";const b=navBadge(k);
  return `<button class="nav-btn" data-act="go" data-v="${k}"${ui.view===k?' aria-current="page"':""}>${icon(v.ic)}<span>${esc(v.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}).join("");}
-function subNav(){const k=groupOf(ui.view);if(!k)return "";const g=NAV_GROUPS[k];
- return `<nav class="subnav" aria-label="${esc(g.label)}">${g.items.map(id=>{const v=VIEWS.find(x=>x.id===id),b=navBadge(id);return `<button class="subtab" data-act="go" data-v="${id}"${ui.view===id?' aria-current="page"':""}>${icon(v.ic,18)}<span>${esc(subLabel(id))}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}).join("")}</nav>`;}
+function hubTile(o){return `<button class="hub-tile${o.dis?" dis":""}" ${o.act}${o.dis?" disabled":""}>${icon(o.ic,26)}<span class="ht"><strong>${esc(o.t)}</strong><small>${esc(o.s||"")}</small></span>${o.b?`<span class="badge">${o.b}</span>`:""}</button>`;}
+function subNav(){
+ const k=groupOf(ui.view);if(!k)return "";const g=NAV_GROUPS[k],adm=isAdmin();
+ if(ui.view!==g.items[0])return `<button class="backlink" data-act="go" data-v="${g.items[0]}">${icon("left",18)} Retour à ${esc(g.label)}</button>`;
+ let tiles=[];
+ if(k==="g-hor"){const om=openChangeMonth();
+  tiles=adm?[{ic:"sun",t:"Demandes de l'équipe",s:"Congés, désiderata, changements d'horaire",act:'data-act="go" data-v="conges"',b:navBadge("conges")}]
+   :[{ic:"sun",t:"Congés et demandes",s:"Désiderata, congé, rendez-vous médical…",act:'data-act="go" data-v="conges"'},
+     {ic:"plus",t:"Demander un congé",s:"Choisir les dates",act:'data-act="dem-type" data-t="conge"'},
+     {ic:"edit",t:"Changer un horaire",s:om?`Possible jusqu'au ${dShort(lockDate(om))}`:"Possible du 10 au 21 de chaque mois",act:'data-act="chg-new"',dis:!om}];}
+ if(k==="g-tr")tiles=[{ic:"plus",t:"Nouvelle transmission",s:"Résident, journée, problème survenu",act:'data-act="tr-new"'},
+  {ic:"steth",t:"Comptes rendus médicaux",s:"Après un rendez-vous médical",act:'data-act="go" data-v="cr"',b:navBadge("cr")},
+  {ic:"shield",t:"Contention",s:"Fiches et relevés de paramètres",act:'data-act="go" data-v="contention"',b:navBadge("contention")},
+  {ic:"repair",t:"Sanctions réparatrices",s:"Mesures éducatives",act:'data-act="go" data-v="sanctions"',b:navBadge("sanctions")},
+  {ic:"house",t:"Retours en famille",s:"Départs et retours en famille",act:'data-act="go" data-v="retours"',b:navBadge("retours")}];
+ return `<section class="hub"><h2 class="hub-h">Que voulez-vous faire ?</h2><div class="hub-grid">${tiles.map(hubTile).join("")}</div></section>`;
+}
+A["dem-type"]=d=>demForm(d.t);
 A.grp=d=>{navPop=navPop===d.g?"":d.g;renderNav();};
 A.dgrp=d=>{const g=NAV_GROUPS[d.g],cur=g.items.includes(ui.view),open=drawerGroups[d.g]!==undefined?drawerGroups[d.g]:cur;drawerGroups[d.g]=!open;renderDrawer();};
 document.addEventListener("click",e=>{if(navPop&&!e.target.closest(".tab-wrap")){navPop="";renderNav();}});
@@ -2425,7 +2457,7 @@ A["dem-cancel"]=d=>{const x=state.demandes.find(y=>y.id===d.id);if(!x||x.sid!==s
 A["dem-ok"]=d=>{const x=state.demandes.find(y=>y.id===d.id);if(!x||!isAdmin())return;
  openForm({title:`Accepter · ${demLabel(x.type)}`,fields:[{name:"rep",label:"Message pour le professionnel (facultatif)",type:"textarea",full:true}],submit:"Accepter la demande",onSubmit:v=>{
   x.statut="acceptee";x.reponse=v.rep;x.decidedAt=TODAY;x.decidedBy=state.me;
-  const code=x.type==="conge"?"C":x.type==="repos"?"R":(x.type==="desid"||x.type==="changement")?x.horaire:"";let n=0,lk=0;
+  const code=(x.type==="conge"||x.type==="conge_rdv")?"C":x.type==="repos"?"R":(x.type==="desid"||x.type==="changement")?x.horaire:"";let n=0,lk=0;
   if(code)for(let dd=x.du;dd<=x.au;dd=addDays(dd,1)){if(isLocked(monthOf(dd))){lk++;continue;}state.shifts[`${dd}|${x.sid}`]=code;n++;}
   toast(n?`Demande acceptée : ${n} jour${n>1?"s":""} ajouté${n>1?"s":""} au brouillon du planning.${lk?" Jours verrouillés non modifiés.":""}`:"Demande acceptée");}});};
 A["dem-no"]=d=>{const x=state.demandes.find(y=>y.id===d.id);if(!x||!isAdmin())return;
