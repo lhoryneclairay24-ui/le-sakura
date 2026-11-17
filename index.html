@@ -850,6 +850,43 @@ body.locked .app,body.locked .tabbar{display:none}
 .xl-cv .e{font-size:26px;line-height:1}
 .xl-old{padding:4px 8px 0;font-size:12.5px;color:var(--muted);white-space:pre-wrap}
 .xl-abtn{display:block;margin-top:6px;font-size:13px}
+/* Feuille façon Excel : pleine page, grille fine, en-têtes figés, onglets de jours en bas */
+body.xl-page main{max-width:none;padding-top:10px;padding-bottom:8px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+.xl-book{display:flex;flex-direction:column;min-width:0;--xg:color-mix(in srgb,var(--fg) 18%,transparent);--xh:color-mix(in srgb,var(--fg) 6%,var(--surface));--xh2:color-mix(in srgb,var(--fg) 10%,var(--surface));--xgreen:#217346}
+.xl-book.full{position:fixed;inset:0;z-index:35;background:var(--bg);padding:10px max(12px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+body.xl-fullon{overflow:hidden}
+.xl-book.full .xl-wrap{flex:1;min-height:0;height:auto!important}
+.xl-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.xl-title{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.xl-title strong{font-size:22px}.xl-title span{color:var(--muted)}
+.xl-info{margin:0 0 6px;font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:flex-start}
+.xl-book .xl-legend{margin:0 0 8px}
+.xl-wrap{overflow:auto;border:1px solid var(--xg);background:var(--surface);position:relative;-webkit-overflow-scrolling:touch}
+.xl-book .xl-table{border-collapse:separate;border-spacing:0;min-width:1000px;width:100%;font-size:14px}
+.xl-book .xl-table th,.xl-book .xl-table td{border:0;border-right:1px solid var(--xg);border-bottom:1px solid var(--xg)}
+.xl-book .xl-table tbody{border:0}
+.xl-book .xl-table tbody tr:first-child>td{border-top:2px solid color-mix(in srgb,var(--fg) 40%,transparent)}
+.xl-book .xl-table thead th{position:sticky;z-index:3;background:var(--xh);color:var(--fg)}
+.xl-book .xl-let th{top:0;height:22px;padding:0!important;text-align:center!important;font-weight:400;font-size:12px;color:var(--muted);background:var(--xh2)}
+.xl-book .xl-head th{top:22px}
+.xl-book .xl-n{position:sticky;left:0;z-index:2;width:36px;min-width:36px;background:var(--xh);color:var(--muted);text-align:center!important;font-size:12px;padding:4px 0!important;vertical-align:middle!important}
+.xl-book thead .xl-n,.xl-book .xl-corner{position:sticky;left:0;z-index:5;background:var(--xh2)}
+.xl-book .xl-ph{position:sticky;left:36px;z-index:1;background:var(--surface);width:84px;min-width:84px}
+.xl-book .xl-a{width:230px;min-width:200px}
+.xl-book .xl-c{min-width:220px;width:auto}
+.xl-book .xl-cp{width:210px;min-width:200px}
+.xl-book .xl-in{min-height:54px}
+.xl-book td.xl-edit:focus-within{box-shadow:inset 0 0 0 2px var(--xgreen)}
+.xl-book .xl-in:focus{outline:0;background:transparent}
+.xl-book .xl-cb:focus-visible{outline:2px solid var(--xgreen);outline-offset:-2px}
+.xl-by{display:block;padding:0 8px 4px;font-size:11px;color:var(--muted);text-align:right}
+.xl-book .xl-bar{display:flex;align-items:stretch;gap:0;background:var(--xh);border:1px solid var(--xg);border-top:0;margin:0;min-height:34px}
+.xl-book .xl-sheets{flex:1;min-width:0;display:flex;gap:0;overflow-x:auto;border:0}
+.xl-book .xl-sheet{flex:none;border:0;border-right:1px solid var(--xg);border-radius:0;background:transparent;color:var(--fg);padding:7px 14px;font-size:13px;font-weight:400}
+.xl-book .xl-sheet.today{font-weight:700}
+.xl-book .xl-sheet.on{background:var(--surface);color:var(--xgreen);border-bottom:3px solid var(--xgreen);font-weight:700}
+.xl-nav{border:0;border-right:1px solid var(--xg);background:transparent;padding:0 10px;cursor:pointer;color:var(--fg);font:inherit;font-size:12px}
+.xl-nav:hover,.xl-book .xl-sheet:not(.on):hover{background:var(--xh2)}
+.xl-today{border-left:1px solid var(--xg);border-right:0;font-weight:700}
 .pill.solid.info,.pill.solid.warn,.pill.solid.bad,.pill.solid.ok,.pill.solid.night{color:#fff}
 :root[data-theme="dark"] .pill.solid.info,:root[data-theme="dark"] .pill.solid.warn,:root[data-theme="dark"] .pill.solid.bad,:root[data-theme="dark"] .pill.solid.ok,:root[data-theme="dark"] .pill.solid.night{color:var(--bg)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pill.solid.info,:root:not([data-theme="light"]) .pill.solid.warn,:root:not([data-theme="light"]) .pill.solid.bad,:root:not([data-theme="light"]) .pill.solid.ok,:root:not([data-theme="light"]) .pill.solid.night{color:var(--bg)}}
@@ -1138,7 +1175,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 17:17";
+const BUILD_STAMP="17-11-2026 à 19:28";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -1185,7 +1222,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171717";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171928";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 /* Profils : la version à partager reprend les profils créés dans la version Direction du même appareil */
 (function(){try{const DK="lesakura-direction-v1";if(KEY===DK)return;const raw=localStorage.getItem(DK);if(!raw)return;const ds=(JSON.parse(raw)||{}).staff;if(!Array.isArray(ds))return;let ch=false;
  ds.forEach(f=>{if(!f||!f.id||!f.hash)return;const i=state.staff.findIndex(x=>x.id===f.id);if(i<0){state.staff.push(JSON.parse(JSON.stringify(f)));ch=true;}else if(JSON.stringify(state.staff[i])!==JSON.stringify(f)){state.staff[i]=JSON.parse(JSON.stringify(f));ch=true;}});
@@ -3540,15 +3577,18 @@ NAV_ORDER.splice(NAV_ORDER.indexOf("g-plan")+1,0,"administratif");
 {const _s=subNav;subNav=()=>NAV_GROUPS["g-plan"].items.includes(ui.view)||ui.view==="administratif"?"":_s();}
 TR_EQ.splice(TR_EQ.indexOf("admin"),1);
 const admOpen=d=>!isLimited()&&d<=TODAY&&d>=addDays(TODAY,-7);
-const admCan=a=>!isLimited()&&(isAdmin()||(paMine(a)&&admOpen(a.date)));
-const admCanFix=(t,a)=>isAdmin()||(t.par===state.me&&t.dt.slice(0,10)===TODAY&&(!a||paMine(a)));
+/* Tout le personnel (hors techniciens/ouvriers) remplit toutes les lignes, du jour et des 7 jours précédents.
+   Chaque case garde son auteur : il la corrige le jour même, ensuite seule la direction. */
+const admBy=(t,f)=>(t.by&&t.by[f])||t.par;
+const admAt=(t,f)=>((t.byAt&&t.byAt[f])||t.modifLe||t.dt||"").slice(0,10);
+const admVal=(t,f)=>t?(t[f]||""):"";
+const admCellOk=(a,t,f)=>!!a&&!isLimited()&&(isAdmin()||(admOpen(a.date)&&(!admVal(t,f)||(admBy(t,f)===state.me&&admAt(t,f)===TODAY))));
 const admWho=a=>[a.anim].concat(a.staff||[]).filter(Boolean).map(sname).join(", ");
 function admTone(txt){const s=(txt||"").toLowerCase();if(!s.trim())return "";
  const neg=s.replace(/\b(pas|aucune?|sans|jamais)\s+(du tout\s+)?(d'|de\s+)?(agress\w*|violen\w*)/g,"");
  if(/agress|violen|frapp|mord|cogn|griff|crach|insult|menac/.test(neg))return "bad";
  if(/pas sage|agit|oppos|énerv|enerv|col[eè]re|refus|crise|pleur|angoiss|anxi|hurl|triste|repli|provoc/.test(s))return "warn";
  return "ok";}
-const admEditable=(a,t)=>!!a&&(t?admCanFix(t,a)&&(isAdmin()||admOpen(a.date)):admCan(a));
 /* Comportement : un visage à choisir (vert, gris, orange, rouge) */
 const COMP=[["calme","😊","Calme","ok"],["fatigue","😴","Fatigué(e)","grey"],["anxieux","😟","Anxieux / triste","warn"],["agite","😣","Agité(e)","warn"],["agressif","😠","Agressif / agressive","bad"]];
 const compOf=k=>COMP.find(c=>c[0]===k);
@@ -3561,36 +3601,42 @@ function admSet(a,r,t,f,v){
  if(!t){if(!v)return null;t={id:"t"+uid(),kind:"admin",dt:`${TODAY}T${nowHM()}`,par:state.me,lus:[state.me],rid:r.id,actId:a.id,adate:a.date,adeb:a.debut||"",quand:a.titre,attitude:"",capacites:"",comp:"",imp:false};state.transmissions.push(t);}
  else Object.assign(t,{modifPar:state.me,modifLe:`${TODAY}T${nowHM()}`});
  t[f]=v;t.texte=admTexte(a.titre,t);
+ t.by=Object.assign({},t.by,{[f]:state.me});t.byAt=Object.assign({},t.byAt,{[f]:`${TODAY}T${nowHM()}`});
  if(admEmpty(t))state.transmissions=state.transmissions.filter(x=>x!==t);
  save();return t;}
+const admWait=(a,d)=>`<div class="xl-t adm-wait">${a&&admOpen(d)?"À remplir":""}</div>`;
+const admByTxt=(t,f)=>t&&admVal(t,f)?`<span class="xl-by">${esc(sname(admBy(t,f)))}</span>`:"";
+function admTextCell(a,r,t,f,d,x,y,print){const txt=admVal(t,f),lab=(XL_F.find(z=>z[0]===f)||[])[1]||f,ph=(XL_F.find(z=>z[0]===f)||[])[2]||"";
+ if(print)return `<td class="xl-c">${esc(txt)}</td>`;
+ const pos=`data-x="${x}" data-y="${y}"`;
+ if(admCellOk(a,t,f))return `<td class="xl-c xl-edit" ${pos}><textarea class="xl-in" id="xl-${a.id}-${r.id}-${f}" data-a="${a.id}" data-r="${r.id}" data-f="${f}" rows="2" placeholder="${esc(ph)}" aria-label="${esc(lab)}, ${esc(rname(r))}, ${esc(a.titre)}">${esc(txt)}</textarea>${admByTxt(t,f)}</td>`;
+ if(txt)return `<td class="xl-c" ${pos}><div class="xl-t">${esc(txt)}</div>${admByTxt(t,f)}</td>`;
+ return `<td class="xl-c" ${pos}>${admWait(a,d)}</td>`;}
+function admCompCell(a,r,t,d,x,y,print){const tone=compTone(t),c=t?compOf(t.comp):null,cls=`xl-c xl-cp${tone?" xl-"+tone:""}`;
+ const old=t&&!t.comp&&t.comportement?`<div class="xl-old">${esc(t.comportement)}</div>`:"";
+ if(print)return `<td class="${cls}"><div class="xl-t">${esc(compTxt(t))}</div></td>`;
+ const pos=a?`data-x="${x}" data-y="${y}" data-a="${a.id}" data-r="${r.id}"`:"";
+ if(admCellOk(a,t,"comp"))return `<td class="${cls} xl-edit" ${pos}>${old}<div class="xl-comp" role="group" aria-label="Comportement, ${esc(rname(r))}, ${esc(a.titre)}">${COMP.map(z=>`<button type="button" class="xl-cb${c&&c[0]===z[0]?" on":""}" data-act="xl-comp" data-a="${a.id}" data-r="${r.id}" data-v="${z[0]}" aria-pressed="${!!(c&&c[0]===z[0])}" title="${esc(z[2])}" aria-label="${esc(z[2])}"><span class="e" aria-hidden="true">${z[1]}</span></button>`).join("")}</div><div class="xl-cl${c?" on":""}">${c?esc(c[2]):"Choisir un visage"}${admByTxt(t,"comp")}</div></td>`;
+ if(c)return `<td class="${cls}" ${pos}><div class="xl-cv"><span class="e" aria-hidden="true">${c[1]}</span><strong>${esc(c[2])}</strong></div>${admByTxt(t,"comp")}</td>`;
+ if(old)return `<td class="${cls}" ${pos}>${old}</td>`;
+ return `<td class="${cls}" ${pos}>${admWait(a,d)}</td>`;}
 function admTable(d,print){
  const acts=actOk().filter(a=>a.date===d&&(a.part||[]).length).sort((a,b)=>(a.debut||"").localeCompare(b.debut||""));
  const ents=state.transmissions.filter(t=>trKind(t)==="admin"&&paDate(t)===d);
- const wait=a=>`<div class="xl-t adm-wait">${a&&d<=TODAY?`À remplir par ${esc(admWho(a)||"l'équipe")}`:""}</div>`;
- const cell=(it,r,f,ph,lab)=>{const t=it.t,a=it.a,txt=t?t[f]||"":"";
-  if(print)return `<td class="xl-c">${esc(txt)}</td>`;
-  if(admEditable(a,t))return `<td class="xl-c xl-edit"><textarea class="xl-in" id="xl-${a.id}-${r.id}-${f}" data-a="${a.id}" data-r="${r.id}" data-f="${f}" rows="3" placeholder="${esc(ph)}" aria-label="${esc(lab)}, ${esc(a.titre)}">${esc(txt)}</textarea></td>`;
-  if(txt)return `<td class="xl-c"><div class="xl-t">${esc(txt)}</div></td>`;
-  return `<td class="xl-c">${wait(a)}</td>`;};
- const comp=(it,r)=>{const t=it.t,a=it.a,tone=compTone(t),c=t?compOf(t.comp):null,cls=`xl-c xl-cp${tone?" xl-"+tone:""}`;
-  const old=t&&!t.comp&&t.comportement?`<div class="xl-old">${esc(t.comportement)}</div>`:"";
-  if(print)return `<td class="${cls}"><div class="xl-t">${esc(compTxt(t))}</div></td>`;
-  if(admEditable(a,t))return `<td class="${cls} xl-edit">${old}<div class="xl-comp" role="group" aria-label="Comportement, ${esc(a.titre)}">${COMP.map(x=>`<button type="button" class="xl-cb${c&&c[0]===x[0]?" on":""}" data-act="xl-comp" data-a="${a.id}" data-r="${r.id}" data-v="${x[0]}" aria-pressed="${!!(c&&c[0]===x[0])}" title="${esc(x[2])}" aria-label="${esc(x[2])}"><span class="e" aria-hidden="true">${x[1]}</span></button>`).join("")}</div><div class="xl-cl${c?" on":""}">${c?esc(c[2]):"Touchez un visage"}</div></td>`;
-  if(c)return `<td class="${cls}"><div class="xl-cv"><span class="e" aria-hidden="true">${c[1]}</span><strong>${esc(c[2])}</strong></div></td>`;
-  if(old)return `<td class="${cls}">${old}</td>`;
-  return `<td class="${cls}">${wait(a)}</td>`;};
- const adm=!print&&isAdmin();
+ const adm=!print&&isAdmin();let y=0;
+ const num=()=>print?"":`<td class="xl-n">${y+1}</td>`;
  const body=resSorted().map(r=>{
   const items=acts.filter(a=>a.part.includes(r.id)).map(a=>({a,t:ents.find(t=>t.actId===a.id&&t.rid===r.id)}));
   ents.filter(t=>t.rid===r.id&&!(t.actId&&acts.some(a=>a.id===t.actId&&a.part.includes(r.id)))).forEach(t=>items.push({a:null,t}));
   const ph=n=>`<td class="xl-ph" rowspan="${n}">${paPhoto(r)}</td>`;
   const add=adm?`<span class="xl-abtn"><button class="pa-lnk" data-act="adm-radd" data-r="${r.id}">+ Ajouter à une activité</button></span>`:"";
-  if(!items.length)return `<tbody><tr>${ph(1)}<td class="xl-a adm-wait" colspan="4">Pas d'activité au planning ce jour-là.${add}</td></tr></tbody>`;
-  return `<tbody>${items.map((it,i)=>{const a=it.a;
-   const tools=adm&&a?`<span class="xl-abtn"><button class="pa-lnk" data-act="adm-aedit" data-id="${a.id}">Modifier l'activité</button> · <button class="pa-lnk" data-act="adm-rdel" data-a="${a.id}" data-r="${r.id}">Retirer ce résident</button></span>`:"";
-   const act=`<strong>Activité ${i+1} :</strong> ${esc(a?a.titre:(it.t.quand||""))}<span class="pa-by">${a?`${hm(a.debut)}–${hm(a.fin)}${admWho(a)?" · "+esc(admWho(a)):""}`:esc(sname(it.t.par))}</span>${tools}${i===items.length-1?add:""}`;
-   return `<tr>${i===0?ph(items.length):""}<td class="xl-a">${act}</td>${XL_F.map(([f,l,p])=>cell(it,r,f,p,l)).join("")}${comp(it,r)}</tr>`;}).join("")}</tbody>`;}).join("");
- return `<div class="table-wrap"><table class="xl-table"><thead><tr><th>Résident</th><th>Activité</th><th>Attitude</th><th>Capacités</th><th>Comportement</th></tr></thead>${body}</table></div>`;}
+  if(!items.length){const h=`<tbody><tr>${num()}${ph(1)}<td class="xl-a adm-wait" colspan="4">Pas d'activité au planning ce jour-là.${add}</td></tr></tbody>`;y++;return h;}
+  return `<tbody>${items.map((it,i)=>{const a=it.a,t=it.t;
+   const tools=adm&&a?`<span class="xl-abtn"><button class="pa-lnk" data-act="adm-aedit" data-id="${a.id}">Modifier l'activité</button> · <button class="pa-lnk" data-act="adm-rdel" data-a="${a.id}" data-r="${r.id}">Retirer</button></span>`:"";
+   const act=`<strong>Activité ${i+1} :</strong> ${esc(a?a.titre:(t.quand||""))}<span class="pa-by">${a?`${hm(a.debut)}–${hm(a.fin)}${admWho(a)?" · "+esc(admWho(a)):""}`:esc(sname(t.par))}</span>${tools}${i===items.length-1?add:""}`;
+   const row=`<tr>${num()}${i===0?ph(items.length):""}<td class="xl-a">${act}</td>${admTextCell(a,r,t,"attitude",d,0,y,print)}${admTextCell(a,r,t,"capacites",d,1,y,print)}${admCompCell(a,r,t,d,2,y,print)}</tr>`;y++;return row;}).join("")}</tbody>`;}).join("");
+ const letters=print?"":`<tr class="xl-let"><th class="xl-corner" aria-hidden="true"></th>${["A","B","C","D","E"].map(l=>`<th aria-hidden="true">${l}</th>`).join("")}</tr>`;
+ return `<table class="xl-table${print?" xl-print":""}"><thead>${letters}<tr class="xl-head">${print?"":`<th class="xl-n" aria-label="Ligne"></th>`}<th>Résident</th><th>Activité</th><th>Attitude</th><th>Capacités</th><th>Comportement</th></tr></thead>${body}</table>`;}
 function admActForm(a,d){
  const pros=state.staff.filter(s=>!["technicien","ouvrier"].includes(roleOf(s))).map(s=>[s.id,s.prenom+" "+s.nom]);
  openForm({title:a?"Modifier l'activité":"Ajouter une activité",values:a?Object.assign({},a):{date:d,debut:"14:00",fin:"16:00",anim:state.me,staff:[],part:[]},fields:[
@@ -3619,20 +3665,64 @@ A["adm-radd"]=d=>{if(!isAdmin())return onlyDir();const r=R(d.r),day=ui.admD||TOD
  openForm({title:`Ajouter ${rname(r)} à une activité`,fields:[{name:"act",label:"Activité",type:"select",options:acts.map(a=>[a.id,`${hm(a.debut)}–${hm(a.fin)} · ${a.titre}`]),required:true,full:true}],submit:"Ajouter",
   onSubmit:x=>{const a=state.activites.find(y=>y.id===x.act);if(a){a.part=(a.part||[]).concat(r.id);toast("Résident ajouté à l'activité");}}});};
 A["xl-comp"]=d=>{const a=state.activites.find(x=>x.id===d.a),r=R(d.r);if(!a||!r)return;const t=paDone(a.id,r.id);
- if(!admEditable(a,t)){toast("Vous ne pouvez pas remplir cette case.");return;}
- const v=t&&t.comp===d.v?"":d.v;admSet(a,r,t,"comp",v);render();
+ if(!admCellOk(a,t,"comp")){toast("Vous ne pouvez pas modifier cette case.");return;}
+ const v=t&&t.comp===d.v?"":d.v,nt=admSet(a,r,t,"comp",v);
+ const td=document.querySelector(`.xl-table td.xl-cp[data-a="${a.id}"][data-r="${r.id}"]`);
+ if(td){const x=td.dataset.x,y=td.dataset.y;td.outerHTML=admCompCell(a,r,nt,a.date,x,y);
+  const n=document.querySelector(`.xl-table td.xl-cp[data-a="${a.id}"][data-r="${r.id}"]`);if(n){const b=n.querySelector(`.xl-cb[data-v="${d.v}"]`)||n.querySelector(".xl-cb");if(b)b.focus();}}
+ else render();
  const c=compOf(v);toast(c?`Comportement : ${c[2]}`:"Comportement effacé");};
 function admSheets(d){const mon=mondayOf(d),days=[0,1,2,3,4,5,6].map(i=>addDays(mon,i));
- return `<div class="xl-bar"><button class="btn icon sm" data-act="adm-day" data-n="-7" aria-label="Semaine précédente">${icon("left")}</button><div class="xl-sheets" role="tablist">${days.map(x=>`<button class="xl-sheet${x===d?" on":""}${x===TODAY?" today":""}" role="tab" aria-selected="${x===d}" data-act="adm-go" data-d="${x}">${esc(cap(fmtDay(x,{weekday:"short",day:"numeric"})))}</button>`).join("")}</div><button class="btn icon sm" data-act="adm-day" data-n="7" aria-label="Semaine suivante">${icon("right")}</button>${d!==TODAY?`<button class="btn sm ghost" data-act="adm-day" data-n="0">Aujourd'hui</button>`:""}</div>`;}
+ return `<div class="xl-bar"><button class="xl-nav" data-act="adm-day" data-n="-7" aria-label="Semaine précédente">◀</button><button class="xl-nav" data-act="adm-day" data-n="7" aria-label="Semaine suivante">▶</button><div class="xl-sheets" role="tablist">${days.map(x=>`<button class="xl-sheet${x===d?" on":""}${x===TODAY?" today":""}" role="tab" aria-selected="${x===d}" data-act="adm-go" data-d="${x}">${esc(cap(fmtDay(x,{weekday:"short",day:"numeric",month:"short"})))}</button>`).join("")}</div>${d!==TODAY?`<button class="xl-nav xl-today" data-act="adm-day" data-n="0">Aujourd'hui</button>`:""}</div>`;}
 function vAdministratif(){
  if(isLimited())return topbar("Administratif","Réservé à l'équipe éducative et soignante");
- const d=ui.admD||TODAY,me=!isAdmin()&&admOpen(d)?actOk().filter(a=>a.date===d&&paMine(a)).reduce((n,a)=>n+(a.part||[]).filter(r=>!paDone(a.id,r)).length,0):0;
+ const d=ui.admD||TODAY;
  if(isAdmin()){const l=state.transmissions.filter(t=>trKind(t)==="admin"&&paDate(t)===d&&!t.lus.includes(state.me));if(l.length)setTimeout(()=>{l.forEach(t=>{if(!t.lus.includes(state.me))t.lus.push(state.me);});save();},0);}
- const pr=(isAdmin()?`<button class="btn sm primary" data-act="adm-anew">+ Ajouter une activité</button>`:"")+(IS_DIR&&isAdmin()?`<button class="btn sm" data-act="adm-print">🖨️ Imprimer la journée</button><button class="btn sm" data-act="adm-print" data-w="1">🖨️ Imprimer la semaine</button><button class="btn sm" data-act="pa-print">🖨️ Imprimer un résident</button>`:"");
- const info=isAdmin()?"Vous pouvez écrire et corriger dans toutes les cases, ajouter, modifier ou supprimer une activité et choisir ses résidents. Le planning est mis à jour en même temps.":!admOpen(d)?(d>TODAY?"Ce jour n'est pas encore arrivé : la feuille se remplit le jour de l'activité.":"Ce jour a plus de 7 jours : la feuille ne peut plus être remplie."):me?`Vous avez ${me} ligne${me>1?"s":""} à remplir : écrivez l'attitude et les capacités dans les cases blanches, puis touchez un visage pour le comportement. C'est enregistré tout de suite.`:actOk().some(a=>a.date===d&&paMine(a))?"Toutes vos lignes sont remplies. Vous pouvez encore corriger ce que vous avez écrit aujourd'hui.":"Vous n'avez pas de ligne à remplir ce jour-là.";
- return topbar("Administratif",esc(cap(fmtDay(d)))+" · une feuille par jour")+
-  `<div class="toolbar" style="justify-content:flex-end">${pr?`<div class="row">${pr}</div>`:""}</div><div class="notice">${icon("info",18)}<span>${esc(info)}</span></div>
-  <div class="xl-legend">${COMP.map(c=>`<span class="xl-key xl-${c[3]}">${c[1]} ${esc(c[2])}</span>`).join("")}<span class="xl-key">😠 = alerte dans la cloche de la direction</span></div>`+admSheets(d)+admTable(d);}
+ const full=!!ui.xlFull;
+ const pr=(isAdmin()?`<button class="btn sm primary" data-act="adm-anew">+ Ajouter une activité</button>`:"")+`<button class="btn sm" data-act="xl-full">${full?"✕ Quitter le plein écran":"⛶ Plein écran"}</button>`+(IS_DIR&&isAdmin()&&!full?`<button class="btn sm" data-act="adm-print">🖨️ Journée</button><button class="btn sm" data-act="adm-print" data-w="1">🖨️ Semaine</button><button class="btn sm" data-act="pa-print">🖨️ Un résident</button>`:"");
+ const keys="Entrée : case du dessous · Tab : case de droite · flèches pour se déplacer · Alt+Entrée : retour à la ligne dans la case.";
+ const info=!admOpen(d)?(d>TODAY?"Ce jour n'est pas encore arrivé : la feuille se remplit le jour de l'activité.":(isAdmin()?"Ce jour a plus de 7 jours : seule la direction peut encore modifier la feuille.":"Ce jour a plus de 7 jours : la feuille ne peut plus être remplie.")):(isAdmin()?"Vous pouvez tout remplir et corriger, et ajouter, modifier ou retirer des activités et des résidents (le planning suit). ":"Tout le personnel peut remplir toutes les lignes. Chacun peut corriger ses cases le jour même. ")+keys;
+ const legend=`<div class="xl-legend">${COMP.map(c=>`<span class="xl-key xl-${c[3]}">${c[1]} ${esc(c[2])}</span>`).join("")}<span class="xl-key">😠 = alerte à la direction</span></div>`;
+ const head=`<div class="xl-top"><div class="xl-title"><strong>Administratif</strong><span>${esc(cap(fmtDay(d)))}</span></div><div class="row">${pr}</div></div><p class="xl-info">${icon("info",16)} ${esc(info)}</p>${legend}`;
+ return `<div class="xl-book${full?" full":""}" id="xl-book">${head}<div class="xl-wrap" id="xl-wrap">${admTable(d)}</div>${admSheets(d)}</div>`;}
+A["xl-full"]=()=>{ui.xlFull=!ui.xlFull;render();};
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&ui.xlFull&&ui.view==="administratif"&&!$("modal-root").innerHTML){ui.xlFull=false;render();}});
+/* Feuille Excel : hauteur pleine page, en-têtes figés, déplacements au clavier */
+function xlFit(){const w=$("xl-wrap"),b=$("xl-book");if(!w||!b)return;
+ if(b.classList.contains("full")){w.style.height="";return;}
+ const bar=b.querySelector(".xl-bar"),top=w.getBoundingClientRect().top+window.scrollY;
+ w.style.height=Math.max(320,window.innerHeight-(top-window.scrollY<0?0:top)-(bar?bar.offsetHeight:0)-14)+"px";}
+window.addEventListener("resize",()=>{if(ui.view==="administratif")xlFit();});
+{const _rd=render;render=function(){const w=$("xl-wrap"),sc=w?[w.scrollTop,w.scrollLeft]:null;_rd();
+ const on=ui.view==="administratif";document.body.classList.toggle("xl-page",on);document.body.classList.toggle("xl-fullon",on&&!!ui.xlFull);
+ if(on){if(window.scrollY)window.scrollTo(0,0);xlFit();const n=$("xl-wrap");if(n&&sc){n.scrollTop=sc[0];n.scrollLeft=sc[1];}}};}
+function xlTarget(td){return td&&(td.querySelector("textarea.xl-in")||td.querySelector(".xl-cb.on")||td.querySelector(".xl-cb"));}
+function xlGo(td,dx,dy){
+ const cells=[...document.querySelectorAll(".xl-table td[data-x]")].filter(xlTarget);if(!cells.length)return false;
+ const x=+td.dataset.x,y=+td.dataset.y;let next=null;
+ if(dy){const col=cells.filter(c=>+c.dataset.x===x).sort((a,b)=>a.dataset.y-b.dataset.y);next=dy>0?col.find(c=>+c.dataset.y>y):col.reverse().find(c=>+c.dataset.y<y);}
+ else{const ord=cells.slice().sort((a,b)=>(a.dataset.y-b.dataset.y)||(a.dataset.x-b.dataset.x)),i=ord.indexOf(td);next=ord[i+dx]||null;}
+ if(!next)return false;const t=xlTarget(next);t.focus();
+ if(t.tagName==="TEXTAREA"){const L=t.value.length;t.setSelectionRange(L,L);}
+ next.scrollIntoView({block:"nearest",inline:"nearest"});return true;}
+document.addEventListener("keydown",e=>{const el=e.target;if(!el.closest||!el.closest(".xl-table"))return;const td=el.closest("td[data-x]");if(!td)return;
+ const ta=el.tagName==="TEXTAREA",k=e.key;
+ if(k==="Tab"){if(xlGo(td,e.shiftKey?-1:1,0))e.preventDefault();return;}
+ if(ta){
+  if(k==="Enter"&&!e.altKey&&!e.shiftKey&&!e.ctrlKey){e.preventDefault();xlGo(td,0,1);return;}
+  if(k==="Enter"&&e.altKey){e.preventDefault();const s=el.selectionStart,en=el.selectionEnd;el.value=el.value.slice(0,s)+"\n"+el.value.slice(en);el.setSelectionRange(s+1,s+1);return;}
+  const s=el.selectionStart,en=el.selectionEnd,v=el.value;if(s!==en)return;
+  if(k==="ArrowUp"&&!v.slice(0,s).includes("\n")){if(xlGo(td,0,-1))e.preventDefault();}
+  else if(k==="ArrowDown"&&!v.slice(s).includes("\n")){if(xlGo(td,0,1))e.preventDefault();}
+  else if(k==="ArrowLeft"&&s===0){if(xlGo(td,-1,0))e.preventDefault();}
+  else if(k==="ArrowRight"&&s===v.length){if(xlGo(td,1,0))e.preventDefault();}
+  return;}
+ if(el.classList.contains("xl-cb")){const bs=[...td.querySelectorAll(".xl-cb")],i=bs.indexOf(el);
+  if(k==="ArrowLeft"){e.preventDefault();if(i>0)bs[i-1].focus();else xlGo(td,-1,0);}
+  else if(k==="ArrowRight"){e.preventDefault();if(i<bs.length-1)bs[i+1].focus();else xlGo(td,1,0);}
+  else if(k==="ArrowUp"){e.preventDefault();xlGo(td,0,-1);}
+  else if(k==="ArrowDown"){e.preventDefault();xlGo(td,0,1);}}
+});
 VIEW_FN.administratif=vAdministratif;VIEWS.push({id:"administratif",label:"Administratif",ic:"edit"});SUBLABEL.administratif="Administratif";
 A["adm-day"]=d=>{ui.admD=d.n==="0"?TODAY:addDays(ui.admD||TODAY,+d.n);render();};
 A["adm-go"]=d=>{ui.admD=d.d;render();};
@@ -3642,10 +3732,11 @@ A["adm-print"]=d=>{if(!isAdmin())return;const day=ui.admD||TODAY;
  printHtml(html);logJ("consult","Impression",d&&d.w?`Administratif · semaine du ${fmtDate(days[0])}`:`Administratif · ${cap(fmtDay(day))}`);};
 document.addEventListener("change",e=>{const el=e.target;if(!el.classList||!el.classList.contains("xl-in"))return;
  const a=state.activites.find(x=>x.id===el.dataset.a),r=R(el.dataset.r),f=el.dataset.f;if(!a||!r)return;let t=paDone(a.id,r.id);
- if(!admEditable(a,t)){toast("Vous ne pouvez pas remplir cette case.");return;}
+ if(!admCellOk(a,t,f)){toast("Vous ne pouvez pas modifier cette case.");return;}
  const v=el.value.trim();
  if(!t&&!v)return;
- admSet(a,r,t,f,v);
+ const nt=admSet(a,r,t,f,v);
+ const td=el.closest("td");if(td){const o=td.querySelector(".xl-by");if(o)o.remove();if(v&&nt)td.insertAdjacentHTML("beforeend",admByTxt(nt,f));}
  toast(v?"Enregistré":"Case vidée");});
 {const _r=rappels;rappels=()=>{const l=_r();if(isLimited()||isAdmin())return l;const H=nowHM();
  const n=actOk().filter(a=>a.date===TODAY&&paMine(a)&&(a.fin||"23:59")<=H).reduce((s,a)=>s+(a.part||[]).filter(r=>!paDone(a.id,r)).length,0);
