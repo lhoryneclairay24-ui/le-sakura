@@ -1,4 +1,4 @@
-<script>if(!window.SAKURA_CFG){window.SAKURA_CFG=/[?&]direction\b/i.test(location.search)?{key:"lesakura-direction-v1",title:"Le Sakura Direction",label:"Version Direction"}:{key:"lesakura-partage-v1",title:"Le Sakura",label:"Version à partager"};}</script>
+<script>window.SAKURA_SB={url:"https://upsnsdgtgukqwbycerqg.supabase.co",key:"sb_publishable_v29J1vNp3zYtkGcet_f5Jw_Ss3mmXhP"};if(!window.SAKURA_CFG){window.SAKURA_CFG=/[?&]direction\b/i.test(location.search)?{key:"lesakura-direction-v1",title:"Le Sakura Direction",label:"Version Direction"}:{key:"lesakura-partage-v1",title:"Le Sakura",label:"Version à partager"};}</script>
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="theme-color" content="#fbf6f1">
 <title>Le Sakura</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -836,6 +836,9 @@ body.locked .app,body.locked .tabbar{display:none}
 .xl-sheet.today{font-weight:700}
 .xl-sheet.on{background:var(--accent,#b04a78);border-color:var(--accent,#b04a78);color:#fff;font-weight:700}
 @media print{.xl-table{min-width:0;font-size:10.5pt}.xl-c.xl-edit{background:none}}
+.pill.solid.info,.pill.solid.warn,.pill.solid.bad,.pill.solid.ok,.pill.solid.night{color:#fff}
+:root[data-theme="dark"] .pill.solid.info,:root[data-theme="dark"] .pill.solid.warn,:root[data-theme="dark"] .pill.solid.bad,:root[data-theme="dark"] .pill.solid.ok,:root[data-theme="dark"] .pill.solid.night{color:var(--bg)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pill.solid.info,:root:not([data-theme="light"]) .pill.solid.warn,:root:not([data-theme="light"]) .pill.solid.bad,:root:not([data-theme="light"]) .pill.solid.ok,:root:not([data-theme="light"]) .pill.solid.night{color:var(--bg)}}
 .unread-dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--bad,#c0392b);box-shadow:0 0 0 3px color-mix(in srgb,var(--bad,#c0392b) 22%,transparent);margin-right:8px;vertical-align:middle;flex:none}
 </style>
 
@@ -1121,7 +1124,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 14:31";
+const BUILD_STAMP="17-11-2026 à 14:49";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -1168,7 +1171,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171431";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171449";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 /* Profils : la version à partager reprend les profils créés dans la version Direction du même appareil */
 (function(){try{const DK="lesakura-direction-v1";if(KEY===DK)return;const raw=localStorage.getItem(DK);if(!raw)return;const ds=(JSON.parse(raw)||{}).staff;if(!Array.isArray(ds))return;let ch=false;
  ds.forEach(f=>{if(!f||!f.id||!f.hash)return;const i=state.staff.findIndex(x=>x.id===f.id);if(i<0){state.staff.push(JSON.parse(JSON.stringify(f)));ch=true;}else if(JSON.stringify(state.staff[i])!==JSON.stringify(f)){state.staff[i]=JSON.parse(JSON.stringify(f));ch=true;}});
@@ -3659,15 +3662,41 @@ function applyRemoteAll(remote,first){
  if(!first&&$("modal-root").innerHTML){syncPendingRemote=remote;return;}
  let changed=first,pending=false;
  Object.keys(remote).forEach(k=>{if(SYNC_SKIP.includes(k))return;const r=remote[k];syncRemote[k]=cloneJ(r);
-  if(first||sameJ(state[k],syncBase[k])){if(!sameJ(state[k],r)){state[k]=cloneJ(r);changed=true;}syncBase[k]=cloneJ(r);}
+  if(first||sameJ(state[k],syncBase[k])){const nv=cloneJ(r);
+   if(first&&k==="staff"&&Array.isArray(nv)&&Array.isArray(state[k])){const ids=new Set(nv.map(x=>x&&x.id));state[k].forEach(x=>{if(x&&x.id&&x.hash&&!ids.has(x.id)){nv.push(cloneJ(x));pending=true;}});}
+   if(!sameJ(state[k],nv)){state[k]=nv;changed=true;}syncBase[k]=cloneJ(r);}
   else pending=true;});
  if(first){const before=JSON.stringify(state);migrate();if(JSON.stringify(state)!==before)pending=true;}
  if(changed){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}refreshUI();}
  if(pending||first)scheduleSync();
 }
+/* Cahier commun en ligne (Supabase), utilisé hors claude.ai : mêmes appels que la base claude.ai */
+function sbDb(cfg){
+ const base=cfg.url.replace(/\/+$/,"")+"/rest/v1/"+(cfg.table||"sakura_docs"),H={apikey:cfg.key,"Content-Type":"application/json"};
+ if(/^eyJ/.test(cfg.key))H.Authorization="Bearer "+cfg.key;
+ const docs=new Map();let last="1970-01-01T00:00:00Z",kick=null;
+ const req=async(u,o)=>{const r=await fetch(u,Object.assign({cache:"no-store"},o||{},{headers:Object.assign({},H,(o&&o.headers)||{})}));
+  if(!r.ok){const e=new Error("cahier "+r.status);e.code=r.status===413?"quota_exceeded":"net";throw e;}return r;};
+ return {collection(){return {
+  doc(id){return {
+   set:async v=>{const row={id,k:v.k,i:v.i,n:v.n,rev:v.rev,s:v.s};await req(base,{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});docs.set(id,row);},
+   delete:async()=>{await req(base+"?id=eq."+encodeURIComponent(id),{method:"DELETE"});docs.delete(id);}};},
+  onSnapshot(cb,errCb){let first=true,fails=0,timer=null;
+   const tick=async()=>{clearTimeout(timer);let again=false;
+    try{const since=new Date(new Date(last).getTime()-15000).toISOString();
+     const rows=await (await req(`${base}?select=id,k,i,n,rev,s,updated_at&updated_at=gt.${encodeURIComponent(since)}&order=updated_at.asc&limit=500`)).json();
+     let ch=false;rows.forEach(x=>{if(x.updated_at>last)last=x.updated_at;const o=docs.get(x.id);if(!o||o.rev!==x.rev||o.s!==x.s){docs.set(x.id,x);ch=true;}});
+     fails=0;again=rows.length===500;
+     if(!again&&(first||ch)){first=false;cb({metadata:{fromCache:false},docs:[...docs.values()].map(x=>({id:x.id,data:()=>x}))});}
+    }catch(e){fails++;if(first&&fails===3&&errCb)errCb(e);}
+    timer=setTimeout(tick,again?50:(document.hidden?15000:3000));};
+   kick=tick;document.addEventListener("visibilitychange",()=>{if(!document.hidden&&kick)kick();});
+   tick();return ()=>clearTimeout(timer);}
+ };}};}
 async function startSync(){
  let db=null;
  try{if(window.claude&&typeof window.claude.use==="function")db=await window.claude.use("db");}catch(e){}
+ if(!db&&window.SAKURA_SB&&window.SAKURA_SB.url&&window.SAKURA_SB.key)db=sbDb(window.SAKURA_SB);
  if(!db){setSync("local");return;}
  syncDb=db;setSync("connecting");
  try{const u=await window.claude.use("user");if(u&&typeof u.can==="function"){const w=await u.can("data.write");if(w===false)syncRO=true;}}catch(e){}
@@ -3677,6 +3706,7 @@ async function startSync(){
    if(snap.metadata&&snap.metadata.fromCache)return;
    clearTimeout(timer);syncReady=true;
    const remote=decodeRemote(snap);
+   if(!Object.keys(remote).length&&window.SAKURA_SB&&!IS_DIR){syncReady=false;setSync("connecting");return;}
    if(!Object.keys(remote).length){syncBase={};syncRemote={};setSync(syncRO?"ro":"ok");scheduleSync();return;}
    applyRemoteAll(remote,true);setSync(syncRO?"ro":"ok");return;
   }
