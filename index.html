@@ -1,3 +1,5 @@
+<script>if(!window.SAKURA_CFG){window.SAKURA_CFG=/[?&]direction\b/i.test(location.search)?{key:"lesakura-direction-v1",title:"Le Sakura Direction",label:"Version Direction"}:{key:"lesakura-partage-v1",title:"Le Sakura",label:"Version à partager"};}</script>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="theme-color" content="#fbf6f1">
 <title>Le Sakura</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -1119,7 +1121,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 14:23";
+const BUILD_STAMP="17-11-2026 à 14:31";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -1166,7 +1168,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171423";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171431";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 /* Profils : la version à partager reprend les profils créés dans la version Direction du même appareil */
 (function(){try{const DK="lesakura-direction-v1";if(KEY===DK)return;const raw=localStorage.getItem(DK);if(!raw)return;const ds=(JSON.parse(raw)||{}).staff;if(!Array.isArray(ds))return;let ch=false;
  ds.forEach(f=>{if(!f||!f.id||!f.hash)return;const i=state.staff.findIndex(x=>x.id===f.id);if(i<0){state.staff.push(JSON.parse(JSON.stringify(f)));ch=true;}else if(JSON.stringify(state.staff[i])!==JSON.stringify(f)){state.staff[i]=JSON.parse(JSON.stringify(f));ch=true;}});
@@ -3509,6 +3511,9 @@ A["pa-print"]=()=>{if(!isAdmin())return;const mon=mondayOf(TODAY);
   if(!l.length){toast("Aucun point admin pour ce résident sur cette période.");return;}
   const days=[...new Set(l.map(paDate))].sort();const title=`Point admin du ${fmtDate(x.du)} au ${fmtDate(x.au)}`;
   setTimeout(()=>{printHtml(prHead(title)+`<div class="pa-pr">${days.map(d=>`<h2>${esc(cap(fmtDay(d)))}</h2>${paTable(r,l.filter(t=>paDate(t)===d),true)}`).join("")}</div>`);logJ("consult","Impression",`${title} · ${rname(r)}`);},50);}});};
+/* iPhone / iPad / Android : icône et mode appli quand on l'ajoute à l'écran d'accueil */
+try{[["apple-mobile-web-app-capable","yes"],["mobile-web-app-capable","yes"],["apple-mobile-web-app-title",document.title||"Le Sakura"],["apple-mobile-web-app-status-bar-style","default"],["theme-color","#fbf6f1"]].forEach(([n,c])=>{if(!document.querySelector(`meta[name="${n}"]`)){const m=document.createElement("meta");m.name=n;m.content=c;document.head.appendChild(m);}});
+ if(!document.querySelector('link[rel="apple-touch-icon"]')){const l=document.createElement("link");l.rel="apple-touch-icon";l.href=LOGO_MARK;document.head.appendChild(l);}}catch(e){}
 /* Planning : onglet Administratif — grand tableau de la journée */
 const PLAN_T=[["activites","cal","Activités"],["menus","","Menus de la semaine"]];
 function planTabs(cur){return `<div class="tr-tabs">${PLAN_T.map(([v,ic,l])=>`<button class="tr-tab${v===cur?" on":""}"${v===cur?' aria-current="page"':` data-act="go" data-v="${v}"`}>${ic?icon(ic,22):"🍽️"}<span>${l}</span></button>`).join("")}</div>`;}
