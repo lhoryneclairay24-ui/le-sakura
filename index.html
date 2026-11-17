@@ -156,6 +156,67 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .ret-blk h3{font-size:14px;color:var(--accent);margin:0 0 6px}
 .not-adm .cinfo-row .ed{display:none}
 .not-adm .cinfo-row{cursor:default}
+.cal.agx .cell{min-height:132px;cursor:zoom-in;gap:4px}
+.cal.agx .dn-l{display:none}
+.agev{display:grid;gap:1px;width:100%;text-align:left;border:0;border-left:5px solid var(--accent);background:var(--surface-2);border-radius:6px;padding:4px 6px;font:inherit;font-size:12px;color:var(--fg);cursor:pointer;min-width:0}
+.agev:hover{filter:brightness(.97)}
+.agev strong{font-size:13px;line-height:1.2;overflow:hidden;text-overflow:ellipsis}
+.agev-t{font-weight:700;color:var(--muted);font-size:11.5px}
+.agev-w{color:var(--muted);font-size:11.5px;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.agday{display:grid;gap:12px}
+.agbig{border:1px solid var(--line);border-left:8px solid var(--accent);border-radius:12px;padding:12px 14px;background:var(--surface)}
+.agbig h3{font-size:20px;margin:6px 0 8px}
+.agbig-t{font-size:18px;font-weight:800}
+@media (max-width:760px){
+ .cal.agx .cal-h{display:none}
+ .cal.agx .cal-g{grid-template-columns:1fr}
+ .cal.agx .cell{min-height:0;border-left:0;padding:10px 12px}
+ .cal.agx .cell.out,.cal.agx .cell.empty{display:none}
+ .cal.agx .dn-l{display:inline;text-transform:capitalize}
+ .cal.agx .agev,.cal.agx .chip{display:grid}
+ .cal.agx .dots{display:none}
+}
+.aweek{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;align-items:start}
+.aday{display:grid;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px;min-width:0}
+.aday.we{background:color-mix(in srgb,var(--info) 8%,var(--surface))}
+.aday.is-today{box-shadow:inset 0 0 0 2px var(--accent)}
+.aday-h{display:flex;align-items:baseline;justify-content:space-between;gap:6px;border:0;background:var(--surface-2);border-radius:8px;padding:6px 8px;font:inherit;font-weight:700;cursor:zoom-in;color:var(--fg);text-transform:capitalize}
+.aday-h strong{font-size:20px}
+.aday-h:hover{background:var(--accent-soft)}
+.actc{display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;border:0;border-left:6px solid var(--pc);background:color-mix(in srgb,var(--pc) 12%,var(--surface));border-radius:10px;padding:8px;font:inherit;color:var(--fg);cursor:pointer;min-width:0}
+.actc:hover{background:color-mix(in srgb,var(--pc) 20%,var(--surface))}
+.actc-p{font-size:34px;line-height:1;flex:none}
+.aweek .actc{flex-direction:column;gap:4px;padding:7px}
+.aweek .actc-p{font-size:30px}
+@media (max-width:900px){.aweek .actc{flex-direction:row}}
+.actc.full .actc-p{font-size:44px}
+.actc-b{display:grid;gap:2px;min-width:0}
+.actc-b strong{font-size:14px;line-height:1.2}
+.actc-t{font-size:12px;font-weight:800;color:var(--pc)}
+.actc-l{font-size:12px;color:var(--muted);line-height:1.3;overflow-wrap:anywhere}
+.actc-l:empty{display:none}
+.tl{position:relative;margin:8px 0 0 52px;border-left:1px solid var(--line)}
+.tl-h{position:absolute;left:-52px;right:0;border-top:1px dashed var(--line)}
+.tl-h span{position:absolute;left:0;top:-9px;width:44px;text-align:right;font-size:12px;font-weight:700;color:var(--muted)}
+.tl-area{position:absolute;inset:0 0 0 6px}
+.tl-b{position:absolute;padding:2px 4px 2px 0;display:flex}
+.tl-b .actc{height:100%;overflow:auto}
+.aprops{display:grid;gap:10px}
+.aprop{display:grid;gap:6px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.ideas{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.idea{display:inline-flex;align-items:center;gap:6px;min-height:42px;padding:4px 12px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);font:inherit;font-weight:600;cursor:pointer;color:var(--fg)}
+.idea span{font-size:22px}
+.idea:hover{border-color:var(--accent);background:var(--accent-soft)}
+.pcats{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+.pcat{min-height:38px;padding:0 12px;border-radius:999px;border:2px solid var(--pc);background:var(--surface);color:var(--fg);font:inherit;font-weight:700;font-size:13px;cursor:pointer}
+.pcat.on{background:var(--pc);color:#fff}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-bottom:10px}
+.pic{display:grid;justify-items:center;gap:4px;padding:8px 4px;border:2px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer;text-align:center}
+.pic-e{font-size:40px;line-height:1}
+.pic-l{font-size:12px;font-weight:600;line-height:1.2}
+.pic:hover{border-color:var(--accent)}
+.pic:has(input:checked){border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent)}
+@media (max-width:900px){.aweek{grid-template-columns:1fr}.aday-h{cursor:pointer}}
 .tab{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:4px 8px;border:0;background:none;border-radius:10px;font-size:14.5px;cursor:pointer;color:var(--muted);position:relative;min-width:0}
 .tab svg{flex:none}
 .tab span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
@@ -896,7 +957,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 10:40";
+const BUILD_STAMP="17-11-2026 à 10:50";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -943,7 +1004,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171040";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171050";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}scheduleSync();}
 save();
 const hNow=new Date().getHours()+new Date().getMinutes()/60;
@@ -979,6 +1040,8 @@ const navBadge=id=>{
  if(id==="conges")return isAdmin()?state.demandes.filter(d=>d.statut==="attente").length:0;
  if(id==="contention"){const h=new Date().getHours();return state.contentions.filter(c=>c.active&&((c.reeval&&c.reeval<TODAY)||(inWin(c,h)&&!c.surv.some(s=>s.date===TODAY&&hourOf(s.h)===h)))).length;}
  if(id==="rdv")return state.rdv.filter(a=>a.statut==="prevu"&&a.date<TODAY).length;
+ if(id==="commandes")return isAdmin()?(state.commandes||[]).filter(c=>c.statut==="demandee").length:0;
+ if(id==="activites")return isAdmin()?state.activites.filter(a=>(a.statut||"validee")==="proposee").length:0;
  return 0;
 };
 
@@ -1003,7 +1066,7 @@ function render(){
  const ae=document.activeElement,aid=ae&&ae.id&&$("main").contains(ae)?ae.id:null,av=aid&&"value" in ae?ae.value:null;
  let ss=null;try{if(aid&&ae.selectionStart!=null)ss=[ae.selectionStart,ae.selectionEnd];}catch(e){}
  const drafts={};$("main").querySelectorAll("input[id],textarea[id]").forEach(el=>{if((el.tagName==="TEXTAREA"||["text","search",""].includes(el.type))&&el.value)drafts[el.id]=el.value;});
- document.body.classList.toggle("not-adm",!isAdmin());if(isLimited()&&!LIMITED_VIEWS.includes(ui.view))ui.view="aujourdhui"; renderNav();
+ document.body.classList.toggle("not-adm",!isAdmin());if((isLimited()&&!LIMITED_VIEWS.includes(ui.view))||(ui.view==="agenda"&&!isAdmin()))ui.view="aujourdhui"; renderNav();
  const fn=VIEW_FN[ui.view]||VIEW_FN.aujourdhui;
  {const h=fn(),sn=subNav(),i=h.indexOf("</header>");$("main").innerHTML=(sn.startsWith('<button class="backlink"')||i<0)?sn+h:h.slice(0,i+9)+sn+h.slice(i+9);}
  Object.keys(drafts).forEach(id=>{const n=$(id);if(n&&!n.value)n.value=drafts[id];});
@@ -1590,29 +1653,7 @@ function rdvForm(id){
  ],onSubmit:x=>{if(a){Object.assign(a,x);toast("Rendez-vous modifié");}else{state.rdv.push(Object.assign({id:"a"+uid(),statut:"prevu",cr:""},x));toast("Rendez-vous ajouté");}}});
 }
 
-/* ---------- Vue : Activités ---------- */
-function vAct(){
- const mon=ui.actWeek;
- const days=[0,1,2,3,4,5,6].map(i=>addDays(mon,i));
- const cols=days.map(d=>{const items=state.activites.filter(a=>a.date===d).sort((a,b)=>a.debut.localeCompare(b.debut));
-  return `<section class="day${d===TODAY?" is-today":""}"><h3><span>${esc(cap(fmtDay(d,{weekday:"long",day:"numeric"})))}</span><button class="btn sm ghost icon" style="width:36px" data-act="act-new" data-d="${d}" aria-label="Ajouter une activité le ${esc(fmtDay(d))}">${icon("plus",18)}</button></h3>
-   ${items.map(a=>`<button class="act" data-act="act-edit" data-id="${a.id}"><span class="t">${hm(a.debut)} – ${hm(a.fin)}</span><strong>${esc(a.titre)}</strong><span class="t">${esc(a.lieu)} · ${a.part.map(id=>{const r=R(id);return r?esc(isNum(r)?r.nom:r.prenom):"";}).filter(Boolean).join(", ")}</span></button>`).join("")||`<p class="empty small">Rien de prévu</p>`}</section>`;}).join("");
- return topbar("Planning d'activités",`Semaine du ${esc(fmtDay(mon,{day:"numeric",month:"long"}))} au ${esc(fmtDay(days[6],{day:"numeric",month:"long"}))}`,`<button class="btn primary" data-act="act-new" data-d="${TODAY}">${icon("plus",18)} Activité</button>`)+
-  `<div class="toolbar"><div class="datenav"><button class="btn icon" data-act="act-week" data-n="-1" aria-label="Semaine précédente">${icon("left")}</button><button class="btn sm" data-act="act-week" data-n="0">Cette semaine</button><button class="btn icon" data-act="act-week" data-n="1" aria-label="Semaine suivante">${icon("right")}</button></div></div>
-  <div class="week">${cols}</div>`;
-}
-function actForm(id,date){
- const a=id?state.activites.find(x=>x.id===id):null;
- openForm({title:a?"Modifier l'activité":"Nouvelle activité",values:a||{date:date||TODAY,debut:"10:00",fin:"11:00",anim:state.me,part:[]},fields:[
-  {name:"titre",label:"Activité",required:true,full:true},
-  {name:"date",label:"Date",type:"date",required:true},{name:"debut",label:"Début",type:"time",required:true},{name:"fin",label:"Fin",type:"time",required:true},
-  {name:"lieu",label:"Lieu"},{name:"anim",label:"Animée par",type:"select",options:staffOpts()},
-  {name:"part",label:"Participants",type:"checks",options:resSorted().map(r=>[r.id,rname(r)]),full:true},
-  {name:"notes",label:"Notes",type:"textarea",full:true}
- ],onDelete:a?()=>{state.activites=state.activites.filter(x=>x.id!==a.id);toast("Activité supprimée");}:null,
- onSubmit:x=>{if(a){Object.assign(a,x);toast("Activité modifiée");}else{state.activites.push(Object.assign({id:uid()},x));toast("Activité ajoutée");}}});
-}
-
+/* ---------- Vue : Activités : voir plus bas (planning avec pictogrammes) ---------- */
 /* ---------- Vue : Retours en famille ---------- */
 function vRet(){
  const adm=isAdmin();
@@ -1872,18 +1913,24 @@ function vAgenda(){
  const adm=isAdmin(),m=ui.agMonth,first=m+"-01",start=mondayOf(first);
  const cells=[];for(let i=0;i<42;i++)cells.push(addDays(start,i));
  let n=42;if(cells[35].slice(0,7)!==m)n=35;if(cells[28].slice(0,7)!==m)n=28;
+ const evH=a=>{const s=sujet(a.sujet),who=[(a.residents||[]).length?a.residents.map(id=>{const r=R(id);return r?(isNum(r)?r.nom:r.prenom):"";}).filter(Boolean).join(", "):"",a.vehicule||"",a.lieu||""].filter(Boolean);
+  return `<button class="agev" style="border-left-color:${s.couleur}" data-act="ag-open" data-id="${a.id}"><span class="agev-t num">${hm(a.debut)}${a.fin?"–"+hm(a.fin):""}</span><strong>${esc(a.titre)}</strong>${who.length?`<span class="agev-w">${esc(who.join(" · "))}</span>`:""}</button>`;};
  const grid=cells.slice(0,n).map((d,i)=>{const ev=agOfDay(d),out=d.slice(0,7)!==m;
-  return `<div class="cell${out?" out":""}${d===TODAY?" today":""}${d===ui.agSel?" sel":""}${i%7===6?" sun":""}" data-act="ag-sel" data-d="${d}" role="button" tabindex="0" aria-label="${esc(fmtDay(d))} : ${ev.length} élément${ev.length>1?"s":""}"><span class="dn">${+d.slice(8)}</span>${ev.slice(0,3).map(a=>`<button class="chip" style="${chipStyle(sujet(a.sujet))}" data-act="ag-open" data-id="${a.id}" title="${esc(hm(a.debut)+" · "+a.titre)}">${esc(a.titre)}</button>`).join("")}${ev.length>3?`<span class="more">+${ev.length-3} de plus</span>`:""}<span class="dots" aria-hidden="true">${ev.slice(0,4).map(a=>`<i class="dot" style="background:${sujet(a.sujet).couleur}"></i>`).join("")}</span></div>`;}).join("");
+  return `<div class="cell agcell${out?" out":""}${d===TODAY?" today":""}${i%7===6?" sun":""}${ev.length?"":" empty"}" data-act="ag-day" data-d="${d}" role="button" tabindex="0" aria-label="${esc(fmtDay(d))} : ${ev.length} élément${ev.length>1?"s":""}, toucher pour voir en grand"><span class="dn">${+d.slice(8)}<span class="dn-l"> ${esc(fmtDay(d,{weekday:"long"}))}</span></span>${ev.map(evH).join("")}</div>`;}).join("");
  const monthLabel=cap(new Date(first+"T12:00:00").toLocaleDateString("fr-FR",{month:"long",year:"numeric"}));
- const sel=ui.agSel,evs=agOfDay(sel);
  const used=new Set(state.agenda.filter(a=>a.date.slice(0,7)===m).map(a=>a.sujet));
  const legend=state.agSujets.map(s=>`<span class="pill" style="${chipStyle(s)}${used.has(s.id)?"":";opacity:.5"}">${esc(s.nom)}</span>`).join("");
- const rows=evs.map(a=>{const s=sujet(a.sujet);return `<button class="ev" data-act="ag-open" data-id="${a.id}"><span class="ev-t num">${hm(a.debut)}${a.fin?`<span class="muted">${hm(a.fin)}</span>`:""}</span><span class="ev-b"><span class="pill" style="${chipStyle(s)}">${esc(s.nom)}</span><strong>${esc(a.titre)}</strong><span class="muted small">${esc(agWho(a).join(" · "))}</span></span></button>`;}).join("");
- return topbar("Agenda",adm?"Vous seul(e) pouvez ajouter et modifier les rendez-vous":"Agenda de la direction, en consultation",adm?`<button class="btn" data-act="ag-settings">Sujets et véhicules</button><button class="btn primary" data-act="ag-new" data-d="${sel}">${icon("plus",18)} Ajouter</button>`:"")+
+ return topbar("Agenda","Votre agenda : touchez un jour pour le voir en grand",adm?`<button class="btn" data-act="ag-settings">Sujets et véhicules</button><button class="btn primary" data-act="ag-new" data-d="${TODAY}">${icon("plus",18)} Ajouter</button>`:"")+
   `<div class="toolbar"><div class="datenav"><button class="btn icon" data-act="ag-month" data-n="-1" aria-label="Mois précédent">${icon("left")}</button><strong>${esc(monthLabel)}</strong><button class="btn icon" data-act="ag-month" data-n="1" aria-label="Mois suivant">${icon("right")}</button><button class="btn sm ghost" data-act="ag-month" data-n="0">Aujourd'hui</button></div></div>
-  <div class="cal"><div class="cal-h">${["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"].map(x=>`<div>${x}</div>`).join("")}</div><div class="cal-g">${grid}</div></div>
-  <div class="chips" style="margin:12px 0 18px">${legend}</div>
-  <section class="card"><div class="card-h"><h2>${esc(cap(fmtDay(sel)))}</h2>${adm?`<button class="btn sm primary" data-act="ag-new" data-d="${sel}">${icon("plus",16)} Ajouter ce jour</button>`:""}</div>${rows||`<p class="empty">Rien de prévu ce jour-là.</p>`}</section>`;
+  <div class="chips" style="margin:0 0 12px">${legend}</div>
+  <div class="cal agx"><div class="cal-h">${["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"].map(x=>`<div>${x}</div>`).join("")}</div><div class="cal-g">${grid}</div></div>`;
+}
+function agDay(d){
+ const ev=agOfDay(d),adm=isAdmin();
+ const big=a=>{const s=sujet(a.sujet);return `<article class="agbig" style="border-left-color:${s.couleur}"><div class="row-between"><span class="agbig-t num">${hm(a.debut)}${a.fin?" – "+hm(a.fin):""}</span><span class="pill" style="${chipStyle(s)}">${esc(s.nom)}</span></div>
+  <h3>${esc(a.titre)}</h3><dl class="kv"><dt>Résident(s)</dt><dd>${(a.residents||[]).length?esc(a.residents.map(id=>rname(R(id))).join(", ")):"—"}</dd><dt>Qui y va</dt><dd>${(a.staff||[]).length?esc(a.staff.map(sname).join(", ")):"—"}</dd><dt>Véhicule</dt><dd>${esc(a.vehicule||"—")}</dd><dt>Lieu</dt><dd>${esc(a.lieu||"—")}</dd>${a.notes?`<dt>Notes</dt><dd class="tr-text">${esc(a.notes)}</dd>`:""}</dl>
+  ${adm?`<div class="row" style="margin-top:8px"><button class="btn sm" data-act="ag-edit" data-id="${a.id}">${icon("edit",16)} Modifier</button></div>`:""}</article>`;};
+ openModal(cap(fmtDay(d)),`<div class="agday">${ev.map(big).join("")||`<p class="empty">Rien de prévu ce jour-là.</p>`}</div>${adm?`<div class="form-actions"><button class="btn primary" data-act="ag-new" data-d="${d}">${icon("plus",18)} Ajouter ce jour</button></div>`:""}`,true);
 }
 function agOpen(id){
  const a=state.agenda.find(x=>x.id===id);if(!a)return;
@@ -2175,7 +2222,7 @@ function toast(msg){const t=$("toast");t.textContent=msg;t.hidden=false;clearTim
 
 /* ---------- Navigation ---------- */
 function go(v){
- if(!VIEW_FN[v]||(isLimited()&&!LIMITED_VIEWS.includes(v)))v="aujourdhui";ui.contTable=null;closeDrawer();navPop="";
+ if(!VIEW_FN[v]||(isLimited()&&!LIMITED_VIEWS.includes(v))||(v==="agenda"&&!isAdmin()))v="aujourdhui";ui.contTable=null;closeDrawer();navPop="";
  ui.view=v;
  if(location.hash.slice(1)!==v){try{history.replaceState(null,"","#"+v);}catch(e){location.hash=v;}}
  render();window.scrollTo(0,0);
@@ -2557,7 +2604,7 @@ A["san-drop"]=d=>{const s=state.sanctions.find(x=>x.id===d.id);if(!s)return;
   onSubmit:x=>{s.bilan=x.bilan;s.statut="abandonnee";s.modifPar=state.me;s.modifLe=`${TODAY}T${nowHM()}`;toast("Mesure abandonnée");}});};
 
 /* ---------- Étape 2 : droits, transmissions, retours, dossiers ---------- */
-function navOrder(){return isLimited()?LIMITED_VIEWS:NAV_ORDER;}
+function navOrder(){return isLimited()?LIMITED_VIEWS:NAV_ORDER.filter(k=>k!=="agenda"||isAdmin());}
 const onlyDir=()=>{toast("Seule la direction peut modifier cet écrit.");};
 A["tr-tab"]=d=>{ui.trTab=d.t;render();};
 A["tr-new"]=d=>trForm(ui.view==="transmissions"?ui.trTab:"carnet",d.r);
@@ -2595,6 +2642,179 @@ A["ret-back"]=d=>{const f=state.retours.find(x=>x.id===d.id);if(!f)return;
   {name:"etatRet",label:"État du résident au retour",type:"textarea",required:true,full:true,hint:"Humeur, santé, fatigue…"},
   {name:"infoFam",label:"Ce que la famille a dit",type:"textarea",full:true}
  ],submit:"Enregistrer le retour",onSubmit:x=>{Object.assign(f,x);f.statut="termine";f.retDate=TODAY;f.retPar=state.me;toast("Retour enregistré");}});};
+
+/* ---------- Vue : Planning d'activités (pictogrammes, semaine, journée, dépôt) ---------- */
+const PICTO_CATS=[["cuisine","Cuisine et repas","#e8590c"],["sport","Sport et mouvement","#2b8a3e"],["eau","Eau","#1c7ed6"],["creatif","Créatif et manuel","#ae3ec9"],["musique","Musique et spectacle","#d6336c"],["nature","Nature et animaux","#5c940d"],["jeux","Jeux et apprentissages","#f59f00"],["sortie","Sorties et transports","#1098ad"],["bienetre","Bien-être et soins","#7048e8"],["quotidien","Vie quotidienne","#495057"],["fete","Fêtes et événements","#c2255c"]];
+const PICTOS=[
+ ["cuisine","🍳","Cuisine"],["cuisine","🧁","Pâtisserie"],["cuisine","🍽️","Repas"],["cuisine","🍪","Goûter"],["cuisine","🛒","Courses"],["cuisine","🧺","Marché"],["cuisine","🍖","Barbecue"],["cuisine","🥪","Pique-nique"],["cuisine","🍦","Glace"],["cuisine","☕","Café"],["cuisine","🍴","Restaurant"],["cuisine","🥗","Atelier équilibre alimentaire"],
+ ["sport","🏃","Course"],["sport","🚶","Marche"],["sport","🥾","Randonnée"],["sport","🚲","Vélo"],["sport","⚽","Football"],["sport","🏀","Basket"],["sport","🎳","Bowling"],["sport","🏓","Ping-pong"],["sport","🤸","Gymnastique"],["sport","🦽","Sport adapté"],["sport","⚪","Boccia"],["sport","🥏","Jeux de balle"],["sport","💃","Danse"],["sport","🧗","Escalade"],["sport","🐴","Équitation"],
+ ["eau","🏊","Piscine"],["eau","🛁","Balnéothérapie"],["eau","💦","Jeux d'eau"],["eau","⛵","Bateau"],["eau","🏖️","Plage"],["eau","🎣","Pêche"],
+ ["creatif","🎨","Peinture"],["creatif","✏️","Dessin"],["creatif","✂️","Découpage, collage"],["creatif","🔨","Bricolage"],["creatif","🧵","Couture"],["creatif","🧶","Tricot"],["creatif","🏺","Poterie, modelage"],["creatif","📷","Photo"],["creatif","🖼️","Exposition"],["creatif","💐","Art floral"],
+ ["musique","🎵","Musique"],["musique","🎤","Chant, karaoké"],["musique","🥁","Percussions"],["musique","🎸","Instrument"],["musique","🎬","Cinéma"],["musique","🎭","Théâtre"],["musique","🎪","Spectacle"],["musique","🎧","Écoute musicale"],
+ ["nature","🌱","Jardinage"],["nature","🌷","Fleurs"],["nature","🌳","Parc, forêt"],["nature","🐕","Médiation animale"],["nature","🐔","Ferme"],["nature","🦋","Observation de la nature"],["nature","⛰️","Montagne"],["nature","⛄","Neige"],
+ ["jeux","🎲","Jeux de société"],["jeux","🧩","Puzzle"],["jeux","🃏","Cartes"],["jeux","🧠","Atelier mémoire"],["jeux","🔢","Chiffres"],["jeux","✍️","Écriture"],["jeux","📖","Lecture, conte"],["jeux","💻","Informatique"],["jeux","📱","Tablette"],["jeux","💬","Communication, groupe de parole"],["jeux","🗳️","Citoyenneté"],
+ ["sortie","🚐","Sortie en minibus"],["sortie","🏙️","Sortie en ville"],["sortie","🏛️","Musée"],["sortie","📚","Bibliothèque"],["sortie","🚌","Bus"],["sortie","🚆","Train"],["sortie","🛍️","Shopping"],["sortie","🎡","Fête foraine, parc de loisirs"],["sortie","🏟️","Match, stade"],["sortie","🏡","Visite"],
+ ["bienetre","🧘","Relaxation"],["bienetre","💆","Massage, toucher"],["bienetre","💡","Snoezelen"],["bienetre","✨","Multisensoriel"],["bienetre","💅","Esthétique"],["bienetre","💇","Coiffure"],["bienetre","🧼","Hygiène"],["bienetre","😴","Repos, sieste"],["bienetre","🩺","Soins"],["bienetre","🏥","Rendez-vous médical"],
+ ["quotidien","🧹","Ménage"],["quotidien","👕","Linge"],["quotidien","🛏️","Rangement de la chambre"],["quotidien","📞","Appel à la famille"],["quotidien","👨‍👩‍👧","Visite de la famille"],["quotidien","💶","Gestion de l'argent"],["quotidien","🏭","Travail, atelier"],
+ ["fete","🎂","Anniversaire"],["fete","🎉","Fête"],["fete","🎄","Noël"],["fete","🎃","Halloween"],["fete","🥳","Carnaval"],["fete","🎁","Cadeaux"]
+].map(([cat,e,l],i)=>({k:"p"+i,cat,e,l}));
+const picto=k=>PICTOS.find(p=>p.k===k)||{k:"",cat:"quotidien",e:"📌",l:"Activité"};
+const pictoCol=k=>(PICTO_CATS.find(c=>c[0]===picto(k).cat)||PICTO_CATS[9])[2];
+const pk=l=>(PICTOS.find(p=>p.l===l)||{k:""}).k;
+const PICTO_KW=[["gym","Gymnastique"],["snoez","Snoezelen"],["balnéo","Balnéothérapie"],["balneo","Balnéothérapie"],["piscine","Piscine"],["peint","Peinture"],["dessin","Dessin"],["pâtiss","Pâtisserie"],["cuisine","Cuisine"],["médiation animale","Médiation animale"],["animal","Médiation animale"],["chor","Chant, karaoké"],["chant","Chant, karaoké"],["karaok","Chant, karaoké"],["musique","Musique"],["ciné","Cinéma"],["théâtre","Théâtre"],["promenade","Marche"],["marche","Marche"],["randon","Randonnée"],["vélo","Vélo"],["jardin","Jardinage"],["jeux","Jeux de société"],["jeu","Jeux de société"],["mémoire","Atelier mémoire"],["lecture","Lecture, conte"],["conte","Lecture, conte"],["courses","Courses"],["marché","Marché"],["sortie","Sortie en ville"],["musée","Musée"],["relax","Relaxation"],["massage","Massage, toucher"],["esthét","Esthétique"],["coiff","Coiffure"],["anniv","Anniversaire"],["fête","Fête"],["goûter","Goûter"],["repas","Repas"],["sport","Sport adapté"],["danse","Danse"],["bowling","Bowling"],["foot","Football"],["poterie","Poterie, modelage"],["bricol","Bricolage"],["informatique","Informatique"],["tablette","Tablette"],["parole","Communication, groupe de parole"]];
+const apic=a=>{if(a.picto)return a.picto;const t=(a.titre||"").toLowerCase();const m=PICTO_KW.find(([w])=>t.includes(w));return m?pk(m[1]):"";};
+const ACT_OBJ=["Autonomie","Motricité fine","Motricité globale","Socialisation","Communication","Estime de soi","Repères dans le temps","Éveil des sens","Mémoire et attention","Citoyenneté","Bien-être","Plaisir et détente"];
+const ACT_IDEAS=[
+ {t:"Atelier pâtisserie",p:"Pâtisserie",lieu:"Cuisine pédagogique",mat:"Farine, sucre, œufs, beurre, moules, tabliers, balance",obj:["Autonomie","Motricité fine","Repères dans le temps"],ad:"Ustensiles à gros manche, recette en images. Vérifier les allergies (gluten, œufs)."},
+ {t:"Courses au supermarché",p:"Courses",lieu:"Supermarché du quartier",mat:"Liste de courses en pictogrammes, sacs, porte-monnaie",obj:["Autonomie","Citoyenneté","Communication"],ad:"Prévoir un fauteuil de transfert. Éviter les heures d'affluence."},
+ {t:"Piscine",p:"Piscine",lieu:"Piscine municipale",mat:"Maillots, serviettes, bonnets, gel douche, change, brassards",obj:["Motricité globale","Éveil des sens","Plaisir et détente"],ad:"Vérifier les contre-indications médicales et les crises d'épilepsie. Un professionnel par résident dans l'eau si besoin."},
+ {t:"Balnéothérapie",p:"Balnéothérapie",lieu:"Salle de balnéo",mat:"Serviettes chaudes, peignoirs, musique douce",obj:["Bien-être","Éveil des sens"],ad:"Température de l'eau contrôlée. Surveillance constante."},
+ {t:"Marche dans le parc",p:"Parc, forêt",lieu:"Parc municipal",mat:"Chaussures adaptées, eau, casquettes, trousse de secours",obj:["Motricité globale","Bien-être"],ad:"Parcours accessible aux fauteuils. Prévoir des pauses."},
+ {t:"Sport adapté",p:"Sport adapté",lieu:"Gymnase",mat:"Ballons mousse, plots, cerceaux, boccia",obj:["Motricité globale","Socialisation","Estime de soi"],ad:"Adapter les règles à chacun. Échauffement doux."},
+ {t:"Atelier peinture",p:"Peinture",lieu:"Salle d'activités",mat:"Peinture, pinceaux, éponges, tabliers, feuilles grand format, bâches",obj:["Motricité fine","Estime de soi","Plaisir et détente"],ad:"Pinceaux à gros manche, peinture non toxique."},
+ {t:"Jardinage",p:"Jardinage",lieu:"Jardin de l'établissement",mat:"Graines, terreau, pots, arrosoirs, gants",obj:["Motricité fine","Repères dans le temps","Éveil des sens"],ad:"Bacs surélevés pour les fauteuils. Attention aux allergies au pollen."},
+ {t:"Médiation animale",p:"Médiation animale",lieu:"Salle d'activités",mat:"Selon l'intervenant",obj:["Communication","Bien-être","Éveil des sens"],ad:"Vérifier les allergies et les peurs des animaux."},
+ {t:"Atelier musique",p:"Musique",lieu:"Salle d'activités",mat:"Instruments, enceinte, chansons en pictogrammes",obj:["Communication","Socialisation","Plaisir et détente"],ad:"Attention au volume pour les personnes sensibles au bruit."},
+ {t:"Karaoké",p:"Chant, karaoké",lieu:"Salle commune",mat:"Micro, enceinte, écran, paroles en gros caractères",obj:["Communication","Estime de soi","Plaisir et détente"],ad:""},
+ {t:"Séance Snoezelen",p:"Snoezelen",lieu:"Salle Snoezelen",mat:"Lumières, musique douce, huiles, matelas",obj:["Éveil des sens","Bien-être"],ad:"Petits groupes de 1 à 3 résidents. Observer les réactions."},
+ {t:"Jeux de société",p:"Jeux de société",lieu:"Salle commune",mat:"Jeux adaptés, dés en mousse, plateau grand format",obj:["Mémoire et attention","Socialisation","Communication"],ad:""},
+ {t:"Atelier mémoire",p:"Atelier mémoire",lieu:"Salle d'activités",mat:"Cartes images, photos, loto sonore",obj:["Mémoire et attention","Repères dans le temps"],ad:""},
+ {t:"Sortie au musée",p:"Musée",lieu:"Musée",mat:"Billets, eau, change, trousse de secours, traitements",obj:["Citoyenneté","Éveil des sens","Socialisation"],ad:"Vérifier l'accessibilité du musée. Réserver à l'avance."},
+ {t:"Sortie cinéma",p:"Cinéma",lieu:"Cinéma",mat:"Billets, argent de poche, eau",obj:["Citoyenneté","Plaisir et détente"],ad:"Places accessibles aux fauteuils. Film court ou séance adaptée."},
+ {t:"Atelier esthétique",p:"Esthétique",lieu:"Salle de bien-être",mat:"Crèmes, vernis, serviettes, miroir",obj:["Estime de soi","Bien-être"],ad:"Vérifier les allergies cutanées."},
+ {t:"Relaxation",p:"Relaxation",lieu:"Salle calme",mat:"Tapis, coussins, couvertures, musique douce",obj:["Bien-être","Plaisir et détente"],ad:""},
+ {t:"Anniversaire",p:"Anniversaire",lieu:"Salle commune",mat:"Gâteau, bougies, décorations, musique",obj:["Socialisation","Repères dans le temps","Plaisir et détente"],ad:"Adapter le gâteau aux régimes (textures, diabète)."},
+ {t:"Appel à la famille",p:"Appel à la famille",lieu:"Bureau",mat:"Téléphone ou tablette",obj:["Communication"],ad:""}
+];
+const actStat=a=>a.statut||"validee";
+const actOk=()=>state.activites.filter(a=>actStat(a)==="validee");
+function actSlot(a,full){const p=picto(apic(a)),col=pictoCol(apic(a)),res=(a.part||[]).map(id=>{const r=R(id);return r?(isNum(r)?r.nom:r.prenom):"";}).filter(Boolean);
+ return `<button class="actc${full?" full":""}" style="--pc:${col}" data-act="act-open" data-id="${a.id}"><span class="actc-p" aria-hidden="true">${p.e}</span><span class="actc-b"><span class="actc-t num">${hm(a.debut)} – ${hm(a.fin)}</span><strong>${esc(a.titre)}</strong>
+  <span class="actc-l">${a.lieu?`📍 ${esc(a.lieu)}`:""}${a.vehicule?` · 🚐 ${esc(a.vehicule)}`:""}</span>
+  <span class="actc-l">${a.anim?`👤 ${esc(sname(a.anim))}`:""}${res.length?` · 👥 ${esc(res.join(", "))}`:""}</span>
+  ${full&&a.materiel?`<span class="actc-l">🧰 ${esc(a.materiel)}</span>`:""}</span></button>`;}
+function vAct(){
+ const adm=isAdmin(),mon=ui.actWeek,days=[0,1,2,3,4,5,6].map(i=>addDays(mon,i));
+ const props=state.activites.filter(a=>actStat(a)==="proposee").sort((a,b)=>(a.date+a.debut).localeCompare(b.date+b.debut));
+ const mine=state.activites.filter(a=>a.propPar===state.me&&actStat(a)!=="validee").sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8);
+ let body;
+ if(ui.actDay){const d=ui.actDay,items=actOk().filter(a=>a.date===d).sort((a,b)=>a.debut.localeCompare(b.debut));
+  const lanes=[];items.forEach(a=>{let l=lanes.findIndex(end=>end<=a.debut);if(l<0){l=lanes.length;lanes.push("");}lanes[l]=a.fin;a._l=l;});
+  const H0=Math.min(8,...items.map(a=>+a.debut.slice(0,2))),H1=Math.max(19,...items.map(a=>+a.fin.slice(0,2)+(a.fin.slice(3)!=="00"?1:0))),ph=72,nl=Math.max(1,lanes.length);
+  const y=t=>((+t.slice(0,2)-H0)*60+(+t.slice(3,5)))/60*ph;
+  const hours=[];for(let h=H0;h<=H1;h++)hours.push(`<div class="tl-h" style="top:${(h-H0)*ph}px"><span>${h}h</span></div>`);
+  body=`<div class="toolbar"><div class="datenav"><button class="btn" data-act="act-day" data-d="">${icon("left",18)} Retour à la semaine</button><button class="btn icon" data-act="act-day" data-d="${addDays(d,-1)}" aria-label="Jour précédent">${icon("left")}</button><strong>${esc(cap(fmtDay(d)))}</strong><button class="btn icon" data-act="act-day" data-d="${addDays(d,1)}" aria-label="Jour suivant">${icon("right")}</button></div></div>
+   ${items.length?`<div class="tl" style="height:${(H1-H0)*ph+8}px">${hours.join("")}<div class="tl-area">${items.map(a=>`<div class="tl-b" style="top:${y(a.debut)}px;height:${Math.max(ph*.75,y(a.fin)-y(a.debut))}px;left:${a._l/nl*100}%;width:${100/nl}%">${actSlot(a,true)}</div>`).join("")}</div></div>`:`<p class="empty">Aucune activité ce jour-là.</p>`}`;}
+ else{const cols=days.map(d=>{const items=actOk().filter(a=>a.date===d).sort((a,b)=>a.debut.localeCompare(b.debut));
+   return `<section class="aday${d===TODAY?" is-today":""}${isWE(d)?" we":""}"><button class="aday-h" data-act="act-day" data-d="${d}" title="Voir la journée en grand"><span>${esc(cap(fmtDay(d,{weekday:"long"})))}</span><strong>${+d.slice(8)}</strong></button>${items.map(a=>actSlot(a)).join("")||`<p class="empty small">—</p>`}</section>`;}).join("");
+  body=`<div class="toolbar"><div class="datenav"><button class="btn icon" data-act="act-week" data-n="-1" aria-label="Semaine précédente">${icon("left")}</button><button class="btn sm" data-act="act-week" data-n="0">Cette semaine</button><button class="btn icon" data-act="act-week" data-n="1" aria-label="Semaine suivante">${icon("right")}</button></div><span class="muted small">Touchez un jour pour le voir heure par heure.</span></div>
+   <div class="aweek">${cols}</div>`;}
+ const legend=`<div class="chips" style="margin:14px 0 0">${PICTO_CATS.map(c=>`<span class="pill" style="background:${c[2]};color:#fff">${esc(c[1])}</span>`).join("")}</div>`;
+ return topbar("Planning d'activités",`Semaine du ${esc(fmtDay(mon,{day:"numeric",month:"long"}))} au ${esc(fmtDay(days[6],{day:"numeric",month:"long"}))}`,`<button class="btn primary" data-act="go" data-v="depot">${icon("plus",18)} ${adm?"Créer une activité":"Déposer une activité"}</button>`)+
+  (adm&&props.length?`<section class="card" style="margin-bottom:16px;border-color:var(--warn)"><div class="card-h"><h2>${icon("info")} ${props.length} activité${props.length>1?"s":""} à valider</h2></div><div class="aprops">${props.map(a=>`<div class="aprop">${actSlot(a)}<div class="row"><span class="muted small">Déposée par ${esc(sname(a.propPar))}</span><button class="btn sm ok" data-act="act-ok" data-id="${a.id}">${icon("check",16)} Valider</button><button class="btn sm bad" data-act="act-no" data-id="${a.id}">Refuser</button></div></div>`).join("")}</div></section>`:"")+
+  (!adm&&mine.length?`<section class="card" style="margin-bottom:16px"><div class="card-h"><h2>Mes activités déposées</h2></div>${mine.map(a=>`<div class="row-between" style="padding:6px 0;border-top:1px solid var(--line)"><span>${picto(apic(a)).e} <strong>${esc(a.titre)}</strong> · ${esc(fmtDay(a.date,{day:"numeric",month:"long"}))}</span>${actStat(a)==="proposee"?`<span class="pill warn">En attente de validation</span>`:`<span class="pill bad" title="${esc(a.motifRefus||"")}">Refusée${a.motifRefus?" : "+esc(a.motifRefus):""}</span>`}</div>`).join("")}</section>`:"")+
+  body+legend;
+}
+function actOpen(id){
+ const a=state.activites.find(x=>x.id===id);if(!a)return;const p=picto(apic(a)),adm=isAdmin();
+ openModal(`${p.e} ${a.titre}`,`<dl class="kv"><dt>Quand</dt><dd>${esc(cap(fmtDay(a.date)))}, de ${hm(a.debut)} à ${hm(a.fin)}</dd><dt>Lieu</dt><dd>${esc(a.lieu||"—")}</dd><dt>Véhicule</dt><dd>${esc(a.vehicule||"Aucun")}</dd><dt>Avec</dt><dd>${esc(a.anim?sname(a.anim):"—")}${(a.staff||[]).length?", "+esc(a.staff.map(sname).join(", ")):""}</dd>
+  <dt>Résidents</dt><dd>${(a.part||[]).length?esc(a.part.map(id=>rname(R(id))).join(", ")):"—"}</dd><dt>Matériel</dt><dd class="tr-text">${esc(a.materiel||"—")}</dd>${(a.objectifs||[]).length?`<dt>Objectifs</dt><dd>${a.objectifs.map(o=>`<span class="pill info">${esc(o)}</span>`).join(" ")}</dd>`:""}${a.adapt?`<dt>Adaptations, vigilance</dt><dd class="tr-text">${esc(a.adapt)}</dd>`:""}${a.notes?`<dt>Notes</dt><dd class="tr-text">${esc(a.notes)}</dd>`:""}</dl>
+  ${adm?`<div class="form-actions"><button class="btn bad spacer" data-act="act-del" data-id="${a.id}">Supprimer</button><button class="btn primary" data-act="act-edit" data-id="${a.id}">${icon("edit",16)} Modifier</button></div>`:""}`,true);
+}
+function vDepot(){
+ const adm=isAdmin(),a=ui.depEditKeep?state.activites.find(x=>x.id===ui.depEditKeep):null,v=ui.depDraft||a||{date:addDays(TODAY,1),debut:"14:00",fin:"16:00",anim:state.me,part:[],staff:[],objectifs:[]};
+ const sel=v.picto||"",cat=ui.depCat||(sel?picto(sel).cat:PICTO_CATS[0][0]);
+ const chk=(name,opts,on)=>`<div class="rchips">${opts.map(([k,l])=>`<label class="rchip"><input type="checkbox" class="sr" name="${name}" value="${esc(k)}"${(on||[]).includes(k)?" checked":""}><span>${esc(l)}</span></label>`).join("")}</div>`;
+ return topbar(a?"Modifier l'activité":(adm?"Créer une activité":"Déposer une activité"),adm?"L'activité sera ajoutée directement au planning.":"Remplissez les étapes : la direction validera votre activité avant qu'elle apparaisse au planning.",`<button class="btn" data-act="dep-back">${icon("left",18)} Retour au planning</button>`)+
+ `<form id="depform" class="stack" novalidate>
+  <section class="cfs"><h3><span class="cfn">1</span> Une idée pour commencer ? (facultatif)</h3><span class="hint">Touchez une idée : le formulaire se remplit tout seul, vous pourrez tout changer.</span>
+   <div class="ideas">${ACT_IDEAS.map((x,i)=>`<button type="button" class="idea" data-idea="${i}"><span aria-hidden="true">${picto(pk(x.p)).e}</span>${esc(x.t)}</button>`).join("")}</div></section>
+  <section class="cfs"><h3><span class="cfn">2</span> Le pictogramme et le nom de l'activité</h3>
+   <div class="pcats">${PICTO_CATS.map(c=>`<button type="button" class="pcat${c[0]===cat?" on":""}" style="--pc:${c[2]}" data-pcat="${c[0]}">${esc(c[1])}</button>`).join("")}</div>
+   <div class="pgrid">${PICTOS.filter(p=>p.cat===cat).map(p=>`<label class="pic"><input type="radio" class="sr" name="dp-picto" value="${p.k}"${p.k===sel?" checked":""}><span class="pic-e" aria-hidden="true">${p.e}</span><span class="pic-l">${esc(p.l)}</span></label>`).join("")}</div>
+   ${sel&&picto(sel).cat!==cat?`<p class="small">Pictogramme choisi : ${picto(sel).e} ${esc(picto(sel).l)}</p><input type="hidden" name="dp-picto-keep" value="${sel}">`:""}
+   <div class="field"><label for="dp-titre">Nom de l'activité</label><input id="dp-titre" value="${esc(v.titre||"")}" placeholder="Ex. : Atelier pâtisserie"></div></section>
+  <section class="cfs"><h3><span class="cfn">3</span> Quand ?</h3><div class="qtop"><div class="field"><label for="dp-date">Jour</label><input type="date" id="dp-date" value="${esc(v.date||"")}"></div><div class="field"><label for="dp-deb">Début</label><input type="time" id="dp-deb" value="${esc(v.debut||"")}"></div><div class="field"><label for="dp-fin">Fin</label><input type="time" id="dp-fin" value="${esc(v.fin||"")}"></div></div></section>
+  <section class="cfs"><h3><span class="cfn">4</span> Où ?</h3><div class="qtop"><div class="field"><label for="dp-lieu">Lieu de l'activité</label><input id="dp-lieu" value="${esc(v.lieu||"")}" placeholder="Ex. : salle d'activités, piscine municipale"></div><div class="field"><label for="dp-veh">Véhicule</label><select id="dp-veh"><option value="">Aucun véhicule</option>${state.vehicules.map(x=>`<option${x===v.vehicule?" selected":""}>${esc(x)}</option>`).join("")}</select></div></div></section>
+  <section class="cfs"><h3><span class="cfn">5</span> Qui ?</h3><div class="field" style="max-width:420px"><label for="dp-anim">Professionnel(le) responsable</label><select id="dp-anim">${state.staff.filter(s=>!["technicien","ouvrier"].includes(roleOf(s))).map(s=>`<option value="${s.id}"${s.id===v.anim?" selected":""}>${esc(s.prenom+" "+s.nom)}</option>`).join("")}</select></div>
+   <span class="lbl">Autres professionnels (facultatif)</span>${chk("dp-staff",state.staff.filter(s=>!["technicien","ouvrier"].includes(roleOf(s))).map(s=>[s.id,s.prenom+" "+s.nom]),v.staff)}
+   <span class="lbl" style="margin-top:8px">Résidents qui participent</span>${chk("dp-part",resSorted().map(r=>[r.id,rname(r)]),v.part)}</section>
+  <section class="cfs"><h3><span class="cfn">6</span> Matériel nécessaire</h3><div class="field"><textarea id="dp-mat" rows="3" placeholder="Ex. : tabliers, farine, moules…">${esc(v.materiel||"")}</textarea></div></section>
+  <section class="cfs"><h3><span class="cfn">7</span> Objectifs pour les résidents</h3>${chk("dp-obj",ACT_OBJ.map(o=>[o,o]),v.objectifs)}</section>
+  <section class="cfs"><h3><span class="cfn">8</span> Adaptations et points de vigilance</h3><div class="field"><textarea id="dp-adapt" rows="3" placeholder="Ex. : ustensiles adaptés, allergies, accessibilité, nombre d'accompagnants">${esc(v.adapt||"")}</textarea></div>
+   <div class="field"><label for="dp-notes">Notes (facultatif)</label><textarea id="dp-notes" rows="2">${esc(v.notes||"")}</textarea></div></section>
+  <p class="mnote" id="dp-err" role="alert"></p>
+  <div class="qsave"><button type="button" class="btn" data-act="dep-back">Annuler</button><button class="btn primary" type="submit">${icon("check",18)} ${a?"Enregistrer":adm?"Ajouter au planning":"Envoyer à la direction"}</button></div></form>`;
+}
+function depRead(){const f=$("depform");if(!f)return null;const mv=n=>[...f.querySelectorAll(`input[name="${n}"]:checked`)].map(i=>i.value);const pi=f.querySelector('input[name="dp-picto"]:checked')||f.querySelector('input[name="dp-picto-keep"]');
+ return {picto:pi?pi.value:"",titre:$("dp-titre").value.trim(),date:$("dp-date").value,debut:$("dp-deb").value,fin:$("dp-fin").value,lieu:$("dp-lieu").value.trim(),vehicule:$("dp-veh").value,anim:$("dp-anim").value,staff:mv("dp-staff"),part:mv("dp-part"),materiel:$("dp-mat").value.trim(),objectifs:mv("dp-obj"),adapt:$("dp-adapt").value.trim(),notes:$("dp-notes").value.trim()};}
+document.addEventListener("click",e=>{
+ const c=e.target.closest("[data-pcat]");if(c&&$("depform")){ui.depDraft=Object.assign({},ui.depDraft||{},depRead());ui.depCat=c.dataset.pcat;render();return;}
+ const i=e.target.closest("[data-idea]");if(i&&$("depform")){const x=ACT_IDEAS[+i.dataset.idea];ui.depDraft=Object.assign({},ui.depDraft||{},depRead(),{titre:x.t,picto:pk(x.p),lieu:x.lieu,materiel:x.mat,objectifs:x.obj.slice(),adapt:x.ad});ui.depCat=picto(pk(x.p)).cat;render();toast("Idée ajoutée : vérifiez et complétez");}
+});
+document.addEventListener("submit",e=>{if(e.target.id!=="depform")return;e.preventDefault();const x=depRead(),err=$("dp-err");
+ if(!x.picto)return err.textContent="Choisissez un pictogramme (étape 2).";
+ if(!x.titre)return err.textContent="Donnez un nom à l'activité (étape 2).";
+ if(!x.date||!x.debut||!x.fin)return err.textContent="Indiquez le jour, l'heure de début et l'heure de fin (étape 3).";
+ if(x.fin<=x.debut)return err.textContent="L'heure de fin doit être après l'heure de début.";
+ if(!x.lieu)return err.textContent="Indiquez le lieu de l'activité (étape 4).";
+ if(!x.part.length)return err.textContent="Cochez au moins un résident (étape 5).";
+ const id=ui.depEditKeep||"",a=id?state.activites.find(y=>y.id===id):null;
+ if(a){Object.assign(a,x);toast("Activité modifiée");}
+ else if(isAdmin()){state.activites.push(Object.assign({id:uid(),statut:"validee",propPar:state.me},x));toast("Activité ajoutée au planning");}
+ else{state.activites.push(Object.assign({id:uid(),statut:"proposee",propPar:state.me,proposeLe:TODAY},x));toast("Activité envoyée à la direction pour validation");}
+ ui.depDraft=null;ui.depCat="";ui.depEditKeep="";ui.actWeek=mondayOf(x.date);save();go("activites");});
+VIEW_FN.depot=vDepot;
+VIEWS.push({id:"depot",label:"Déposer une activité",ic:"cal"});
+A["dep-back"]=()=>{ui.depDraft=null;ui.depCat="";ui.depEditKeep="";ui.depEdit="";go("activites");};
+A["act-open"]=d=>actOpen(d.id);
+A["act-day"]=d=>{ui.actDay=d.d||"";if(d.d)ui.actWeek=mondayOf(d.d);render();window.scrollTo(0,0);};
+A["act-new"]=()=>go("depot");
+A["act-edit"]=d=>{if(!isAdmin())return onlyDir();closeModal();ui.depEditKeep=d.id;const a=state.activites.find(x=>x.id===d.id);ui.depDraft=Object.assign({},a);ui.depCat=picto(apic(a)).cat;go("depot");};
+A["act-del"]=d=>{if(!isAdmin())return onlyDir();const a=state.activites.find(x=>x.id===d.id);if(!a)return;confirmBox("Supprimer l'activité",`${a.titre}, ${fmtDay(a.date)}.`,"Supprimer",()=>{state.activites=state.activites.filter(x=>x.id!==a.id);toast("Activité supprimée");});};
+A["act-ok"]=d=>{if(!isAdmin())return;const a=state.activites.find(x=>x.id===d.id);if(!a)return;a.statut="validee";a.valideLe=TODAY;save();render();toast("Activité validée : elle apparaît au planning");};
+A["act-no"]=d=>{if(!isAdmin())return;const a=state.activites.find(x=>x.id===d.id);if(!a)return;confirmBox("Refuser l'activité",`${a.titre}, déposée par ${sname(a.propPar)}.`,"Refuser",r=>{a.statut="refusee";a.motifRefus=r;toast("Activité refusée");},"Pourquoi (le professionnel verra ce message)");};
+
+/* ---------- Vue : Commandes de l'institution ---------- */
+IC.cart='<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 11.2a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.5L21 7H6"/>';
+const CMD_SERV=["Activités","Entretien et travaux","Soins et infirmerie","Cuisine","Hébergement et linge","Administratif","Autre"];
+const CMD_ST={demandee:["En attente de validation","warn"],validee:["Validée","info"],commandee:["Commandée","acc"],recue:["Reçue","ok"],refusee:["Refusée","bad"]};
+const CMDS=()=>state.commandes||(state.commandes=[]);
+const euro=v=>{const n=parseFloat(String(v||"").replace(",","."));return isNaN(n)?"":n.toLocaleString("fr-FR",{style:"currency",currency:"EUR"});};
+function cmdCard(c){const adm=isAdmin(),st=CMD_ST[c.statut]||CMD_ST.demandee;
+ return `<article class="card"><div class="row-between"><div><strong style="font-size:16px">${esc(c.article)}</strong>${c.qte?` <span class="muted">× ${esc(c.qte)}</span>`:""}<div class="muted small">${esc(c.service||"")} · demandé par ${esc(sname(c.par))}, le ${esc(fmtDate(c.le))}</div></div><span class="pill ${st[1]}">${esc(st[0])}</span></div>
+  <dl class="kv" style="margin-top:10px">${c.prix?`<dt>Prix estimé</dt><dd>${esc(euro(c.prix)||c.prix)}</dd>`:""}${c.fourn?`<dt>Où l'acheter</dt><dd style="word-break:break-word">${esc(c.fourn)}</dd>`:""}${c.pour?`<dt>Souhaité pour le</dt><dd>${esc(fmtDate(c.pour))}</dd>`:""}${c.detail?`<dt>Pourquoi</dt><dd class="tr-text">${esc(c.detail)}</dd>`:""}${c.reponse?`<dt>Réponse de la direction</dt><dd class="tr-text">${esc(c.reponse)}</dd>`:""}</dl>
+  ${c.urgent?`<span class="pill bad" style="margin-top:6px">Urgent</span>`:""}
+  <div class="row" style="margin-top:10px">${adm&&c.statut==="demandee"?`<button class="btn sm ok" data-act="cmd-st" data-id="${c.id}" data-s="validee">${icon("check",16)} Valider</button><button class="btn sm bad" data-act="cmd-no" data-id="${c.id}">Refuser</button>`:""}${adm&&c.statut==="validee"?`<button class="btn sm primary" data-act="cmd-st" data-id="${c.id}" data-s="commandee">Marquer « commandée »</button>`:""}${(adm||c.par===state.me)&&c.statut==="commandee"?`<button class="btn sm ok" data-act="cmd-st" data-id="${c.id}" data-s="recue">${icon("check",16)} Marquer « reçue »</button>`:""}${!adm&&c.par===state.me&&c.statut==="demandee"?`<button class="btn sm ghost" data-act="cmd-cancel" data-id="${c.id}">Annuler ma demande</button>`:""}${adm?`<button class="btn sm ghost" data-act="cmd-edit" data-id="${c.id}">${icon("edit",16)} Modifier</button>`:""}</div></article>`;}
+function vCmd(){
+ const adm=isAdmin(),all=CMDS().slice().sort((a,b)=>(b.le||"").localeCompare(a.le||"")),list=adm?all:all.filter(c=>c.par===state.me);
+ const g=s=>list.filter(c=>s.includes(c.statut));
+ const m=monthOf(TODAY),tot=all.filter(c=>["validee","commandee","recue"].includes(c.statut)&&(c.le||"").startsWith(m)).reduce((n,c)=>n+(parseFloat(String(c.prix||"").replace(",","."))||0),0);
+ const sec=(t,l,e,first)=>`<div class="section-title"${first?' style="margin-top:0"':""}><h2>${t}</h2></div>${l.length?`<div class="med-grid">${l.map(cmdCard).join("")}</div>`:`<p class="empty">${e}</p>`}`;
+ return topbar("Commandes",adm?"Demandes d'achat de l'équipe : vous validez, puis suivez la commande":"Demandez un achat pour l'institution : la direction le valide",`<button class="btn primary" data-act="cmd-new">${icon("plus",18)} Demander un achat</button>`)+
+  (adm?`<div class="notice">${icon("info",18)}<span>Ce mois-ci : <strong>${esc(euro(tot)||"0 €")}</strong> d'achats validés (prix estimés).</span></div>`:"")+
+  sec(adm?"À valider":"En attente de validation",g(["demandee"]),"Aucune demande en attente.",true)+sec("En cours",g(["validee","commandee"]),"Aucune commande en cours.")+sec("Terminées",g(["recue","refusee"]).slice(0,30),"Pas encore d'historique.");
+}
+function cmdForm(id){const c=id?CMDS().find(x=>x.id===id):null;
+ openForm({title:c?"Modifier la demande":"Demander un achat",values:c||{qte:"1",service:CMD_SERV[0],urgent:false},fields:[
+  {name:"article",label:"Quoi ?",required:true,full:true,hint:"Ex. : ballons en mousse, joint de robinet, gants à usage unique…"},
+  {name:"qte",label:"Quantité"},{name:"service",label:"Pour quel service",type:"select",options:CMD_SERV.map(s=>[s,s])},
+  {name:"prix",label:"Prix estimé (€)",hint:"Approximatif"},{name:"pour",label:"Pour quand",type:"date"},
+  {name:"fourn",label:"Où l'acheter (magasin, site, lien, référence)",full:true},
+  {name:"detail",label:"Pourquoi",type:"textarea",full:true,required:true,hint:"À quoi cela va servir."},
+  {name:"urgent",label:"Urgent",type:"checkbox",full:true}
+ ],submit:c?"Enregistrer":"Envoyer la demande",onSubmit:x=>{if(c){Object.assign(c,x);toast("Demande modifiée");}else{CMDS().push(Object.assign({id:"k"+uid(),par:state.me,le:TODAY,statut:"demandee"},x));toast("Demande envoyée à la direction");}}});}
+VIEW_FN.commandes=vCmd;
+VIEWS.push({id:"commandes",label:"Commandes",short:"Commandes",ic:"cart"});
+NAV_ORDER.splice(NAV_ORDER.indexOf("residents")+1,0,"commandes");
+LIMITED_VIEWS.push("commandes");
+A["cmd-new"]=()=>cmdForm();
+A["cmd-edit"]=d=>{if(!isAdmin())return onlyDir();cmdForm(d.id);};
+A["cmd-st"]=d=>{const c=CMDS().find(x=>x.id===d.id);if(!c)return;if(d.s!=="recue"&&!isAdmin())return;c.statut=d.s;c[d.s+"Le"]=TODAY;save();render();toast(CMD_ST[d.s][0]);};
+A["cmd-no"]=d=>{if(!isAdmin())return;const c=CMDS().find(x=>x.id===d.id);if(!c)return;confirmBox("Refuser la demande",c.article,"Refuser",r=>{c.statut="refusee";c.reponse=r;toast("Demande refusée");},"Pourquoi (la personne verra ce message)");};
+A["cmd-cancel"]=d=>{state.commandes=CMDS().filter(x=>!(x.id===d.id&&x.par===state.me&&x.statut==="demandee"));save();render();toast("Demande annulée");};
+
+A["ag-day"]=d=>agDay(d.d);
 
 /* ---------- Partage en ligne (base de données de l'artifact) ---------- */
 var syncDb=null,syncBase={},syncRemote={},syncChunks={},syncTimer=null,syncBusy=false,syncAgain=false,syncReady=false,syncPendingRemote=null,syncRO=false,syncStatus="local";
