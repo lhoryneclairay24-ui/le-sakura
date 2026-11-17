@@ -782,6 +782,7 @@ body.locked .app,body.locked .tabbar{display:none}
   .sheet{animation:up .18s ease-out}
   @keyframes up{from{transform:translateY(12px);opacity:.6}to{transform:none;opacity:1}}
 }
+.unread-dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--bad,#c0392b);box-shadow:0 0 0 3px color-mix(in srgb,var(--bad,#c0392b) 22%,transparent);margin-right:8px;vertical-align:middle;flex:none}
 </style>
 
 <div class="app">
@@ -1066,7 +1067,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 12:54";
+const BUILD_STAMP="17-11-2026 à 13:22";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -1113,7 +1114,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171254";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171322";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}scheduleSync();}
 save();
 const hNow=new Date().getHours()+new Date().getMinutes()/60;
@@ -1141,11 +1142,13 @@ function medStats(date){
 const lastSurv=c=>c.surv.slice().sort((a,b)=>(b.date+b.h).localeCompare(a.date+a.h))[0];
 const reevalPill=c=>{if(!c.reeval)return "";const n=daysBetween(TODAY,c.reeval);if(n<0)return `<span class="pill bad">Réévaluation dépassée de ${-n} j</span>`;if(n===0)return `<span class="pill warn">Réévaluation aujourd'hui</span>`;if(n<=7)return `<span class="pill warn">Réévaluation dans ${n} j</span>`;return `<span class="pill ok">Réévaluation le ${esc(fmtDay(c.reeval,{day:"numeric",month:"long"}))}</span>`;};
 const unreadImp=()=>state.transmissions.filter(t=>t.imp&&!t.lus.includes(state.me));
+const postUnread=()=>isAdmin()?[]:state.actus.filter(n=>!(n.lus||[]).includes(state.me));
 const navBadge=id=>{
+ if(id==="aujourdhui")return postUnread().length;
  if(id==="transmissions")return isLimited()?trMyTodo():unreadImp().length+trMyTodo();
  if(id==="selles")return sellesAlerts().length;
  if(id==="sanctions")return sanLate().length;
- if(id==="horaires")return isAdmin()?state.demandes.filter(d=>d.statut==="attente"&&d.type==="changement").length:0;
+ if(id==="horaires")return isAdmin()?state.demandes.filter(d=>d.statut==="attente"&&(d.type==="changement"||d.type==="echange")).length:0;
  if(id==="conges")return isAdmin()?state.demandes.filter(d=>d.statut==="attente").length:0;
  if(id==="contention"){const h=new Date().getHours();return state.contentions.filter(c=>c.active&&((c.reeval&&c.reeval<TODAY)||(inWin(c,h)&&!c.surv.some(s=>s.date===TODAY&&hourOf(s.h)===h)))).length;}
  if(id==="rdv")return state.rdv.filter(a=>a.statut==="prevu"&&a.date<TODAY).length;
@@ -1192,10 +1195,11 @@ const postCat=k=>POST_CATS.find(c=>c[0]===k)||POST_CATS[0];
 function vToday(){
  const adm=isAdmin();
  const posts=state.actus.slice().sort((a,b)=>(!!b.pin-!!a.pin)||(b.date+(b.h||"")).localeCompare(a.date+(a.h||"")));
- const card=n=>{const c=postCat(n.cat||(n.imp?"urgent":"info"));
-  return `<article class="card post post-${c[2]}"><div class="row-between"><div class="chips"><span class="pill solid ${c[2]}">${esc(c[1])}</span>${n.pin?`<span class="pill">Épinglé</span>`:""}</div><span class="muted small">La direction · ${esc(dayLabel(n.date))}${n.h?" à "+hm(n.h):""}</span></div>
+ const card=n=>{const c=postCat(n.cat||(n.imp?"urgent":"info")),lus=n.lus||[],un=!adm&&!lus.includes(state.me);
+  return `<article class="card post post-${c[2]}"><div class="row-between"><div class="chips">${un?unDot():""}<span class="pill solid ${c[2]}">${esc(c[1])}</span>${n.pin?`<span class="pill">Épinglé</span>`:""}</div><span class="muted small">La direction · ${esc(dayLabel(n.date))}${n.h?" à "+hm(n.h):""}</span></div>
   <h2 class="post-t">${esc(n.titre)}</h2><p class="tr-text">${esc(n.texte)}</p>
-  ${adm?`<div class="row" style="margin-top:12px"><button class="btn sm" data-act="post-edit" data-id="${n.id}">Modifier</button><button class="btn sm ghost" data-act="actu-pin" data-id="${n.id}">${n.pin?"Désépingler":"Épingler en haut"}</button></div>`:""}</article>`;};
+  ${adm?`<p class="muted small" style="margin:10px 0 0">Lu par : ${lus.length?lus.map(id=>esc(sname(id))).join(", "):"personne pour le moment"}</p><div class="row" style="margin-top:12px"><button class="btn sm" data-act="post-edit" data-id="${n.id}">Modifier</button><button class="btn sm ghost" data-act="actu-pin" data-id="${n.id}">${n.pin?"Désépingler":"Épingler en haut"}</button></div>`
+   :`<div class="row" style="margin-top:12px;justify-content:flex-end">${un?`<button class="btn sm" data-act="post-read" data-id="${n.id}">${icon("check",16)} Marquer comme lu</button>`:`<span class="pill ok">${icon("check",14)} Lu</span>`}</div>`}</article>`;};
  const legend=`<div class="chips" aria-label="Code couleur des messages">${POST_CATS.map(c=>`<span class="pill solid ${c[2]}">${esc(c[1])}</span>`).join("")}</div>`;
  const remind=adm&&(!state.lastExport||daysBetween(state.lastExport,TODAY)>=7)?`<div class="notice" style="margin:0;align-items:center;flex-wrap:wrap">${icon("info",18)}<span style="flex:1;min-width:200px">${state.lastExport?`Dernière sauvegarde des données il y a ${daysBetween(state.lastExport,TODAY)} jours.`:"Les données de l'application n'ont encore jamais été sauvegardées."}</span><button class="btn sm" data-act="backup">Sauvegarder maintenant</button></div>`:"";
  const empty=`<div class="card" style="text-align:center;padding:28px 16px;display:grid;gap:8px;justify-items:center"><strong style="font-size:17px">Aucune information pour le moment</strong>${adm?`<p class="muted" style="max-width:46ch">Touchez « Publier une information », choisissez le type de message (sa couleur), puis écrivez votre message.</p>`:`<p class="muted">Les informations de la direction apparaîtront ici.</p>`}</div>`;
@@ -1672,18 +1676,18 @@ function cpSettings(){
 /* ---------- Vue : Transmissions ---------- */
 function trKind(t){return t.kind||"carnet";}
 function trTabsFor(){const s=ST(state.me);return isLimited()?[roleOf(s)]:TR_TABS.map(x=>x[0]);}
-function trCanDo(k){const s=ST(state.me);if(!s)return false;if(s.admin)return true;if(k==="direction")return false;return roleOf(s)===k;}
-function trTodo(k){return state.transmissions.filter(t=>t.kind===k&&t.statut==="afaire");}
+function trCanDo(k){const s=ST(state.me);if(!s)return false;if(s.admin)return true;if(k==="direction")return false;if(k==="medical"&&!isLimited())return true;return roleOf(s)===k;}function trTodo(k){return state.transmissions.filter(t=>t.kind===k&&t.statut==="afaire");}
 function trMyTodo(){const s=ST(state.me);if(!s)return 0;if(s.admin)return DEST.reduce((n,k)=>n+trTodo(k).length,0);const r=roleOf(s);return DEST.includes(r)?trTodo(r).length:0;}
 function trTabBadge(k){if(DEST.includes(k))return trCanDo(k)?trTodo(k).length:0;return state.transmissions.filter(t=>trKind(t)===k&&t.imp&&!t.lus.includes(state.me)).length;}
 function trWho(t){const s=ST(t.par);return `par ${esc(sname(t.par))}${s&&s.fonction?` (${esc(s.fonction)})`:""}`;}
 function trAdminBtns(t){return isAdmin()?`<button class="btn sm ghost" data-act="tr-edit" data-id="${t.id}">${icon("edit",16)} Modifier</button><button class="btn sm ghost" data-act="tr-del" data-id="${t.id}">Supprimer</button>`:"";}
 function trReadFoot(t){const read=t.lus.includes(state.me);return `<div class="tr-foot"><span>Lu par : ${t.lus.length?t.lus.map(id=>esc(sname(id))).join(", "):"personne"}</span><span class="row">${trAdminBtns(t)}${read?`<span class="pill ok">${icon("check",14)} Lu</span>`:`<button class="btn sm" data-act="tr-read" data-id="${t.id}">${icon("check",16)} Marquer comme lu</button>`}</span></div>`;}
+const unDot=()=>`<span class="unread-dot" title="Pas encore lu" aria-label="Pas encore lu"></span>`;
 function trCard(t){
- const k=trKind(t),time=`<strong class="num" style="color:var(--fg)">${hm(t.dt.slice(11))}</strong>`;
+ const k=trKind(t),un=!DEST.includes(k)&&!t.lus.includes(state.me),time=`${un?unDot():""}<strong class="num" style="color:var(--fg)">${hm(t.dt.slice(11))}</strong>`;
  if(k==="admin"){const r=R(t.rid);
   const rows=[["Activité ou moment",t.quand],["Comment ça s'est passé",t.deroule],["Comportement",t.comportement],["Capacités observées",t.capacites]].filter(x=>x[1]);
-  return `<article class="card tr" style="margin-bottom:12px"><div class="row-between" style="margin-bottom:8px"><div class="who">${r?avatar(r):""}<div><strong>${esc(rname(r))}</strong><span class="muted small">${hm(t.dt.slice(11))} · ${trWho(t)}</span></div></div>${t.imp?`<span class="pill bad">Important</span>`:""}</div>
+  return `<article class="card tr" style="margin-bottom:12px"><div class="row-between" style="margin-bottom:8px"><div class="who">${r?avatar(r):""}<div><strong>${un?unDot():""}${esc(rname(r))}</strong><span class="muted small">${hm(t.dt.slice(11))} · ${trWho(t)}</span></div></div>${t.imp?`<span class="pill bad">Important</span>`:""}</div>
    <dl class="kv">${rows.map(([a,b])=>`<dt>${esc(a)}</dt><dd class="tr-text">${esc(b)}</dd>`).join("")}</dl>${trReadFoot(t)}</article>`;}
  if(DEST.includes(k)){const done=t.statut==="fait";
   return `<article class="card tr${done?"":" todo"}" style="margin-bottom:12px"><div class="tr-meta">${time}${t.imp?`<span class="pill bad">Urgent</span>`:""}${done?`<span class="pill ok">${icon("check",14)} Fait</span>`:`<span class="pill warn">À faire</span>`}<span>${trWho(t)}</span></div>
@@ -1893,7 +1897,7 @@ function demLists(list,emptyTxt,doneTitle){
   ${done.length?`<h3 style="font-size:15px;margin:18px 0 10px">${esc(doneTitle)}</h3><div class="med-grid">${done.map(demItem).join("")}</div>`:""}`;
 }
 function demForm(preType){
- const types=DEM_TYPES.filter(t=>t[0]!=="changement");
+ const types=DEM_TYPES.filter(t=>!["changement","repos","echange"].includes(t[0])||t[0]===preType);
  const radio=(name,opts)=>`<div class="rchips" role="radiogroup">${opts.map(([k,l])=>`<label class="rchip"><input type="radio" class="sr" name="${name}" value="${esc(k)}"><span>${esc(l)}</span></label>`).join("")}</div>`;
  openModal(preType?demLabel(preType):"Faire une demande",`<form id="dform" class="stack" novalidate>
   <div class="field"${preType?" hidden":""}><span class="lbl">Type de demande</span>${radio("df-type",types)}</div>
@@ -1990,8 +1994,8 @@ function vHorStaff(){
  const m=ui.hMonthS,days=monthDays(m),ph=planPhase(m);
  const om=openChangeMonth();
  const nav=`<div class="datenav"><button class="btn icon" data-act="hs-nav" data-n="-1" aria-label="Mois précédent">${icon("left")}</button><strong>${esc(cap(monthName(m)))}</strong><button class="btn icon" data-act="hs-nav" data-n="1" aria-label="Mois suivant">${icon("right")}</button>${m!==monthOf(TODAY)?`<button class="btn sm ghost" data-act="hs-nav" data-n="0">Mois en cours</button>`:""}</div>`;
- const chg=om?`<div class="card chgbox"><div><strong>Besoin d'un autre horaire ?</strong><p class="muted small" style="margin:2px 0 0">Pour le planning de ${esc(monthName(om))}, jusqu'au ${esc(dShort(lockDate(om)))}.</p></div><button class="btn primary" data-act="chg-new">${icon("edit",18)} Demander un changement d'horaire</button></div>`
-  :`<div class="card chgbox"><div><strong>Demande de changement d'horaire</strong><p class="muted small" style="margin:2px 0 0">Possible du 10 au 21 de chaque mois, pour le planning du mois suivant. Pour un congé ou un désiderata, utilisez l'onglet Congés.</p></div><button class="btn" disabled>Demander un changement d'horaire</button></div>`;
+ const chg=om?`<div class="card chgbox"><div><strong>Besoin d'un autre horaire ?</strong><p class="muted small" style="margin:2px 0 0">Pour le planning de ${esc(monthName(om))}, jusqu'au ${esc(dShort(lockDate(om)))}.</p></div><div class="row"><button class="btn primary" data-act="chg-new">${icon("edit",18)} Demander un changement d'horaire</button><button class="btn" data-act="dem-type" data-t="echange">${icon("users",18)} Échange avec un collègue</button></div></div>`
+  :`<div class="card chgbox"><div><strong>Demande de changement d'horaire</strong><p class="muted small" style="margin:2px 0 0">Possible du 10 au 21 de chaque mois, pour le planning du mois suivant. Pour un congé ou un désiderata, utilisez l'onglet Congés.</p></div><div class="row"><button class="btn" disabled>Demander un changement d'horaire</button><button class="btn" data-act="dem-type" data-t="echange">${icon("users",18)} Échange avec un collègue</button></div></div>`;
  let body;
  if(ph==="prep")body=`<div class="card" style="text-align:center;padding:28px 16px"><strong style="font-size:17px">Le planning de ${esc(monthName(m))} n'est pas encore visible</strong><p class="muted" style="margin-top:6px">Il le sera à partir du ${esc(fmtDay(pubDate(m)))}.</p></div>`;
  else{
@@ -2001,9 +2005,9 @@ function vHorStaff(){
   body=`${ph==="open"?`<div class="notice" style="background:var(--warn-soft);color:var(--warn)">${icon("info",18)}<span>Planning <strong>provisoire</strong> : il peut encore changer jusqu'au ${esc(dShort(lockDate(m)))}.</span></div>`:`<div class="notice">${icon("lock",18)}<span>Planning <strong>définitif</strong>.</span></div>`}
    ${shLegend()}<div class="table-wrap" style="margin-top:10px"><table class="mc-table"><thead>${head}</thead><tbody>${rows}</tbody></table></div>`;
  }
- const mine=state.demandes.filter(d=>d.sid===state.me&&d.type==="changement");
+ const mine=state.demandes.filter(d=>(d.sid===state.me||d.avec===state.me)&&(d.type==="changement"||d.type==="echange"));
  return topbar("Horaires","Le planning du mois de toute l'équipe")+chg+`<div class="toolbar" style="margin-top:16px">${nav}</div>`+body+
-  (mine.length?`<div class="section-title"><h2>Mes demandes de changement</h2></div>${demLists(mine,"Aucune demande en attente.","Demandes traitées")}`:"");
+  (mine.length?`<div class="section-title"><h2>Mes demandes de changement et d'échange</h2></div>${demLists(mine,"Aucune demande en attente.","Demandes traitées")}`:"");
 }
 function vConges(){
  const adm=isAdmin();
@@ -2012,8 +2016,8 @@ function vConges(){
    `<div class="section-title" style="margin-top:0"><h2>Demandes à traiter</h2></div>${demLists(all,"Aucune demande en attente.","Demandes traitées")}`;}
  const mine=state.demandes.filter(d=>d.sid===state.me);
  return topbar("Congés et demandes","Choisissez ce que vous voulez demander")+
-  `<div class="hub-grid" style="margin-bottom:18px">${[["desid","sun","Désiderata","Un horaire que vous souhaitez"],["conge","cal","Congé","Des jours de congé"],["conge_rdv","steth","Congé pour rendez-vous médical","Pour un rendez-vous ou un soin"],["repos","home","Jour de repos","Un jour sans travail"],["echange","users","Échange avec un collègue","Échanger un horaire"],["autre","note","Autre demande","Expliquez votre besoin"]].map(([t,ic,ti,s])=>hubTile({ic,t:ti,s,act:`data-act="dem-type" data-t="${t}"`})).join("")}${hubTile({ic:"edit",t:"Changer un horaire",s:openChangeMonth()?"Pour le planning du mois prochain":"Possible du 10 au 21 de chaque mois",act:'data-act="chg-new"',dis:!openChangeMonth()})}</div>`+
-  `<div class="notice">${icon("info",18)}<span>Le planning d'un mois peut être ajusté selon les demandes jusqu'au 21 du mois précédent. Après, il est définitif. Pour changer un horaire déjà prévu, utilisez le bouton « Demander un changement d'horaire » de l'onglet Horaires.</span></div>
+  `<div class="hub-grid" style="margin-bottom:18px">${[["desid","sun","Désiderata","Un horaire que vous souhaitez"],["conge","cal","Congé","Des jours de congé"],["conge_rdv","steth","Congé pour rendez-vous médical","Pour un rendez-vous ou un soin"],["autre","note","Autre demande","Expliquez votre besoin"]].map(([t,ic,ti,s])=>hubTile({ic,t:ti,s,act:`data-act="dem-type" data-t="${t}"`})).join("")}</div>`+
+  `<div class="notice">${icon("info",18)}<span>Pour changer un horaire ou échanger avec un collègue, utilisez l'onglet Horaires.</span></div>
   <div class="section-title" style="margin-top:0"><h2>Mes demandes</h2></div>${demLists(mine,"Vous n'avez aucune demande en attente.","Mes demandes traitées")}`;
 }
 
@@ -3196,13 +3200,15 @@ A["pp-bilan"]=d=>{const p=LST("projets").find(x=>x.id===d.id);if(!ppCanEdit(p))r
  openForm({title:"Bilan du projet",fields:[{name:"texte",label:"Bilan",type:"textarea",required:true,full:true,hint:"Ce qui a été atteint, ce qui reste à travailler, les suites."}],onSubmit:x=>{(p.bilans=p.bilans||[]).push({date:TODAY,texte:x.texte,par:state.me});toast("Bilan enregistré");}});};
 
 /* ---------- Menus de la semaine ---------- */
-const FOOD=[["soupe","🥣"],["velouté","🥣"],["salade","🥗"],["crudit","🥕"],["carotte","🥕"],["tomate","🍅"],["concombre","🥒"],["betterave","🥗"],["oeuf","🥚"],["œuf","🥚"],["omelette","🍳"],["quiche","🥧"],["tarte","🥧"],["pizza","🍕"],["poulet","🍗"],["dinde","🍗"],["boeuf","🥩"],["bœuf","🥩"],["steak","🥩"],["rôti","🍖"],["porc","🍖"],["jambon","🍖"],["saucisse","🌭"],["poisson","🐟"],["saumon","🐟"],["cabillaud","🐟"],["colin","🐟"],["thon","🐟"],["crevette","🍤"],["pâtes","🍝"],["spaghetti","🍝"],["lasagne","🍝"],["riz","🍚"],["purée","🥔"],["pomme de terre","🥔"],["frites","🍟"],["haricot","🫛"],["petits pois","🫛"],["légume","🥦"],["brocoli","🥦"],["courgette","🥒"],["ratatouille","🍆"],["gratin","🧀"],["fromage","🧀"],["yaourt","🥛"],["laitage","🥛"],["compote","🍏"],["pomme","🍎"],["poire","🍐"],["banane","🍌"],["orange","🍊"],["fruit","🍓"],["fraise","🍓"],["gâteau","🍰"],["crème","🍮"],["flan","🍮"],["mousse","🍫"],["chocolat","🍫"],["glace","🍨"],["pain","🥖"],["crêpe","🥞"],["burger","🍔"],["couscous","🍲"],["hachis","🥧"],["ragoût","🍲"],["potage","🥣"]];
+const FOOD=[["soupe","🥣"],["velouté","🥣"],["salade","🥗"],["crudit","🥕"],["carotte","🥕"],["tomate","🍅"],["concombre","🥒"],["betterave","🥗"],["oeuf","🥚"],["œuf","🥚"],["omelette","🍳"],["quiche","🥧"],["tarte","🥧"],["pizza","🍕"],["poulet","🍗"],["dinde","🍗"],["boeuf","🥩"],["bœuf","🥩"],["steak","🥩"],["rôti","🍖"],["porc","🍖"],["jambon","🍖"],["saucisse","🌭"],["poisson","🐟"],["saumon","🐟"],["cabillaud","🐟"],["colin","🐟"],["thon","🐟"],["crevette","🍤"],["pâtes","🍝"],["spaghetti","🍝"],["lasagne","🍝"],["riz","🍚"],["purée","🥔"],["pomme de terre","🥔"],["frites","🍟"],["haricot","🫛"],["petits pois","🫛"],["légume","🥦"],["brocoli","🥦"],["courgette","🥒"],["ratatouille","🍆"],["gratin","🧀"],["fromage","🧀"],["yaourt","🥛"],["laitage","🥛"],["compote","🍏"],["pomme","🍎"],["poire","🍐"],["banane","🍌"],["orange","🍊"],["fruit","🍓"],["fraise","🍓"],["gâteau","🍰"],["crème","🍮"],["flan","🍮"],["mousse","🍫"],["chocolat","🍫"],["glace","🍨"],["pain","🥖"],["crêpe","🥞"],["burger","🍔"],["couscous","🍲"],["hachis","🥧"],["ragoût","🍲"],["potage","🥣"],["croissant","🥐"],["brioche","🥐"],["biscuit","🍪"],["tartine","🍞"],["céréale","🥣"],["confiture","🍯"],["café","☕"],["chocolat chaud","☕"],["thé","🍵"],["jus","🧃"],["lait","🥛"]];
 const foodE=t=>{const s=(t||"").toLowerCase();const m=FOOD.find(([k])=>s.includes(k));return m?m[1]:"🍽️";};
 const canMenu=()=>{const s=ST(state.me);return !!s&&(s.admin||!!s.menus);};
-const MEN_R=[["midi","Midi"],["soir","Soir"]],MEN_P=[["entree","Entrée"],["plat","Plat"],["dessert","Dessert"]];
+const MEN_R=[["pdj","Petit-déjeuner"],["midi","Midi"],["gouter","Goûter (16h)"],["soir","Soir"]],MEN_P=[["entree","Entrée"],["plat","Plat"],["dessert","Dessert"]];
+const MEN_PX={pdj:[["boisson","Boisson"],["plat","À manger"]],gouter:[["boisson","Boisson"],["plat","Goûter"]]};
+const menP=k=>MEN_PX[k]||MEN_P;
 const menuOf=d=>(state.menus||{})[d]||{};
-function menuDay(d,big){const m=menuOf(d);return MEN_R.map(([k,l])=>{const x=m[k]||{};const has=MEN_P.some(([p])=>x[p]);
- return `<div class="menu-r"><span class="menu-l">${l}</span>${has?MEN_P.filter(([p])=>x[p]).map(([p,pl])=>`<span class="menu-p"><span class="menu-e" aria-hidden="true">${foodE(x[p])}</span><span><small>${pl}</small>${esc(x[p])}</span></span>`).join(""):`<span class="muted small">Pas encore saisi</span>`}</div>`;}).join("");}
+function menuDay(d,big){const m=menuOf(d);return MEN_R.map(([k,l])=>{const x=m[k]||{},P=menP(k);const has=P.some(([p])=>x[p]);
+ return `<div class="menu-r"><span class="menu-l">${l}</span>${has?P.filter(([p])=>x[p]).map(([p,pl])=>`<span class="menu-p"><span class="menu-e" aria-hidden="true">${foodE(x[p])}</span><span><small>${pl}</small>${esc(x[p])}</span></span>`).join(""):`<span class="muted small">Pas encore saisi</span>`}</div>`;}).join("");}
 function vMenus(){
  if(!ui.menWeek)ui.menWeek=mondayOf(TODAY);const mon=ui.menWeek,days=[0,1,2,3,4,5,6].map(i=>addDays(mon,i)),ok=canMenu();
  return topbar("Menus de la semaine",`Du ${esc(fmtDay(mon,{day:"numeric",month:"long"}))} au ${esc(fmtDay(days[6],{day:"numeric",month:"long"}))}`,ok?`<button class="btn" data-act="men-copy">Recopier la semaine précédente</button>`:"")+
@@ -3211,9 +3217,9 @@ function vMenus(){
   <p class="muted small" style="margin-top:10px">Les textures (haché, mixé, eau gélifiée) sont adaptées pour chaque résident selon son dossier.</p>`;
 }
 A["men-week"]=d=>{ui.menWeek=d.n==="0"?mondayOf(TODAY):addDays(ui.menWeek||mondayOf(TODAY),7*(+d.n));render();};
-A["men-edit"]=d=>{if(!canMenu())return toast("Seules la direction et les personnes autorisées saisissent les menus.");const m=menuOf(d.d),v={};MEN_R.forEach(([k])=>MEN_P.forEach(([p])=>{v[k+"_"+p]=(m[k]||{})[p]||"";}));
- openForm({title:`Menu · ${cap(fmtDay(d.d))}`,values:v,fields:MEN_R.flatMap(([k,l])=>MEN_P.map(([p,pl])=>({name:k+"_"+p,label:`${l} · ${pl}`}))),
-  onSubmit:x=>{state.menus=state.menus||{};const o={};MEN_R.forEach(([k])=>{o[k]={};MEN_P.forEach(([p])=>{o[k][p]=x[k+"_"+p];});});state.menus[d.d]=o;toast("Menu enregistré");}});};
+A["men-edit"]=d=>{if(!canMenu())return toast("Seules la direction et les personnes autorisées saisissent les menus.");const m=menuOf(d.d),v={};MEN_R.forEach(([k])=>menP(k).forEach(([p])=>{v[k+"_"+p]=(m[k]||{})[p]||"";}));
+ openForm({title:`Menu · ${cap(fmtDay(d.d))}`,values:v,fields:MEN_R.flatMap(([k,l])=>menP(k).map(([p,pl])=>({name:k+"_"+p,label:`${l} · ${pl}`}))),
+  onSubmit:x=>{state.menus=state.menus||{};const o={};MEN_R.forEach(([k])=>{o[k]={};menP(k).forEach(([p])=>{o[k][p]=x[k+"_"+p];});});state.menus[d.d]=o;toast("Menu enregistré");}});};
 A["men-copy"]=()=>{if(!canMenu())return;const mon=ui.menWeek||mondayOf(TODAY);confirmBox("Recopier la semaine précédente","Les menus de cette semaine seront remplacés par ceux de la semaine d'avant.","Recopier",()=>{state.menus=state.menus||{};for(let i=0;i<7;i++){const src=menuOf(addDays(mon,i-7));if(Object.keys(src).length)state.menus[addDays(mon,i)]=JSON.parse(JSON.stringify(src));}toast("Semaine recopiée");});};
 VIEW_FN.menus=vMenus;VIEWS.push({id:"menus",label:"Menus de la semaine",ic:"home"});
 NAV_GROUPS["g-sante"].items.splice(NAV_GROUPS["g-sante"].items.indexOf("repas")+1,0,"menus");
@@ -3222,7 +3228,7 @@ VIEW_FN.nuit=vNuit;VIEWS.push({id:"nuit",label:"Main courante de nuit",ic:"clock
 SUBLABEL.nuit="Main courante de nuit";SUBLABEL.menus="Menus de la semaine";SUBLABEL.projets="Projets personnalisés";
 
 {const _vt=VIEW_FN.aujourdhui;VIEW_FN.aujourdhui=()=>{const h=_vt(),i=h.indexOf("</header>"),m=menuOf(TODAY);
- if(i<0||!MEN_R.some(([k])=>m[k]&&MEN_P.some(([p])=>m[k][p])))return h;
+ if(i<0||!MEN_R.some(([k])=>m[k]&&menP(k).some(([p])=>m[k][p])))return h;
  return h.slice(0,i+9)+`<section class="card menu-today"><div class="card-h"><h2>Au menu aujourd'hui</h2><button class="btn sm ghost" data-act="go" data-v="menus">Toute la semaine</button></div>${menuDay(TODAY)}</section>`+h.slice(i+9);};}
 
 /* ---------- Rappels automatiques ---------- */
@@ -3266,17 +3272,18 @@ function rappels(){
 function rapList(l){return l.length?`<div class="rap-list">${l.map(x=>`<button class="rap ${x.lvl}" data-act="rap-go" data-v="${x.v}">${icon(x.ic,20)}<span>${esc(x.txt)}</span>${icon("right",18)}</button>`).join("")}</div>`:`<p class="empty">Rien à signaler. Bonne journée !</p>`;}
 A["rap-go"]=d=>{closeModal();go(d.v);};
 A.bell=()=>openModal("À faire",rapList(rappels()),true);
+A["post-read"]=d=>{const n=state.actus.find(x=>x.id===d.id);if(!n)return;n.lus=n.lus||[];if(!n.lus.includes(state.me))n.lus.push(state.me);save();render();toast("Marqué comme lu");};
 {const _vt=VIEW_FN.aujourdhui;VIEW_FN.aujourdhui=()=>{const h=_vt(),i=h.indexOf("</header>"),l=rappels();if(i<0||!l.length)return h;
  return h.slice(0,i+9)+`<section class="card rap-card"><div class="card-h"><h2>${icon("info")} À faire</h2><span class="pill warn">${l.length}</span></div>${rapList(l)}</section>`+h.slice(i+9);};}
 
 /* ---------- Impression ---------- */
 const PRINT_V={horaires:[".mc-table",()=>`Horaires de l'équipe · ${cap(monthName(isAdmin()?ui.hMonth:ui.hMonthS))}`],activites:[".aweek, .tl",()=>ui.actDay?`Activités · ${cap(fmtDay(ui.actDay))}`:`Planning d'activités · semaine du ${fmtDay(ui.actWeek,{day:"numeric",month:"long"})}`],menus:[".menu-week",()=>`Menus de la semaine du ${fmtDay(ui.menWeek||mondayOf(TODAY),{day:"numeric",month:"long"})}`],nuit:["main",()=>`Main courante · nuit du ${fmtDay(ui.nuit||nightDefault(),{day:"numeric",month:"long"})}`],contention:["main",()=>"Contention"]};
 const prHead=t=>`<div class="pr-h"><img src="${LOGO_MARK}" alt=""><div><h1>${esc(t)}</h1><p>Le Sakura · imprimé le ${esc(fmtDate(TODAY))} à ${nowHM().replace(":","h")}</p></div></div>`;
-A["print-view"]=()=>{const c=PRINT_V[ui.view];if(!c)return;const els=[...document.querySelectorAll(c[0])];if(!els.length)return toast("Rien à imprimer ici.");printHtml(prHead(c[1]())+els.map(e=>e.outerHTML).join(""));logJ("consult","Impression",c[1]());};
-A["print-modal"]=()=>{const s=document.querySelector("#modal-root .sheet");if(!s)return;const t=(s.querySelector("#sheet-title")||{}).textContent||"";const cl=s.cloneNode(true);cl.querySelectorAll(".sheet-h,.form-actions,button").forEach(e=>e.remove());closeModal();printHtml(prHead(t)+cl.innerHTML);logJ("consult","Impression",t);};
-if(IS_DIR)Object.keys(PRINT_V).forEach(v=>{const f=VIEW_FN[v];VIEW_FN[v]=()=>{const h=f(),i=h.indexOf("</header>");return i<0?h:h.slice(0,i+9)+`<div class="print-bar"><button class="btn sm" data-act="print-view">🖨️ Imprimer / PDF</button></div>`+h.slice(i+9);};});
+A["print-view"]=()=>{const c=PRINT_V[ui.view];if(!c||!isAdmin())return;const els=[...document.querySelectorAll(c[0])];if(!els.length)return toast("Rien à imprimer ici.");printHtml(prHead(c[1]())+els.map(e=>e.outerHTML).join(""));logJ("consult","Impression",c[1]());};
+A["print-modal"]=()=>{const s=document.querySelector("#modal-root .sheet");if(!s||!isAdmin())return;const t=(s.querySelector("#sheet-title")||{}).textContent||"";const cl=s.cloneNode(true);cl.querySelectorAll(".sheet-h,.form-actions,button").forEach(e=>e.remove());closeModal();printHtml(prHead(t)+cl.innerHTML);logJ("consult","Impression",t);};
+if(IS_DIR)Object.keys(PRINT_V).forEach(v=>{const f=VIEW_FN[v];VIEW_FN[v]=()=>{const h=f(),i=h.indexOf("</header>");return (i<0||!isAdmin())?h:h.slice(0,i+9)+`<div class="print-bar"><button class="btn sm" data-act="print-view">🖨️ Imprimer / PDF</button></div>`+h.slice(i+9);};});
 {const _om=openModal;openModal=(title,html,wide)=>{_om(title,html,wide);const want=/^(Fiche résident|Projet personnalisé ·|Suivi ·|Historique ·)/.test(title);
- if(want&&IS_DIR){const h=$("modal-root").querySelector(".sheet-h");if(h&&!h.querySelector('[data-act="print-modal"]'))h.insertAdjacentHTML("beforeend",`<button class="btn sm" data-act="print-modal">🖨️ Imprimer</button>`);}};}
+ if(want&&IS_DIR&&isAdmin()){const h=$("modal-root").querySelector(".sheet-h");if(h&&!h.querySelector('[data-act="print-modal"]'))h.insertAdjacentHTML("beforeend",`<button class="btn sm" data-act="print-modal">🖨️ Imprimer</button>`);}};}
 
 /* ---------- Historique des actions ---------- */
 const J_COL={transmissions:"Transmission",contentions:"Fiche de contention",sanctions:"Mesure éducative",retours:"Retour en famille",crs:"Compte rendu médical",residents:"Dossier résident",staff:"Profil",demandes:"Demande (congé, horaire)",activites:"Activité",agenda:"Agenda",commandes:"Commande",constantes:"Poids et constantes",repas:"Repas",hydra:"Hydratation",stock:"Stock de médicaments",projets:"Projet personnalisé",ppObs:"Observation de projet",rondes:"Ronde de nuit",nuitEv:"Événement de nuit",selles:"Selles",prescriptions:"Traitement",sbPrises:"Prise si besoin",posts:"Information de la direction",messages:"Message"};
@@ -3364,8 +3371,7 @@ A["tr-mode"]=d=>{ui.trMode=d.m;ui.trTab=d.m==="equipe"?"carnet":d.m;go("transmis
 {const _vt=VIEW_FN.transmissions;VIEW_FN.transmissions=()=>{let h=_vt();const m=isLimited()?roleOf(ST(state.me)):(ui.trMode||"equipe");
  h=h.replace(/<h1>[^<]*<\/h1>/,`<h1>${esc(TR_MODE_L[m]||"Transmissions")}</h1>`);
  if(m==="equipe"){const s=h.indexOf('<div class="tr-tabs"'),e=s<0?-1:h.indexOf("</div>",s);
-  if(e>0)h=h.slice(0,e)+`<button class="tr-tab" data-act="go" data-v="nuit">${icon("clock",22)}<span>Équipe de nuit</span></button><button class="tr-tab" data-act="go" data-v="cr">${icon("steth",22)}<span>Comptes rendus médicaux</span>${navBadge("cr")?`<span class="badge">${navBadge("cr")}</span>`:""}</button>`+h.slice(e);
-  const l=rappels(),i=h.indexOf("</header>");if(l.length&&i>0)h=h.slice(0,i+9)+`<section class="card rap-card"><div class="card-h"><h2>${icon("info")} À faire</h2><span class="pill warn">${l.length}</span></div>${rapList(l)}</section>`+h.slice(i+9);}
+  if(e>0)h=h.slice(0,e)+`<button class="tr-tab" data-act="go" data-v="nuit">${icon("clock",22)}<span>Équipe de nuit</span></button><button class="tr-tab" data-act="go" data-v="cr">${icon("steth",22)}<span>Comptes rendus médicaux</span>${navBadge("cr")?`<span class="badge">${navBadge("cr")}</span>`:""}</button>`+h.slice(e);}
  return h;};}
 {const _s=subNav;subNav=()=>{if(["nuit","cr"].includes(ui.view)&&!isLimited())return `<button class="backlink" data-act="tr-mode" data-m="equipe">${icon("left",18)} Retour à la transmission équipe éducative</button>`;return _s();};}
 VIEW_FN.contexte=()=>{const sum=ks=>ks.reduce((n,k)=>n+trTabBadge(k),0);
