@@ -143,6 +143,19 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .hub-tile.dis:hover{border-color:var(--line);background:var(--surface)}
 .backlink{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px 0 6px;margin-bottom:10px;border:0;background:none;color:var(--accent);font:inherit;font-weight:700;cursor:pointer;border-radius:10px}
 .backlink:hover{background:var(--accent-soft)}
+.tr-tabs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr));gap:8px;margin-bottom:16px}
+.tr-tab{position:relative;display:flex;align-items:center;gap:10px;min-height:56px;padding:8px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer;font:inherit;font-weight:700;font-size:14px;color:var(--fg);text-align:left}
+.tr-tab svg{color:var(--accent);flex:none}
+.tr-tab:hover{border-color:var(--accent)}
+.tr-tab.on{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.tr-tab.on svg{color:var(--accent-fg)}
+.tr-tab .badge{position:absolute;top:-6px;right:-6px}
+.tr.todo{border-left:5px solid var(--warn)}
+.tr-obj{font-size:17px;margin:6px 0 4px}
+.ret-blk{margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.ret-blk h3{font-size:14px;color:var(--accent);margin:0 0 6px}
+.not-adm .cinfo-row .ed{display:none}
+.not-adm .cinfo-row{cursor:default}
 .tab{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:4px 8px;border:0;background:none;border-radius:10px;font-size:14.5px;cursor:pointer;color:var(--muted);position:relative;min-width:0}
 .tab svg{flex:none}
 .tab span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
@@ -723,6 +736,14 @@ const VIEWS=[
  {id:"retours",label:"Retours en famille",short:"Retours",ic:"house"},
  {id:"actus",label:"Problème technique",short:"Problème tech.",ic:"chat"},
  {id:"residents",label:"Dossiers des résidents",short:"Dossiers",ic:"users"}];
+/* Rôles et rubriques des transmissions */
+const ROLES=[["equipe","Équipe éducative et soignante"],["medical","Corps médical"],["technicien","Technicien de surface"],["ouvrier","Ouvrier"]];
+const TR_TABS=[["carnet","Carnet de l'éducateur","note","Le résumé de la journée, pour passer les informations aux collègues"],["admin","Point admin","users","Une fiche par résident : comment l'activité s'est passée, comportement, capacités"],["medical","Corps médical","steth","Informations importantes pour l'infirmerie et le médecin"],["direction","Direction","shield","Informations importantes pour la direction"],["technicien","Technicien de surface","drop","Ménage, entretien, hygiène des locaux"],["ouvrier","Ouvriers","repair","Réparations, travaux, matériel"]];
+const DEST=["medical","direction","technicien","ouvrier"];
+const TR_MOMENTS=["Matin","Après-midi","Soirée","Nuit","Journée entière"];
+const roleOf=s=>s?(s.role||"equipe"):"equipe";
+const isLimited=()=>{const s=ST(state.me);return !!s&&!s.admin&&(roleOf(s)==="technicien"||roleOf(s)==="ouvrier");};
+const LIMITED_VIEWS=["aujourdhui","horaires","conges","transmissions"];
 
 /* ---------- Données d'exemple (fictives) ---------- */
 function seed(){
@@ -875,7 +896,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 10:30";
+const BUILD_STAMP="17-11-2026 à 10:40";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -922,7 +943,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171030";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171040";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}scheduleSync();}
 save();
 const hNow=new Date().getHours()+new Date().getMinutes()/60;
@@ -934,7 +955,7 @@ const rname=r=>r?`${r.prenom} ${r.nom}`:"Journée / général";
 const sname=id=>{const s=ST(id);return s?(isNum(s)?`${s.prenom} ${s.nom}`:`${s.prenom} ${s.nom.charAt(0)}.`):id==="famille"?"La famille":"—";};
 const isNum=p=>/^n°\s*\d+/.test((p&&p.nom)||"");
 const initials=p=>{const m=/^n°\s*(\d+)/.exec(p.nom||"");return m?m[1]:(((p.prenom||"?").charAt(0))+((p.nom||"").charAt(0))).toUpperCase();};
-const avatar=(r,lg)=>`<span class="av${lg?" lg":""}" aria-hidden="true">${esc(initials(r))}</span>`;
+const avatar=(r,lg)=>`<span class="av${lg?" lg":""}" aria-hidden="true">${r&&r.photo?`<img src="${esc(r.photo)}" alt="">`:esc(initials(r))}</span>`;
 const resSorted=()=>state.residents.slice().sort((a,b)=>a.nom.localeCompare(b.nom));
 const resOpts=empty=>(empty?[["",empty]]:[]).concat(resSorted().map(r=>[r.id,rname(r)]));
 const staffOpts=extra=>state.staff.map(s=>[s.id,`${s.prenom} ${s.nom} (${s.fonction})`]).concat(extra||[]);
@@ -951,7 +972,7 @@ const lastSurv=c=>c.surv.slice().sort((a,b)=>(b.date+b.h).localeCompare(a.date+a
 const reevalPill=c=>{if(!c.reeval)return "";const n=daysBetween(TODAY,c.reeval);if(n<0)return `<span class="pill bad">Réévaluation dépassée de ${-n} j</span>`;if(n===0)return `<span class="pill warn">Réévaluation aujourd'hui</span>`;if(n<=7)return `<span class="pill warn">Réévaluation dans ${n} j</span>`;return `<span class="pill ok">Réévaluation le ${esc(fmtDay(c.reeval,{day:"numeric",month:"long"}))}</span>`;};
 const unreadImp=()=>state.transmissions.filter(t=>t.imp&&!t.lus.includes(state.me));
 const navBadge=id=>{
- if(id==="transmissions")return unreadImp().length;
+ if(id==="transmissions")return isLimited()?trMyTodo():unreadImp().length+trMyTodo();
  if(id==="selles")return sellesAlerts().length;
  if(id==="sanctions")return sanLate().length;
  if(id==="horaires")return isAdmin()?state.demandes.filter(d=>d.statut==="attente"&&d.type==="changement").length:0;
@@ -982,7 +1003,7 @@ function render(){
  const ae=document.activeElement,aid=ae&&ae.id&&$("main").contains(ae)?ae.id:null,av=aid&&"value" in ae?ae.value:null;
  let ss=null;try{if(aid&&ae.selectionStart!=null)ss=[ae.selectionStart,ae.selectionEnd];}catch(e){}
  const drafts={};$("main").querySelectorAll("input[id],textarea[id]").forEach(el=>{if((el.tagName==="TEXTAREA"||["text","search",""].includes(el.type))&&el.value)drafts[el.id]=el.value;});
- renderNav();
+ document.body.classList.toggle("not-adm",!isAdmin());if(isLimited()&&!LIMITED_VIEWS.includes(ui.view))ui.view="aujourdhui"; renderNav();
  const fn=VIEW_FN[ui.view]||VIEW_FN.aujourdhui;
  {const h=fn(),sn=subNav(),i=h.indexOf("</header>");$("main").innerHTML=(sn.startsWith('<button class="backlink"')||i<0)?sn+h:h.slice(0,i+9)+sn+h.slice(i+9);}
  Object.keys(drafts).forEach(id=>{const n=$(id);if(n&&!n.value)n.value=drafts[id];});
@@ -1118,7 +1139,8 @@ function vResidents(){
    <span class="small">${esc(r.handicap)}</span>
    <span class="chips">${r.allergies&&r.allergies!=="Aucune connue"?`<span class="pill bad">Allergie : ${esc(r.allergies)}</span>`:""}${cont?`<span class="pill warn">Contention</span>`:""}${away?`<span class="pill acc">En famille</span>`:""}<span class="pill">Référent : ${esc(sname(r.referent))}</span></span>
   </button>`;}).join("");
- return topbar("Résidents",`${state.residents.length} personnes accompagnées`,`<button class="btn primary" data-act="res-new">${icon("plus",18)} Ajouter</button>`)+
+ return topbar("Résidents",`${state.residents.length} personnes accompagnées`,isAdmin()?`<button class="btn primary" data-act="res-new">${icon("plus",18)} Ajouter</button>`:"")+
+  (isAdmin()?"":`<div class="notice">${icon("info",18)}<span>Les dossiers sont tenus par la direction. Vous pouvez seulement changer la photo d'un résident : ouvrez son dossier puis touchez « Changer la photo ».</span></div>`)+
   `<div class="toolbar"><input type="search" id="res-search" placeholder="Rechercher un nom, une chambre…" aria-label="Rechercher un résident" value="${esc(ui.resQ)}"></div>
   <div class="grid-dash" id="res-grid">${cards}</div>`;
 }
@@ -1129,7 +1151,7 @@ function openResident(id){
  const rv=state.rdv.filter(a=>a.rid===id&&a.statut==="prevu"&&a.date>=TODAY).sort((a,b)=>a.date.localeCompare(b.date));
  const tr=state.transmissions.filter(t=>t.rid===id).sort(byDtDesc).slice(0,5);
  const html=`<div class="row-between"><div class="who">${avatar(r,true)}<div><strong style="font-size:19px">${esc(rname(r))}</strong><span class="muted">${age(r.naissance)} ans · Chambre ${esc(r.chambre)} · ${esc(r.unite)}</span></div></div>
-  <div class="row"><button class="btn sm" data-act="res-edit" data-id="${id}">Modifier</button><button class="btn sm primary" data-act="tr-new" data-r="${id}">${icon("plus",16)} Transmission</button></div></div>
+  <div class="row"><label class="btn sm" for="res-photo-in">${icon("edit",16)} Changer la photo</label><input type="file" id="res-photo-in" accept="image/*" class="sr" data-rid="${id}">${r.photo?`<button class="btn sm ghost" data-act="res-nophoto" data-id="${id}">Retirer la photo</button>`:""}${isAdmin()?`<button class="btn sm" data-act="res-edit" data-id="${id}">Modifier le dossier</button>`:""}<button class="btn sm primary" data-act="tr-admin" data-r="${id}">${icon("plus",16)} Point admin</button></div></div>
   <section class="detail-sec"><h3>Accompagnement</h3><dl class="kv">
    <dt>Né(e) le</dt><dd>${esc(fmtDate(r.naissance))}</dd>
    <dt>Situation de handicap</dt><dd>${esc(r.handicap)}</dd>
@@ -1145,7 +1167,7 @@ function openResident(id){
   <section class="detail-sec"><h3>Traitements en cours</h3>${ps.length?ps.map(p=>`<div class="item"><strong>${esc(p.nom)} ${esc(p.dose)}</strong><span class="muted small">${p.sb?"Si besoin · "+esc(p.indication||""):p.moments.map(m=>MOMENTS[m].label).join(", ")}${p.remarque?" · "+esc(p.remarque):""}</span></div>`).join(""):`<p class="empty">Aucun traitement.</p>`}</section>
   ${cs.length?`<section class="detail-sec"><h3>Contention</h3>${cs.map(c=>`<div class="item"><div class="row-between"><strong>${esc(c.type)}</strong>${reevalPill(c)}</div><span class="muted small">${esc(c.moments)}</span></div>`).join("")}</section>`:""}
   <section class="detail-sec"><h3>Derniers comptes rendus médicaux</h3>${(()=>{const l=state.crs.filter(x=>x.rid===id).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,3);return l.length?l.map(x=>`<div class="item"><strong>${esc(fmtDate(x.date))} · ${esc(x.type)}</strong><span class="muted small">${esc(x.dit)}</span></div>`).join(""):`<p class="empty">Aucun compte rendu.</p>`;})()}</section>
-  <section class="detail-sec"><h3>Dernières transmissions</h3>${tr.length?tr.map(t=>`<div class="item"><div class="tr-meta"><span class="pill info">${esc(t.cat)}</span>${t.imp?`<span class="pill bad">Important</span>`:""}<span>${esc(dayLabel(t.dt.slice(0,10)))}, ${hm(t.dt.slice(11))} · ${esc(sname(t.par))}</span></div><p>${esc(t.texte)}</p></div>`).join(""):`<p class="empty">Aucune transmission.</p>`}</section>`;
+  <section class="detail-sec"><h3>Derniers écrits</h3>${tr.length?tr.map(t=>`<div class="item"><div class="tr-meta"><span class="pill info">${esc(t.kind==="admin"?"Point admin":t.cat||"Transmission")}</span>${t.imp?`<span class="pill bad">Important</span>`:""}<span>${esc(dayLabel(t.dt.slice(0,10)))}, ${hm(t.dt.slice(11))} · ${esc(sname(t.par))}</span></div><p>${esc(t.texte)}</p></div>`).join(""):`<p class="empty">Aucune transmission.</p>`}</section>`;
  openModal("Fiche résident",html,true);
 }
 function residentForm(id){
@@ -1473,30 +1495,70 @@ function cpSettings(){
 }
 
 /* ---------- Vue : Transmissions ---------- */
-function vTrans(){
- let list=state.transmissions.slice().sort(byDtDesc);
- if(ui.trR)list=list.filter(t=>ui.trR==="general"?!t.rid:t.rid===ui.trR);
- if(ui.trC)list=list.filter(t=>t.cat===ui.trC);
- if(ui.trImp)list=list.filter(t=>t.imp);
- let lastDay="",html="";
- list.forEach(t=>{const d=t.dt.slice(0,10);if(d!==lastDay){html+=`<h2 class="day-label">${esc(dayLabel(d))}</h2>`;lastDay=d;}
-  const read=t.lus.includes(state.me);
-  html+=`<article class="card tr" style="margin-bottom:12px"><div class="tr-meta"><strong class="num" style="color:var(--fg)">${hm(t.dt.slice(11))}</strong><span class="pill info">${esc(t.cat)}</span>${t.imp?`<span class="pill bad">Important</span>`:""}<strong style="color:var(--fg)">${esc(t.rid?rname(R(t.rid)):"Journée / général")}</strong><span>par ${esc(sname(t.par))}${ST(t.par)&&ST(t.par).fonction?` (${esc(ST(t.par).fonction)})`:""}</span></div>
-   <p class="tr-text">${esc(t.texte)}</p>
-   <div class="tr-foot"><span>Lu par : ${t.lus.length?t.lus.map(id=>esc(sname(id))).join(", "):"personne"}</span>${read?`<span class="pill ok">${icon("check",14)} Lu</span>`:`<button class="btn sm" data-act="tr-read" data-id="${t.id}">${icon("check",16)} Marquer comme lu</button>`}</div></article>`;});
- const rOpts=`<option value="">Tous les résidents</option><option value="general"${ui.trR==="general"?" selected":""}>Journée / général</option>`+resSorted().map(r=>`<option value="${r.id}"${ui.trR===r.id?" selected":""}>${esc(rname(r))}</option>`).join("");
- const cOpts=`<option value="">Toutes les catégories</option>`+CATS.map(c=>`<option${ui.trC===c?" selected":""}>${esc(c)}</option>`).join("");
- return topbar("Transmissions","Équipe pluridisciplinaire : résidents, déroulement de la journée, problèmes survenus",`<button class="btn primary" data-act="tr-new">${icon("plus",18)} Nouvelle transmission</button>`)+
-  `<div class="toolbar"><select id="tr-r" aria-label="Filtrer par résident">${rOpts}</select><select id="tr-c" aria-label="Filtrer par catégorie">${cOpts}</select><label class="check-inline"><input type="checkbox" id="tr-imp"${ui.trImp?" checked":""}> Importantes seulement</label></div>
-  ${html||`<p class="empty">Aucune transmission ne correspond à ces filtres.</p>`}`;
+function trKind(t){return t.kind||"carnet";}
+function trTabsFor(){const s=ST(state.me);return isLimited()?[roleOf(s)]:TR_TABS.map(x=>x[0]);}
+function trCanDo(k){const s=ST(state.me);if(!s)return false;if(s.admin)return true;if(k==="direction")return false;return roleOf(s)===k;}
+function trTodo(k){return state.transmissions.filter(t=>t.kind===k&&t.statut==="afaire");}
+function trMyTodo(){const s=ST(state.me);if(!s)return 0;if(s.admin)return DEST.reduce((n,k)=>n+trTodo(k).length,0);const r=roleOf(s);return DEST.includes(r)?trTodo(r).length:0;}
+function trTabBadge(k){if(DEST.includes(k))return trCanDo(k)?trTodo(k).length:0;return state.transmissions.filter(t=>trKind(t)===k&&t.imp&&!t.lus.includes(state.me)).length;}
+function trWho(t){const s=ST(t.par);return `par ${esc(sname(t.par))}${s&&s.fonction?` (${esc(s.fonction)})`:""}`;}
+function trAdminBtns(t){return isAdmin()?`<button class="btn sm ghost" data-act="tr-edit" data-id="${t.id}">${icon("edit",16)} Modifier</button><button class="btn sm ghost" data-act="tr-del" data-id="${t.id}">Supprimer</button>`:"";}
+function trReadFoot(t){const read=t.lus.includes(state.me);return `<div class="tr-foot"><span>Lu par : ${t.lus.length?t.lus.map(id=>esc(sname(id))).join(", "):"personne"}</span><span class="row">${trAdminBtns(t)}${read?`<span class="pill ok">${icon("check",14)} Lu</span>`:`<button class="btn sm" data-act="tr-read" data-id="${t.id}">${icon("check",16)} Marquer comme lu</button>`}</span></div>`;}
+function trCard(t){
+ const k=trKind(t),time=`<strong class="num" style="color:var(--fg)">${hm(t.dt.slice(11))}</strong>`;
+ if(k==="admin"){const r=R(t.rid);
+  const rows=[["Activité ou moment",t.quand],["Comment ça s'est passé",t.deroule],["Comportement",t.comportement],["Capacités observées",t.capacites]].filter(x=>x[1]);
+  return `<article class="card tr" style="margin-bottom:12px"><div class="row-between" style="margin-bottom:8px"><div class="who">${r?avatar(r):""}<div><strong>${esc(rname(r))}</strong><span class="muted small">${hm(t.dt.slice(11))} · ${trWho(t)}</span></div></div>${t.imp?`<span class="pill bad">Important</span>`:""}</div>
+   <dl class="kv">${rows.map(([a,b])=>`<dt>${esc(a)}</dt><dd class="tr-text">${esc(b)}</dd>`).join("")}</dl>${trReadFoot(t)}</article>`;}
+ if(DEST.includes(k)){const done=t.statut==="fait";
+  return `<article class="card tr${done?"":" todo"}" style="margin-bottom:12px"><div class="tr-meta">${time}${t.imp?`<span class="pill bad">Urgent</span>`:""}${done?`<span class="pill ok">${icon("check",14)} Fait</span>`:`<span class="pill warn">À faire</span>`}<span>${trWho(t)}</span></div>
+   <h3 class="tr-obj">${esc(t.objet||"Information")}</h3>${t.lieu?`<p class="muted small" style="margin:0 0 4px">Lieu : ${esc(t.lieu)}</p>`:""}${t.texte?`<p class="tr-text">${esc(t.texte)}</p>`:""}
+   ${done?`<p class="small" style="margin-top:8px"><strong>Fait par ${esc(sname(t.faitPar))}</strong>, ${esc(dayLabel(t.faitLe.slice(0,10)).toLowerCase())} à ${hm(t.faitLe.slice(11))}${t.faitNote?` : ${esc(t.faitNote)}`:""}</p>`:""}
+   <div class="tr-foot"><span></span><span class="row">${trAdminBtns(t)}${!done&&trCanDo(k)?`<button class="btn sm primary" data-act="tr-done" data-id="${t.id}">${icon("check",16)} Marquer comme fait</button>`:""}</span></div></article>`;}
+ return `<article class="card tr" style="margin-bottom:12px"><div class="tr-meta">${time}${t.moment?`<span class="pill info">${esc(t.moment)}</span>`:t.cat?`<span class="pill info">${esc(t.cat)}</span>`:""}${t.imp?`<span class="pill bad">Important</span>`:""}${t.rid?`<strong style="color:var(--fg)">${esc(rname(R(t.rid)))}</strong>`:""}<span>${trWho(t)}</span></div>
+  <p class="tr-text">${esc(t.texte)}</p>${trReadFoot(t)}</article>`;
 }
-function trForm(rid){
- openForm({title:"Nouvelle transmission",values:{rid:rid||"",cat:"Vie quotidienne",imp:false},fields:[
-  {name:"rid",label:"Concerne",type:"select",options:resOpts("La journée / l'unité (pas un résident en particulier)")},
-  {name:"cat",label:"Catégorie",type:"select",options:CATS.map(c=>[c,c])},
-  {name:"texte",label:"Transmission",type:"textarea",required:true,full:true,hint:"Faits observés, actions réalisées, suites à donner."},
+function vTrans(){
+ const tabs=trTabsFor();if(!tabs.includes(ui.trTab))ui.trTab=tabs[0];
+ const k=ui.trTab,meta=TR_TABS.find(x=>x[0]===k),dest=DEST.includes(k),lim=isLimited();
+ const tabsH=tabs.length>1?`<div class="tr-tabs" role="tablist" aria-label="Rubriques des transmissions">${tabs.map(id=>{const m=TR_TABS.find(x=>x[0]===id),n=trTabBadge(id);return `<button class="tr-tab${id===k?" on":""}" role="tab" aria-selected="${id===k}" data-act="tr-tab" data-t="${id}">${icon(m[2],22)}<span>${esc(m[1])}</span>${n?`<span class="badge">${n}</span>`:""}</button>`;}).join("")}</div>`:"";
+ let list=state.transmissions.filter(t=>trKind(t)===k).sort(byDtDesc);
+ if(k==="admin"&&ui.trR)list=list.filter(t=>t.rid===ui.trR);
+ const byDay=l=>{let last="",h="";l.forEach(t=>{const d=t.dt.slice(0,10);if(d!==last){h+=`<h2 class="day-label">${esc(dayLabel(d))}</h2>`;last=d;}h+=trCard(t);});return h;};
+ let body;
+ if(dest){const todo=list.filter(t=>t.statut!=="fait"),done=list.filter(t=>t.statut==="fait").slice(0,30);
+  body=`<div class="section-title" style="margin-top:0"><h2>À faire (${todo.length})</h2></div>${todo.length?todo.map(trCard).join(""):`<p class="empty">Rien à faire pour le moment.</p>`}
+   ${done.length?`<div class="section-title"><h2>Déjà fait</h2></div>${done.map(trCard).join("")}`:""}`;}
+ else body=(k==="admin"?`<div class="toolbar"><select id="tr-r" aria-label="Filtrer par résident"><option value="">Tous les résidents</option>${resSorted().map(r=>`<option value="${r.id}"${ui.trR===r.id?" selected":""}>${esc(rname(r))}</option>`).join("")}</select></div>`:"")+(byDay(list)||`<p class="empty">Rien d'écrit pour le moment.</p>`);
+ const lbl={carnet:"Écrire dans le carnet",admin:"Nouveau point admin"}[k]||"Nouvelle demande";
+ return topbar(lim?`Transmissions · ${meta[1]}`:"Transmissions",esc(meta[3]),lim?"":`<button class="btn primary" data-act="tr-new">${icon("plus",18)} ${esc(lbl)}</button>`)+tabsH+
+  (dest&&!lim?`<p class="muted small" style="margin:0 0 12px">${icon("info",16)} La demande reste « à faire » jusqu'à ce que ${k==="direction"?"la direction":"la personne concernée"} la marque « fait ».</p>`:"")+body;
+}
+function trForm(kind,rid,id){
+ const t=id?state.transmissions.find(x=>x.id===id):null;
+ kind=t?trKind(t):(kind||ui.trTab||"carnet");
+ const edit=x=>{if(t){Object.assign(t,x,{modifPar:state.me,modifLe:`${TODAY}T${nowHM()}`});toast("Modifié");return;}
+  state.transmissions.push(Object.assign({id:"t"+uid(),kind,dt:`${TODAY}T${nowHM()}`,par:state.me,lus:[state.me]},x));toast("Enregistré");};
+ if(kind==="admin")return openForm({title:t?"Modifier le point admin":"Point admin",values:t||{rid:rid||""},fields:[
+  {name:"rid",label:"Résident",type:"select",options:resOpts(),required:true,full:true},
+  {name:"quand",label:"Activité ou moment",full:true,hint:"Ex. : atelier cuisine du matin, sortie au marché…"},
+  {name:"deroule",label:"Comment ça s'est passé",type:"textarea",required:true,full:true},
+  {name:"comportement",label:"Comportement",type:"textarea",full:true,hint:"Humeur, relations avec les autres, réactions…"},
+  {name:"capacites",label:"Capacités observées",type:"textarea",full:true,hint:"Ce qu'il ou elle a réussi seul(e), avec aide, les progrès…"},
+  {name:"imp",label:"Important : à lire en priorité",type:"checkbox",full:true}
+ ],submit:"Enregistrer",onSubmit:x=>{x.texte=[x.quand,x.deroule].filter(Boolean).join(" : ");edit(x);}});
+ if(DEST.includes(kind))return openForm({title:t?"Modifier la demande":"Nouvelle demande",values:t||{kind,imp:false},fields:[
+  {name:"kind",label:"Pour qui ?",type:"select",options:DEST.map(k=>[k,TR_TABS.find(x=>x[0]===k)[1]]),required:true,full:true},
+  {name:"objet",label:"Objet",required:true,full:true,hint:"Ex. : robinet qui fuit, sol glissant, fièvre de Résident n°3…"},
+  {name:"lieu",label:"Lieu (facultatif)",full:true,hint:"Ex. : chambre 4, salle d'activités"},
+  {name:"texte",label:"Détails",type:"textarea",full:true},
+  {name:"imp",label:"Urgent",type:"checkbox",full:true}
+ ],submit:"Envoyer",onSubmit:x=>{kind=x.kind;if(!t){x.statut="afaire";}edit(x);ui.trTab=x.kind;}});
+ return openForm({title:t?"Modifier le carnet":"Carnet de l'éducateur",values:t||{moment:TR_MOMENTS[0],imp:false},fields:[
+  {name:"moment",label:"Moment de la journée",type:"select",options:TR_MOMENTS.map(m=>[m,m]),full:true},
+  {name:"texte",label:"Ce que les collègues doivent savoir",type:"textarea",required:true,full:true,hint:"Ambiance de la journée, ce qui s'est passé avec les résidents, ce qui reste à faire."},
   {name:"imp",label:"Important : à lire en priorité par l'équipe",type:"checkbox",full:true}
- ],submit:"Publier",onSubmit:x=>{state.transmissions.push(Object.assign({id:"t"+uid(),dt:`${TODAY}T${nowHM()}`,par:state.me,lus:[state.me]},x));toast("Transmission publiée");}});
+ ],submit:"Publier",onSubmit:x=>edit(x)});
 }
 
 /* ---------- Vue : Rendez-vous ---------- */
@@ -1553,15 +1615,20 @@ function actForm(id,date){
 
 /* ---------- Vue : Retours en famille ---------- */
 function vRet(){
+ const adm=isAdmin();
+ const blk=(title,rows)=>{rows=rows.filter(x=>x[1]);return rows.length?`<div class="ret-blk"><h3>${esc(title)}</h3><dl class="kv">${rows.map(([a,b])=>`<dt>${esc(a)}</dt><dd class="tr-text">${esc(b)}</dd>`).join("")}</dl></div>`:"";};
  const card=f=>{const r=R(f.rid);return `<article class="card"><div class="row-between"><div class="who">${avatar(r)}<div><strong>${esc(rname(r))}</strong><span class="muted small">Accueilli(e) par ${esc(f.accueil)}</span></div></div>
   ${f.statut==="encours"?`<span class="pill acc">En famille</span>`:f.statut==="prevu"?`<span class="pill info">Prévu</span>`:f.statut==="annule"?`<span class="pill">Annulé</span>`:`<span class="pill ok">Rentré(e)</span>`}</div>
-  <dl class="kv" style="margin-top:12px"><dt>Départ</dt><dd>${esc(cap(fmtDay(f.depDate)))} à ${hm(f.depH)}</dd><dt>Retour</dt><dd>${esc(cap(fmtDay(f.retDate)))} à ${hm(f.retH)}</dd><dt>Transport</dt><dd>${esc(f.transport)}</dd><dt>Téléphone</dt><dd class="num" style="user-select:all">${esc(f.tel||"—")}</dd><dt>Traitement remis</dt><dd>${f.traitement?"Oui":"Non"}</dd>${f.consignes?`<dt>Consignes</dt><dd>${esc(f.consignes)}</dd>`:""}${f.obs?`<dt>Observations au retour</dt><dd>${esc(f.obs)}</dd>`:""}</dl>
-  ${f.statut==="prevu"?`<div class="row" style="margin-top:12px"><button class="btn sm primary" data-act="ret-dep" data-id="${f.id}">Départ effectué</button><button class="btn sm" data-act="ret-edit" data-id="${f.id}">Modifier</button><button class="btn sm ghost" data-act="ret-cancel" data-id="${f.id}">Annuler</button></div>`:""}
-  ${f.statut==="encours"?`<div class="row" style="margin-top:12px"><button class="btn sm primary" data-act="ret-back" data-id="${f.id}">Noter le retour</button><button class="btn sm" data-act="ret-edit" data-id="${f.id}">Modifier</button></div>`:""}</article>`;};
+  <dl class="kv" style="margin-top:12px"><dt>Départ</dt><dd>${esc(cap(fmtDay(f.depDate)))} à ${hm(f.depH)}</dd><dt>Retour</dt><dd>${esc(cap(fmtDay(f.retDate)))} à ${hm(f.retH)}</dd><dt>Transport</dt><dd>${esc(f.transport)}</dd><dt>Téléphone</dt><dd class="num" style="user-select:all">${esc(f.tel||"—")}</dd>${f.consignes?`<dt>Consignes</dt><dd>${esc(f.consignes)}</dd>`:""}</dl>
+  ${blk(`Au départ${f.depPar?" · noté par "+sname(f.depPar):""}`,[["Affaires emportées",f.affDep],["Médicaments donnés",f.medsDep],["Autre",f.autreDep],["Informations au départ",f.infoDep]])}
+  ${blk(`Au retour${f.retPar?" · noté par "+sname(f.retPar):""}`,[["Affaires rapportées",f.affRet],["Médicaments rapportés",f.medsRet],["État du résident",f.etatRet],["Ce que la famille a dit",f.infoFam],["Observations",f.obs]])}
+  ${f.statut==="prevu"?`<div class="row" style="margin-top:12px"><button class="btn sm primary" data-act="ret-dep" data-id="${f.id}">Noter le départ</button>${adm?`<button class="btn sm" data-act="ret-edit" data-id="${f.id}">Modifier</button><button class="btn sm ghost" data-act="ret-cancel" data-id="${f.id}">Annuler</button>`:""}</div>`:""}
+  ${f.statut==="encours"?`<div class="row" style="margin-top:12px"><button class="btn sm primary" data-act="ret-back" data-id="${f.id}">Noter le retour</button>${adm?`<button class="btn sm" data-act="ret-edit" data-id="${f.id}">Modifier</button>`:""}</div>`:""}</article>`;};
  const g=s=>state.retours.filter(f=>f.statut===s).sort((a,b)=>a.depDate.localeCompare(b.depDate));
  const done=state.retours.filter(f=>f.statut==="termine"||f.statut==="annule").sort((a,b)=>b.depDate.localeCompare(a.depDate));
  const sec=(t,l,e)=>`<div class="section-title"${t==="En famille actuellement"?' style="margin-top:0"':""}><h2>${t}</h2></div>${l.length?`<div class="med-grid">${l.map(card).join("")}</div>`:`<p class="empty">${e}</p>`}`;
- return topbar("Retours en famille","Week-ends, vacances et séjours chez les proches",`<button class="btn primary" data-act="ret-new">${icon("plus",18)} Prévoir un retour</button>`)+
+ return topbar("Retours en famille","Week-ends, vacances et séjours chez les proches",adm?`<button class="btn primary" data-act="ret-new">${icon("plus",18)} Prévoir un retour</button>`:"")+
+  (adm?"":`<div class="notice">${icon("info",18)}<span>Les retours sont prévus par la direction. Vous complétez le départ (affaires, médicaments, informations) et le retour du résident.</span></div>`)+
   sec("En famille actuellement",g("encours"),"Tout le monde est à l'établissement.")+sec("À venir",g("prevu"),"Aucun départ prévu.")+sec("Historique",done,"Pas encore d'historique.");
 }
 function retForm(id){
@@ -2108,7 +2175,7 @@ function toast(msg){const t=$("toast");t.textContent=msg;t.hidden=false;clearTim
 
 /* ---------- Navigation ---------- */
 function go(v){
- if(!VIEW_FN[v])v="aujourdhui";ui.contTable=null;closeDrawer();navPop="";
+ if(!VIEW_FN[v]||(isLimited()&&!LIMITED_VIEWS.includes(v)))v="aujourdhui";ui.contTable=null;closeDrawer();navPop="";
  ui.view=v;
  if(location.hash.slice(1)!==v){try{history.replaceState(null,"","#"+v);}catch(e){location.hash=v;}}
  render();window.scrollTo(0,0);
@@ -2285,6 +2352,7 @@ function renderGate(){
   h=`<form id="g-edit" class="gate-card" novalidate><h1>${s?"Modifier le profil":"Nouveau profil"}</h1>
   <div class="gate-photo"><span id="g-prev">${pav(s||{id:"new",prenom:"?",nom:""},"md",photo)}</span><div style="display:grid;gap:6px;justify-items:start"><label class="gate-btn small" for="g-file">Choisir une photo</label><input type="file" id="g-file" accept="image/*" class="sr"><button type="button" class="gate-link" data-g="nophoto" id="g-nophoto"${photo?"":" hidden"}>Retirer la photo</button></div></div>
   ${gf("g-pre","Prénom",s&&s.prenom,'autocomplete="off"')}${gf("g-nom","Nom",s&&s.nom,'autocomplete="off"')}${gf("g-fct","Fonction",s&&s.fonction,'autocomplete="off"')}
+  <label class="gf" for="g-role"><span>Rôle dans l'application</span><select id="g-role">${ROLES.map(([k,l])=>`<option value="${k}"${((s&&s.role)||"equipe")===k?" selected":""}>${esc(l)}</option>`).join("")}</select></label>
   <label class="gcheck" for="g-isadm"><input type="checkbox" id="g-isadm"${s&&s.admin?" checked":""}> Administrateur (peut gérer les profils)</label>
   ${pwdField("g-p1",s&&s.hash?"Nouveau mot de passe (laisser vide pour le garder)":"Mot de passe (6 caractères minimum)","new-password")}${pwdField("g-p2","Confirmer le mot de passe","new-password")}${err}
   <div class="gate-row" style="justify-content:flex-start"><button class="gate-btn solid" type="submit">Enregistrer</button><button class="gate-btn" type="button" data-g="manage-back">Annuler</button></div>
@@ -2332,7 +2400,7 @@ async function doEdit(){
  const e=pwdCheck(p1,p2,!(s&&s.hash));if(e)return showErr(e);
  if(s&&s.admin&&!adm&&admins().length<=1&&s.hash)return showErr("Gardez au moins un administrateur, sinon plus personne ne pourra gérer les profils.");
  const t=s||{id:"s"+uid()};
- Object.assign(t,{prenom:pre,nom,fonction:fct,admin:adm});
+ Object.assign(t,{prenom:pre,nom,fonction:fct,admin:adm,role:$("g-role").value||"equipe"});
  if(G.photo!==undefined)t.photo=G.photo;
  if(p1){t.salt=uid()+uid();t.hash=await hashPwd(p1,t.salt);}
  if(!s)state.staff.push(t);
@@ -2405,13 +2473,13 @@ var navPop="",drawerGroups={};
 function groupOf(id){return Object.keys(NAV_GROUPS).find(k=>NAV_GROUPS[k].items.includes(id))||"";}
 function grpBadge(g){return g.items.reduce((n,id)=>n+navBadge(id),0);}
 function subLabel(id){const v=VIEWS.find(x=>x.id===id);return SUBLABEL[id]||(v?v.label:id);}
-function navTabs(){return NAV_ORDER.map(k=>{
+function navTabs(){return navOrder().map(k=>{
  const g=NAV_GROUPS[k];
  if(g){const cur=g.items.includes(ui.view),b=grpBadge(g);
   return `<button class="tab" data-act="go" data-v="${g.items[0]}" title="${esc(g.label)}"${cur?' aria-current="page"':""}>${icon(g.ic,22)}<span>${esc(g.short||g.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}
  const v=VIEWS.find(x=>x.id===k);if(!v)return "";const b=navBadge(k);
  return `<button class="tab" data-act="go" data-v="${k}" title="${esc(v.label)}"${ui.view===k?' aria-current="page"':""}>${icon(v.ic,22)}<span>${esc(v.short||v.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}).join("");}
-function drawerTree(){return NAV_ORDER.map(k=>{
+function drawerTree(){return navOrder().map(k=>{
  const g=NAV_GROUPS[k];
  if(g){const cur=g.items.includes(ui.view),b=grpBadge(g);
   return `<button class="nav-btn" data-act="go" data-v="${g.items[0]}"${cur?' aria-current="page"':""}>${icon(g.ic)}<span>${esc(g.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}
@@ -2419,7 +2487,7 @@ function drawerTree(){return NAV_ORDER.map(k=>{
  return `<button class="nav-btn" data-act="go" data-v="${k}"${ui.view===k?' aria-current="page"':""}>${icon(v.ic)}<span>${esc(v.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}).join("");}
 function hubTile(o){return `<button class="hub-tile${o.dis?" dis":""}" ${o.act}${o.dis?" disabled":""}>${icon(o.ic,26)}<span class="ht"><strong>${esc(o.t)}</strong><small>${esc(o.s||"")}</small></span>${o.b?`<span class="badge">${o.b}</span>`:""}</button>`;}
 function subNav(){
- const k=groupOf(ui.view);if(!k)return "";const g=NAV_GROUPS[k];
+ const k=groupOf(ui.view);if(!k||isLimited())return "";const g=NAV_GROUPS[k];
  if(ui.view!==g.items[0])return `<button class="backlink" data-act="go" data-v="${g.items[0]}">${icon("left",18)} Retour à ${esc(g.label)}</button>`;
  return "";
 }
@@ -2487,6 +2555,46 @@ A["san-done"]=d=>{const s=state.sanctions.find(x=>x.id===d.id);if(!s)return;cons
 A["san-drop"]=d=>{const s=state.sanctions.find(x=>x.id===d.id);if(!s)return;
  openForm({title:`Abandonner la mesure · ${rname(R(s.rid))}`,fields:[{name:"bilan",label:"Pourquoi la mesure est abandonnée",type:"textarea",required:true,full:true}],submit:"Abandonner la mesure",
   onSubmit:x=>{s.bilan=x.bilan;s.statut="abandonnee";s.modifPar=state.me;s.modifLe=`${TODAY}T${nowHM()}`;toast("Mesure abandonnée");}});};
+
+/* ---------- Étape 2 : droits, transmissions, retours, dossiers ---------- */
+function navOrder(){return isLimited()?LIMITED_VIEWS:NAV_ORDER;}
+const onlyDir=()=>{toast("Seule la direction peut modifier cet écrit.");};
+A["tr-tab"]=d=>{ui.trTab=d.t;render();};
+A["tr-new"]=d=>trForm(ui.view==="transmissions"?ui.trTab:"carnet",d.r);
+A["tr-admin"]=d=>{closeModal();trForm("admin",d.r);};
+A["tr-edit"]=d=>{if(!isAdmin())return onlyDir();trForm(null,null,d.id);};
+A["tr-del"]=d=>{if(!isAdmin())return onlyDir();const t=state.transmissions.find(x=>x.id===d.id);if(!t)return;confirmBox("Supprimer cet écrit",`Écrit par ${sname(t.par)}. Cette suppression est définitive.`,"Supprimer",()=>{state.transmissions=state.transmissions.filter(x=>x.id!==t.id);toast("Écrit supprimé");});};
+A["tr-done"]=d=>{const t=state.transmissions.find(x=>x.id===d.id);if(!t||!trCanDo(t.kind))return;
+ openForm({title:`Fait · ${t.objet||""}`,fields:[{name:"note",label:"Un petit mot (facultatif)",type:"textarea",full:true,hint:"Ex. : joint changé, à surveiller."}],submit:"Marquer comme fait",
+  onSubmit:x=>{t.statut="fait";t.faitPar=state.me;t.faitLe=`${TODAY}T${nowHM()}`;t.faitNote=x.note;if(!t.lus.includes(state.me))t.lus.push(state.me);toast("Marqué comme fait");}});};
+const _crEdit=A["cr-edit"],_sanEdit=A["san-edit"],_sanDone=A["san-done"];
+A["cr-edit"]=d=>{if(!isAdmin())return onlyDir();_crEdit(d);};
+A["san-edit"]=d=>{if(!isAdmin())return onlyDir();_sanEdit(d);};
+A["san-done"]=d=>{const s=state.sanctions.find(x=>x.id===d.id);if(s&&s.statut!=="arealiser"&&!isAdmin())return onlyDir();_sanDone(d);};
+A["res-new"]=()=>{if(!isAdmin())return onlyDir();residentForm();};
+A["res-edit"]=d=>{if(!isAdmin())return onlyDir();residentForm(d.id);};
+A["res-nophoto"]=d=>{const r=R(d.id);if(!r)return;delete r.photo;save();render();openResident(r.id);toast("Photo retirée");};
+document.addEventListener("change",async e=>{if(e.target.id!=="res-photo-in"||!e.target.files[0])return;const r=R(e.target.dataset.rid);if(!r)return;
+ try{r.photo=await readPhoto(e.target.files[0]);save();render();openResident(r.id);toast("Photo enregistrée");}catch(err){toast("Impossible de lire cette image.");}});
+A["ret-new"]=()=>{if(!isAdmin())return onlyDir();retForm();};
+A["ret-edit"]=d=>{if(!isAdmin())return onlyDir();retForm(d.id);};
+const _retCancel=A["ret-cancel"];A["ret-cancel"]=d=>{if(!isAdmin())return onlyDir();_retCancel(d);};
+A["ret-dep"]=d=>{const f=state.retours.find(x=>x.id===d.id);if(!f)return;
+ openForm({title:`Départ · ${rname(R(f.rid))}`,values:{depH:nowHM()},fields:[
+  {name:"depH",label:"Heure de départ",type:"time",required:true},
+  {name:"affDep",label:"Affaires emportées",type:"textarea",full:true,hint:"Vêtements, trousse de toilette, appareillage, doudou…"},
+  {name:"medsDep",label:"Médicaments donnés",type:"textarea",full:true,hint:"Nom, quantité, pour combien de jours."},
+  {name:"autreDep",label:"Autre",type:"textarea",full:true,hint:"Argent de poche, papiers, ordonnance…"},
+  {name:"infoDep",label:"Informations lors du départ",type:"textarea",full:true,hint:"Humeur, consignes données à la famille…"}
+ ],submit:"Enregistrer le départ",onSubmit:x=>{Object.assign(f,x);f.statut="encours";f.depDate=TODAY;f.depPar=state.me;toast("Départ enregistré");}});};
+A["ret-back"]=d=>{const f=state.retours.find(x=>x.id===d.id);if(!f)return;
+ openForm({title:`Retour · ${rname(R(f.rid))}`,values:{retH:nowHM()},fields:[
+  {name:"retH",label:"Heure de retour",type:"time",required:true},
+  {name:"affRet",label:"Affaires rapportées",type:"textarea",full:true,hint:"Ce qui est revenu, ce qui manque."},
+  {name:"medsRet",label:"Médicaments rapportés",type:"textarea",full:true,hint:"Ce qui reste, ce qui a été pris ou oublié."},
+  {name:"etatRet",label:"État du résident au retour",type:"textarea",required:true,full:true,hint:"Humeur, santé, fatigue…"},
+  {name:"infoFam",label:"Ce que la famille a dit",type:"textarea",full:true}
+ ],submit:"Enregistrer le retour",onSubmit:x=>{Object.assign(f,x);f.statut="termine";f.retDate=TODAY;f.retPar=state.me;toast("Retour enregistré");}});};
 
 /* ---------- Partage en ligne (base de données de l'artifact) ---------- */
 var syncDb=null,syncBase={},syncRemote={},syncChunks={},syncTimer=null,syncBusy=false,syncAgain=false,syncReady=false,syncPendingRemote=null,syncRO=false,syncStatus="local";
