@@ -893,6 +893,7 @@ body.xl-fullon{overflow:hidden}
 .xl-ed>.xl-t{padding:6px 8px}
 .xl-anim{width:100%;border:0;border-radius:0;background:transparent;font:inherit;font-weight:700;color:var(--fg);padding:8px 6px;cursor:pointer;box-shadow:none}
 .xl-anim:focus{outline:0}
+.xl-nores{display:flex;gap:6px;align-items:flex-start;margin:0 0 8px;padding:7px 10px;border-radius:8px;font-size:13px;background:color-mix(in srgb,#e08a00 14%,var(--surface));border:1px solid color-mix(in srgb,#e08a00 40%,transparent)}
 .xl-anim2{width:100%;border:0;border-radius:0;background:transparent;font:inherit;color:var(--fg);padding:8px 6px;cursor:pointer;box-shadow:none}
 .xl-anim2:focus{outline:0}
 .xl-title{display:block;width:100%;margin:4px 0 2px;padding:5px 7px;border:1px dashed var(--xg);border-radius:6px;background:var(--surface);font:inherit;font-weight:600;color:var(--fg);box-shadow:none}
@@ -1185,7 +1186,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 19:47";
+const BUILD_STAMP="17-11-2026 à 19:53";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -1232,7 +1233,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171947";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171953";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 /* Profils : la version à partager reprend les profils créés dans la version Direction du même appareil */
 (function(){try{const DK="lesakura-direction-v1";if(KEY===DK)return;const raw=localStorage.getItem(DK);if(!raw)return;const ds=(JSON.parse(raw)||{}).staff;if(!Array.isArray(ds))return;let ch=false;
  ds.forEach(f=>{if(!f||!f.id||!f.hash)return;const i=state.staff.findIndex(x=>x.id===f.id);if(i<0){state.staff.push(JSON.parse(JSON.stringify(f)));ch=true;}else if(JSON.stringify(state.staff[i])!==JSON.stringify(f)){state.staff[i]=JSON.parse(JSON.stringify(f));ch=true;}});
@@ -3005,7 +3006,8 @@ document.addEventListener("submit",e=>{if(e.target.id!=="depform")return;e.preve
  if(!x.lieu)return err.textContent="Indiquez le lieu de l'activité (étape 4).";
  if(!x.part.length)return err.textContent="Cochez au moins un résident (étape 5).";
  const id=ui.depEditKeep||"",a=id?state.activites.find(y=>y.id===id):null;
- if(a){Object.assign(a,x);toast("Activité modifiée");}
+ {const full=x.part.filter(rid=>admCount(rid,x.date,id)>=ADM_MAX).map(rid=>rname(R(rid)));if(full.length)return err.textContent=`${full.join(", ")} : déjà ${ADM_MAX} activités ce jour-là (maximum). Décochez ce résident ou changez de jour (étape 5).`;}
+ if(a){Object.assign(a,x);state.transmissions.forEach(t=>{if(trKind(t)==="admin"&&t.actId===a.id){t.adate=a.date;t.adeb=a.debut||"";t.quand=a.titre;}});toast("Activité modifiée (administratif mis à jour)");}
  else if(isAdmin()){state.activites.push(Object.assign({id:uid(),statut:"validee",propPar:state.me},x));toast("Activité ajoutée au planning");}
  else{state.activites.push(Object.assign({id:uid(),statut:"proposee",propPar:state.me,proposeLe:TODAY},x));toast("Activité envoyée à la direction pour validation");}
  ui.depDraft=null;ui.depCat="";ui.depEditKeep="";ui.depFile=undefined;ui.depAutre=false;ui.actWeek=mondayOf(x.date);save();go("activites");});
@@ -3671,7 +3673,7 @@ function admTable(d,print){
  const num=()=>print?"":`<td class="xl-n">${y+1}</td>`;
  const body=resSorted().map(r=>{
   /* Toujours 3 lignes par résident : Activité 1, 2, 3 (3 activités maximum par jour) */
-  const items=acts.filter(a=>a.part.includes(r.id)).slice(0,ADM_MAX).map(a=>({a,t:ents.find(t=>t.actId===a.id&&t.rid===r.id)}));
+  const items=acts.filter(a=>a.part.includes(r.id)).map(a=>({a,t:ents.find(t=>t.actId===a.id&&t.rid===r.id)}));
   /* Lignes hors planning (activité écrite par l'équipe) puis lignes vides, toujours remplissables */
   const frees=ents.filter(t=>t.rid===r.id&&!(t.actId&&items.some(it=>it.a&&it.a.id===t.actId))).sort((p,q)=>(p.slot||0)-(q.slot||0));
   frees.forEach(t=>items.push({a:admFree(r,d,t.slot,t),t}));
@@ -3735,7 +3737,10 @@ function vAdministratif(){
  const keys="Entrée : case du dessous · Tab : case de droite · flèches pour se déplacer · Alt+Entrée : retour à la ligne dans la case.";
  const info=!admOpen(d)?(d>TODAY?"Ce jour n'est pas encore arrivé : la feuille se remplit le jour de l'activité.":(isAdmin()?"Ce jour a plus de 7 jours : seule la direction peut encore modifier la feuille.":"Ce jour a plus de 7 jours : la feuille ne peut plus être remplie.")):(isAdmin()?"Vous pouvez tout remplir et corriger, et ajouter, modifier ou retirer des activités et des résidents (le planning suit). ":"Tout le personnel peut remplir toutes les lignes. Chacun peut corriger ses cases le jour même. ")+keys;
  const legend=`<div class="xl-legend">${COMP.map(c=>`<span class="xl-key xl-${c[3]}">${c[1]} ${esc(c[2])}</span>`).join("")}<span class="xl-key">😠 = alerte à la direction</span></div>`;
- const head=`<div class="xl-top"><div class="xl-title"><strong>Administratif</strong><span>${esc(cap(fmtDay(d)))}</span></div><div class="row">${pr}</div></div><p class="xl-info">${icon("info",16)} ${esc(info)}</p>${legend}`;
+ /* Activités du planning de ce jour sans résident inscrit : elles restent visibles ici */
+ const noRes=actOk().filter(a=>a.date===d&&!(a.part||[]).length).sort((a,b)=>(a.debut||"").localeCompare(b.debut||""));
+ const noResH=noRes.length?`<div class="xl-nores">${icon("info",16)}<span><strong>Au planning ce jour-là, sans résident inscrit :</strong> ${noRes.map(a=>`${esc(a.titre)} (${hm(a.debut)}–${hm(a.fin)}${ST(a.anim)?", "+esc(sname(a.anim)):""})${isAdmin()?` <button class="pa-lnk" data-act="adm-aedit" data-id="${a.id}">choisir les résidents</button>`:""}`).join(" · ")}</span></div>`:"";
+ const head=`<div class="xl-top"><div class="xl-title"><strong>Administratif</strong><span>${esc(cap(fmtDay(d)))}</span></div><div class="row">${pr}</div></div><p class="xl-info">${icon("info",16)} ${esc(info)}</p>${legend}${noResH}`;
  return `<div class="xl-book${full?" full":""}" id="xl-book">${head}<div class="xl-wrap" id="xl-wrap">${admTable(d)}</div>${admSheets(d)}</div>`;}
 A["xl-full"]=()=>{ui.xlFull=!ui.xlFull;render();};
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&ui.xlFull&&ui.view==="administratif"&&!$("modal-root").innerHTML){ui.xlFull=false;render();}});
