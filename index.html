@@ -802,6 +802,16 @@ body.locked .app,body.locked .tabbar{display:none}
 .pa-fr{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
 .pa-pr h2{font-size:16px;margin:16px 0 8px}
 @media (max-width:640px){.pa-table{font-size:14px}.pa-table td,.pa-table th{padding:6px}.pa-pc{width:56px}.pa-ph{width:46px;height:46px;font-size:15px}.pa-k{width:auto}.pa-card{padding:10px}}
+.adm-table{width:100%;min-width:720px;border-collapse:collapse;font-size:15px;line-height:1.45;background:var(--surface)}
+.adm-table th,.adm-table td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left}
+.adm-table thead th{background:var(--surface-2);font-size:13px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
+.adm-table tbody{border-top:3px solid var(--line)}
+.adm-table td.adm-c{width:34%;white-space:pre-wrap}
+.adm-table td.adm-a{width:20%}
+.adm-table tr.adm-mine td:not(.pa-pc){background:color-mix(in srgb,var(--accent,#b04a78) 8%,var(--surface))}
+.adm-wait{color:var(--muted);font-size:13px}
+.adm-fix{display:block;margin-top:6px}
+@media print{.adm-table{min-width:0;font-size:11pt}.adm-table tr.adm-mine td{background:none!important}}
 .unread-dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--bad,#c0392b);box-shadow:0 0 0 3px color-mix(in srgb,var(--bad,#c0392b) 22%,transparent);margin-right:8px;vertical-align:middle;flex:none}
 </style>
 
@@ -1087,7 +1097,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 13:42";
+const BUILD_STAMP="17-11-2026 à 13:55";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -1134,7 +1144,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171342";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171355";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}scheduleSync();}
 save();
 const hNow=new Date().getHours()+new Date().getMinutes()/60;
@@ -3395,7 +3405,7 @@ A["tr-mode"]=d=>{ui.trMode=d.m;ui.trTab=d.m==="equipe"?"carnet":d.m;go("transmis
  return h;};}
 {const _s=subNav;subNav=()=>{if(["nuit","cr"].includes(ui.view)&&!isLimited())return `<button class="backlink" data-act="tr-mode" data-m="equipe">${icon("left",18)} Retour à la transmission équipe éducative</button>`;return _s();};}
 VIEW_FN.contexte=()=>{const sum=ks=>ks.reduce((n,k)=>n+trTabBadge(k),0);
- const tiles=[{ic:"note",t:"Transmission équipe éducative",s:"Carnet, point admin, corps médical, nuit, comptes rendus médicaux",act:'data-act="tr-mode" data-m="equipe"',b:sum(TR_EQ)},
+ const tiles=[{ic:"note",t:"Transmission équipe éducative",s:"Carnet, corps médical, nuit, comptes rendus médicaux",act:'data-act="tr-mode" data-m="equipe"',b:sum(TR_EQ)},
   {ic:"shield",t:"Transmission pour la direction",s:"Informations importantes pour la direction",act:'data-act="tr-mode" data-m="direction"',b:trTabBadge("direction")},
   {ic:"drop",t:"Transmission pour les techniciens de surface",s:"Ménage, entretien, hygiène des locaux",act:'data-act="tr-mode" data-m="technicien"',b:trTabBadge("technicien")},
   {ic:"repair",t:"Transmission des ouvriers",s:"Réparations, travaux, matériel",act:'data-act="tr-mode" data-m="ouvrier"',b:trTabBadge("ouvrier")},
@@ -3412,7 +3422,7 @@ NAV_GROUPS["g-sante"].items=["sante","medicaments","constantes","repas","selles"
 NAV_GROUPS["g-plan"]={label:"Planning",short:"Planning",ic:"cal",items:["activites","menus"]};
 NAV_ORDER.splice(NAV_ORDER.indexOf("activites"),1,"g-plan");
 {const _va=VIEW_FN.activites;VIEW_FN.activites=()=>{const h=_va(),i=h.indexOf("</header>");if(i<0)return h;
- return h.slice(0,i+9)+`<div class="tr-tabs"><button class="tr-tab on" aria-current="page">${icon("cal",22)}<span>Activités</span></button><button class="tr-tab" data-act="go" data-v="menus">🍽️<span>Menus de la semaine</span></button></div>`+h.slice(i+9);};}
+ return h.slice(0,i+9)+planTabs("activites")+h.slice(i+9);};}
 /* Dossiers après Commandes */
 NAV_ORDER.splice(NAV_ORDER.indexOf("g-dos"),1);NAV_ORDER.push("g-dos");
 /* Point admin : tableau par résident (photo, activités du planning, comportement, capacités) */
@@ -3473,6 +3483,61 @@ A["pa-print"]=()=>{if(!isAdmin())return;const mon=mondayOf(TODAY);
   if(!l.length){toast("Aucun point admin pour ce résident sur cette période.");return;}
   const days=[...new Set(l.map(paDate))].sort();const title=`Point admin du ${fmtDate(x.du)} au ${fmtDate(x.au)}`;
   setTimeout(()=>{printHtml(prHead(title)+`<div class="pa-pr">${days.map(d=>`<h2>${esc(cap(fmtDay(d)))}</h2>${paTable(r,l.filter(t=>paDate(t)===d),true)}`).join("")}</div>`);logJ("consult","Impression",`${title} · ${rname(r)}`);},50);}});};
+/* Planning : onglet Administratif — grand tableau de la journée */
+const PLAN_T=[["activites","cal","Activités"],["administratif","note","Administratif"],["menus","","Menus de la semaine"]];
+function planTabs(cur){return `<div class="tr-tabs">${PLAN_T.map(([v,ic,l])=>`<button class="tr-tab${v===cur?" on":""}"${v===cur?' aria-current="page"':` data-act="go" data-v="${v}"`}>${ic?icon(ic,22):"🍽️"}<span>${l}</span></button>`).join("")}</div>`;}
+{const _m=VIEW_FN.menus;VIEW_FN.menus=()=>{const h=_m(),i=h.indexOf("</header>");return i<0?h:h.slice(0,i+9)+planTabs("menus")+h.slice(i+9);};}
+NAV_GROUPS["g-plan"].items=["activites","administratif","menus"];
+{const _s=subNav;subNav=()=>NAV_GROUPS["g-plan"].items.includes(ui.view)?"":_s();}
+TR_EQ.splice(TR_EQ.indexOf("admin"),1);
+const admOpen=d=>!isLimited()&&d<=TODAY&&d>=addDays(TODAY,-7);
+const admCan=a=>!isLimited()&&(isAdmin()||(paMine(a)&&admOpen(a.date)));
+const admCanFix=(t,a)=>isAdmin()||(t.par===state.me&&t.dt.slice(0,10)===TODAY&&(!a||paMine(a)));
+const admWho=a=>[a.anim].concat(a.staff||[]).filter(Boolean).map(sname).join(", ");
+function admTable(d,print){
+ const acts=actOk().filter(a=>a.date===d&&(a.part||[]).length).sort((a,b)=>(a.debut||"").localeCompare(b.debut||""));
+ const ents=state.transmissions.filter(t=>trKind(t)==="admin"&&paDate(t)===d);
+ const cell=(it,r,f)=>{const t=it.t,a=it.a,txt=t?t[f]||"":"";
+  if(print)return esc(txt||"—");
+  if(t){const fix=admCanFix(t,a)&&a;return `${txt?esc(txt):`<span class="adm-wait">—</span>`}${fix&&f==="capacites"?`<button class="pa-lnk adm-fix small" data-act="adm-edit" data-a="${a.id}" data-r="${r.id}">Corriger</button>`:""}`;}
+  if(a&&admCan(a))return `<button class="btn sm" data-act="adm-edit" data-a="${a.id}" data-r="${r.id}">${icon("edit",16)} Écrire</button>`;
+  return a&&d<=TODAY?`<span class="adm-wait">À remplir par ${esc(admWho(a)||"l'équipe")}</span>`:`<span class="adm-wait">—</span>`;};
+ const body=resSorted().map(r=>{
+  const items=acts.filter(a=>a.part.includes(r.id)).map(a=>({a,t:ents.find(t=>t.actId===a.id&&t.rid===r.id)}));
+  ents.filter(t=>t.rid===r.id&&!(t.actId&&acts.some(a=>a.id===t.actId))).forEach(t=>items.push({a:null,t}));
+  const ph=n=>`<td class="pa-pc" rowspan="${n}">${paPhoto(r)}</td>`;
+  if(!items.length)return `<tbody><tr>${ph(1)}<td colspan="3" class="adm-wait">Pas d'activité au planning ce jour-là.</td></tr></tbody>`;
+  return `<tbody>${items.map((it,i)=>{const a=it.a;const act=a?`${print?"":picto(apic(a)).e+" "}<strong>${esc(a.titre)}</strong><span class="pa-by">${hm(a.debut)}–${hm(a.fin)}${admWho(a)?" · "+esc(admWho(a)):""}</span>`:`<strong>${esc(it.t.quand||"Activité")}</strong><span class="pa-by">${esc(sname(it.t.par))}</span>`;
+   return `<tr class="${!print&&a&&admCan(a)?"adm-mine":""}">${i===0?ph(items.length):""}<td class="adm-a">${act}</td><td class="adm-c">${cell(it,r,"comportement")}</td><td class="adm-c">${cell(it,r,"capacites")}</td></tr>`;}).join("")}</tbody>`;}).join("");
+ return `<div class="table-wrap"><table class="adm-table"><thead><tr><th>Résident</th><th>Activité</th><th>Comportement</th><th>Capacités</th></tr></thead>${body}</table></div>`;}
+function vAdministratif(){
+ if(isLimited())return topbar("Administratif","Réservé à l'équipe éducative et soignante");
+ const d=ui.admD||TODAY,me=!isAdmin()&&admOpen(d)?actOk().filter(a=>a.date===d&&paMine(a)).reduce((n,a)=>n+(a.part||[]).filter(r=>!paDone(a.id,r)).length,0):0;
+ const nav=`<div class="datenav"><button class="btn icon" data-act="adm-day" data-n="-1" aria-label="Jour précédent">${icon("left")}</button><strong>${esc(cap(fmtDay(d)))}</strong><button class="btn icon" data-act="adm-day" data-n="1" aria-label="Jour suivant">${icon("right")}</button>${d!==TODAY?`<button class="btn sm ghost" data-act="adm-day" data-n="0">Aujourd'hui</button>`:""}</div>`;
+ const pr=IS_DIR&&isAdmin()?`<div class="row"><button class="btn sm" data-act="adm-print">🖨️ Imprimer la journée</button><button class="btn sm" data-act="pa-print">🖨️ Imprimer un résident</button></div>`:"";
+ const info=isAdmin()?"Vous pouvez remplir, corriger ou supprimer toutes les lignes.":!admOpen(d)?(d>TODAY?"Ce jour n'est pas encore arrivé : le tableau se remplit le jour de l'activité.":"Ce jour a plus de 7 jours : il ne peut plus être rempli."):me?`Vous avez ${me} ligne${me>1?"s":""} à remplir (surlignée${me>1?"s":""}) : les résidents de vos activités.`:"Vous n'avez pas de ligne à remplir ce jour-là.";
+ return topbar("Administratif","Comportement et capacités de chaque résident, pour chaque activité du planning")+planTabs("administratif")+
+  `<div class="toolbar" style="justify-content:space-between">${nav}${pr}</div><div class="notice">${icon("info",18)}<span>${esc(info)}</span></div>`+admTable(d);}
+VIEW_FN.administratif=vAdministratif;VIEWS.push({id:"administratif",label:"Administratif",ic:"note"});SUBLABEL.administratif="Administratif";
+A["adm-day"]=d=>{ui.admD=d.n==="0"?TODAY:addDays(ui.admD||TODAY,+d.n);render();};
+A["adm-print"]=()=>{if(!isAdmin())return;const d=ui.admD||TODAY,title=`Administratif · ${cap(fmtDay(d))}`;printHtml(prHead(title)+admTable(d,true));logJ("consult","Impression",title);};
+A["adm-edit"]=d=>{const a=state.activites.find(x=>x.id===d.a),r=R(d.r);if(!a||!r)return;const t=paDone(a.id,r.id);
+ if(t?!admCanFix(t,a):!admCan(a))return toast("Vous ne pouvez pas remplir cette ligne.");
+ openModal(`${a.titre} · ${cap(fmtDay(a.date,{weekday:"long",day:"numeric",month:"long"}))}`,`<form id="admf" class="stack" novalidate><div class="pa-fr" style="border:0;padding:0">${paPhoto(r,true)}<div class="stack" style="flex:1;min-width:0">
+  <div class="field"><label for="adm-c">Comportement</label><textarea id="adm-c" rows="4" placeholder="Humeur, participation, relations, réactions…">${esc(t?t.comportement||"":"")}</textarea></div>
+  <div class="field"><label for="adm-k">Capacités</label><textarea id="adm-k" rows="4" placeholder="Ce qu'il ou elle a mobilisé, réussi seul(e) ou avec aide…">${esc(t?t.capacites||"":"")}</textarea></div></div></div>
+  ${!isAdmin()?`<p class="muted small" style="margin:0">Vous pourrez corriger jusqu'à ce soir minuit. Ensuite, seule la direction pourra modifier.</p>`:""}
+  <p class="mnote" id="adm-err" role="alert"></p>
+  <div class="form-actions">${t&&isAdmin()?`<button type="button" class="btn bad spacer" id="adm-del">Supprimer</button>`:""}<button type="button" class="btn" data-act="close">Annuler</button><button class="btn primary" type="submit">Enregistrer</button></div></form>`);
+ $("admf").addEventListener("submit",ev=>{ev.preventDefault();const c=$("adm-c").value.trim(),k=$("adm-k").value.trim();
+  if(!c&&!k){$("adm-err").textContent="Écrivez au moins le comportement ou les capacités.";return;}
+  if(t)Object.assign(t,{comportement:c,capacites:k,texte:[a.titre,c,k].filter(Boolean).join(" · "),modifPar:state.me,modifLe:`${TODAY}T${nowHM()}`});
+  else state.transmissions.push({id:"t"+uid(),kind:"admin",dt:`${TODAY}T${nowHM()}`,par:state.me,lus:[state.me],rid:r.id,actId:a.id,adate:a.date,adeb:a.debut||"",quand:a.titre,comportement:c,capacites:k,texte:[a.titre,c,k].filter(Boolean).join(" · "),imp:false});
+  save();closeModal();render();toast(t?"Modifié":"Enregistré");});
+ const del=$("adm-del");if(del)del.addEventListener("click",()=>{if(!del.dataset.armed){del.dataset.armed="1";del.textContent="Confirmer la suppression";return;}state.transmissions=state.transmissions.filter(x=>x.id!==t.id);save();closeModal();render();toast("Supprimé");});};
+{const _r=rappels;rappels=()=>{const l=_r();if(isLimited()||isAdmin())return l;const H=nowHM();
+ const n=actOk().filter(a=>a.date===TODAY&&paMine(a)&&(a.fin||"23:59")<=H).reduce((s,a)=>s+(a.part||[]).filter(r=>!paDone(a.id,r)).length,0);
+ if(n)l.push({lvl:"info",txt:`${n} ligne${n>1?"s":""} de l'administratif à remplir aujourd'hui`,v:"administratif",ic:"note"});return l;};}
 
 /* ---------- Partage en ligne (base de données de l'artifact) ---------- */
 var syncDb=null,syncBase={},syncRemote={},syncChunks={},syncTimer=null,syncBusy=false,syncAgain=false,syncReady=false,syncPendingRemote=null,syncRO=false,syncStatus="local";
