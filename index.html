@@ -889,6 +889,10 @@ body.xl-fullon{overflow:hidden}
 .xl-today{border-left:1px solid var(--xg);border-right:0;font-weight:700}
 .xl-book .xl-off{background:repeating-linear-gradient(135deg,transparent 0 6px,color-mix(in srgb,var(--fg) 4%,transparent) 6px 7px)}
 .xl-book .xl-empty td.xl-a{color:var(--muted)}
+.xl-ed{width:160px;min-width:150px;padding:0!important}
+.xl-ed>.xl-t{padding:6px 8px}
+.xl-anim{width:100%;border:0;border-radius:0;background:transparent;font:inherit;font-weight:700;color:var(--fg);padding:8px 6px;cursor:pointer;box-shadow:none}
+.xl-anim:focus{outline:0}
 .pill.solid.info,.pill.solid.warn,.pill.solid.bad,.pill.solid.ok,.pill.solid.night{color:#fff}
 :root[data-theme="dark"] .pill.solid.info,:root[data-theme="dark"] .pill.solid.warn,:root[data-theme="dark"] .pill.solid.bad,:root[data-theme="dark"] .pill.solid.ok,:root[data-theme="dark"] .pill.solid.night{color:var(--bg)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pill.solid.info,:root:not([data-theme="light"]) .pill.solid.warn,:root:not([data-theme="light"]) .pill.solid.bad,:root:not([data-theme="light"]) .pill.solid.ok,:root:not([data-theme="light"]) .pill.solid.night{color:var(--bg)}}
@@ -1177,7 +1181,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 19:35";
+const BUILD_STAMP="17-11-2026 à 19:42";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -1224,7 +1228,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171935";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171942";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 /* Profils : la version à partager reprend les profils créés dans la version Direction du même appareil */
 (function(){try{const DK="lesakura-direction-v1";if(KEY===DK)return;const raw=localStorage.getItem(DK);if(!raw)return;const ds=(JSON.parse(raw)||{}).staff;if(!Array.isArray(ds))return;let ch=false;
  ds.forEach(f=>{if(!f||!f.id||!f.hash)return;const i=state.staff.findIndex(x=>x.id===f.id);if(i<0){state.staff.push(JSON.parse(JSON.stringify(f)));ch=true;}else if(JSON.stringify(state.staff[i])!==JSON.stringify(f)){state.staff[i]=JSON.parse(JSON.stringify(f));ch=true;}});
@@ -3623,6 +3627,18 @@ function admCompCell(a,r,t,d,x,y,print){const tone=compTone(t),c=t?compOf(t.comp
  if(old)return `<td class="${cls}" ${pos}>${old}</td>`;
  return `<td class="${cls}" ${pos}>${admWait(a,d)}</td>`;}
 const ADM_MAX=3;
+/* Colonne Éducateur : le responsable de l'activité au planning ; la direction le change ici et le planning suit */
+const admPros=()=>state.staff.filter(s=>!["technicien","ouvrier"].includes(roleOf(s)));
+function admEdCell(a,print){
+ if(!a)return `<td class="xl-ed">—</td>`;
+ const nm=ST(a.anim)?sname(a.anim):"—";
+ if(print||!isAdmin())return `<td class="xl-ed"><div class="xl-t"><strong>${esc(nm)}</strong></div></td>`;
+ return `<td class="xl-ed xl-edit"><select class="xl-anim" data-a="${a.id}" aria-label="Éducateur responsable, ${esc(a.titre)}">${admPros().map(s=>`<option value="${s.id}"${s.id===a.anim?" selected":""}>${esc(s.prenom+" "+s.nom)}</option>`).join("")}</select></td>`;}
+document.addEventListener("change",e=>{const el=e.target;if(!el.classList||!el.classList.contains("xl-anim"))return;
+ if(!isAdmin())return onlyDir();const a=state.activites.find(x=>x.id===el.dataset.a);if(!a)return;
+ a.anim=el.value;a.staff=(a.staff||[]).filter(id=>id!==a.anim);save();
+ document.querySelectorAll(`select.xl-anim[data-a="${a.id}"]`).forEach(s=>{if(s!==el)s.value=a.anim;});
+ toast(`Éducateur : ${sname(a.anim)} (planning mis à jour)`);});
 const admCount=(rid,date,except)=>actOk().filter(a=>a.date===date&&a.id!==except&&(a.part||[]).includes(rid)).length;
 function admTable(d,print){
  const acts=actOk().filter(a=>a.date===d&&(a.part||[]).length).sort((a,b)=>(a.debut||"").localeCompare(b.debut||""));
@@ -3637,12 +3653,12 @@ function admTable(d,print){
   const ph=n=>`<td class="xl-ph" rowspan="${n}">${paPhoto(r)}</td>`;
   const add=adm?`<span class="xl-abtn"><button class="pa-lnk" data-act="adm-radd" data-r="${r.id}">+ Inscrire à une activité</button></span>`:"";
   return `<tbody>${items.map((it,i)=>{const a=it.a,t=it.t;let row;
-   if(it.empty){row=`<tr class="xl-empty">${num()}${i===0?ph(items.length):""}<td class="xl-a"><strong>Activité ${i+1} :</strong> <span class="adm-wait">pas encore au planning</span>${add}</td><td class="xl-c xl-off"></td><td class="xl-c xl-off"></td><td class="xl-c xl-cp xl-off"></td></tr>`;y++;return row;}
+   if(it.empty){row=`<tr class="xl-empty">${num()}${i===0?ph(items.length):""}<td class="xl-a"><strong>Activité ${i+1} :</strong> <span class="adm-wait">pas encore au planning</span>${add}</td><td class="xl-ed xl-off"></td><td class="xl-c xl-off"></td><td class="xl-c xl-off"></td><td class="xl-c xl-cp xl-off"></td></tr>`;y++;return row;}
    const tools=adm&&a?`<span class="xl-abtn"><button class="pa-lnk" data-act="adm-aedit" data-id="${a.id}">Modifier l'activité</button> · <button class="pa-lnk" data-act="adm-rdel" data-a="${a.id}" data-r="${r.id}">Retirer</button></span>`:"";
-   const act=`<strong>Activité ${i+1} :</strong> ${esc(a?a.titre:(t.quand||""))}<span class="pa-by">${a?`${hm(a.debut)}–${hm(a.fin)}${admWho(a)?" · "+esc(admWho(a)):""}`:esc(sname(t.par))}</span>${tools}`;
-   row=`<tr>${num()}${i===0?ph(items.length):""}<td class="xl-a">${act}</td>${admTextCell(a,r,t,"attitude",d,0,y,print)}${admTextCell(a,r,t,"capacites",d,1,y,print)}${admCompCell(a,r,t,d,2,y,print)}</tr>`;y++;return row;}).join("")}</tbody>`;}).join("");
- const letters=print?"":`<tr class="xl-let"><th class="xl-corner" aria-hidden="true"></th>${["A","B","C","D","E"].map(l=>`<th aria-hidden="true">${l}</th>`).join("")}</tr>`;
- return `<table class="xl-table${print?" xl-print":""}"><thead>${letters}<tr class="xl-head">${print?"":`<th class="xl-n" aria-label="Ligne"></th>`}<th>Résident</th><th>Activité</th><th>Attitude</th><th>Capacités</th><th>Comportement</th></tr></thead>${body}</table>`;}
+   const act=`<strong>Activité ${i+1} :</strong> ${esc(a?a.titre:(t.quand||""))}<span class="pa-by">${a?`${hm(a.debut)}–${hm(a.fin)}`:"plus au planning"}</span>${tools}`;
+   row=`<tr>${num()}${i===0?ph(items.length):""}<td class="xl-a">${act}</td>${admEdCell(a,print)}${admTextCell(a,r,t,"attitude",d,0,y,print)}${admTextCell(a,r,t,"capacites",d,1,y,print)}${admCompCell(a,r,t,d,2,y,print)}</tr>`;y++;return row;}).join("")}</tbody>`;}).join("");
+ const letters=print?"":`<tr class="xl-let"><th class="xl-corner" aria-hidden="true"></th>${["A","B","C","D","E","F"].map(l=>`<th aria-hidden="true">${l}</th>`).join("")}</tr>`;
+ return `<table class="xl-table${print?" xl-print":""}"><thead>${letters}<tr class="xl-head">${print?"":`<th class="xl-n" aria-label="Ligne"></th>`}<th>Résident</th><th>Activité</th><th>Éducateur</th><th>Attitude</th><th>Capacités</th><th>Comportement</th></tr></thead>${body}</table>`;}
 function admActForm(a,d){
  const pros=state.staff.filter(s=>!["technicien","ouvrier"].includes(roleOf(s))).map(s=>[s.id,s.prenom+" "+s.nom]);
  openForm({title:a?"Modifier l'activité":"Ajouter une activité",values:a?Object.assign({},a):{date:d,debut:"14:00",fin:"16:00",anim:state.me,staff:[],part:[]},fields:[
