@@ -156,6 +156,34 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .ret-blk h3{font-size:14px;color:var(--accent);margin:0 0 6px}
 .not-adm .cinfo-row .ed{display:none}
 .not-adm .cinfo-row{cursor:default}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);font:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
+.n-table th,.n-table td{text-align:center;padding:4px}
+.n-table th.mc-name{text-align:left}
+.n-table td.n-off{background:repeating-linear-gradient(45deg,var(--surface-2) 0 6px,transparent 6px 12px)}
+.nc{position:relative;width:44px;height:44px;border-radius:10px;border:1.5px dashed var(--line);background:var(--surface);font:inherit;font-size:22px;font-weight:800;cursor:pointer;color:var(--muted)}
+.nc.ok{background:var(--ok-soft);border:1.5px solid var(--ok)}
+.nc.info{background:var(--info-soft);border:1.5px solid var(--info)}
+.nc.warn{background:var(--warn-soft);border:1.5px solid var(--warn)}
+.nc.bad{background:var(--bad-soft);border:1.5px solid var(--bad)}
+.nc.late{border:2px solid var(--bad);color:var(--bad);background:var(--bad-soft)}
+.nc-s{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--accent);color:var(--accent-fg);font-size:13px;font-style:normal;line-height:18px}
+.pp-orow{border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:8px}
+.pp-obj{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:10px;display:grid;gap:4px}
+.pp-ob{margin:0;padding-left:10px;border-left:3px solid var(--accent-soft)}
+.menu-week{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:10px}
+.menu-d{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:grid;gap:8px;align-content:start}
+.menu-d[role=button]{cursor:pointer}
+.menu-d[role=button]:hover{border-color:var(--accent)}
+.menu-d.is-today{box-shadow:inset 0 0 0 2px var(--accent)}
+.menu-d h3{font-size:16px;margin:0}
+.menu-r{display:grid;gap:4px}
+.menu-l{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.menu-p{display:flex;align-items:center;gap:10px}
+.menu-p small{display:block;color:var(--muted);font-size:11px}
+.menu-e{font-size:30px;line-height:1;flex:none;width:36px;text-align:center}
+.menu-today{margin-bottom:16px}
+.menu-today .menu-r{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));align-items:center;margin-bottom:6px}
+.menu-today .menu-l{grid-column:1/-1}
 .alert-card{border-color:var(--bad);box-shadow:inset 4px 0 0 var(--bad)}
 .cst-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 8px;flex-wrap:wrap}
 .cst-top>div{display:grid}
@@ -996,7 +1024,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 12:08";
+const BUILD_STAMP="17-11-2026 à 12:15";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -1043,7 +1071,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171208";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171215";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}scheduleSync();}
 save();
 const hNow=new Date().getHours()+new Date().getMinutes()/60;
@@ -1079,6 +1107,7 @@ const navBadge=id=>{
  if(id==="conges")return isAdmin()?state.demandes.filter(d=>d.statut==="attente").length:0;
  if(id==="contention"){const h=new Date().getHours();return state.contentions.filter(c=>c.active&&((c.reeval&&c.reeval<TODAY)||(inWin(c,h)&&!c.surv.some(s=>s.date===TODAY&&hourOf(s.h)===h)))).length;}
  if(id==="rdv")return state.rdv.filter(a=>a.statut==="prevu"&&a.date<TODAY).length;
+ if(id==="projets"){const l=LST("projets");return isAdmin()?ppToVal().length+ppRevSoon().length:ppRevSoon().filter(p=>{const r=R(p.rid);return r&&r.referent===state.me;}).length;}
  if(id==="constantes")return isMed()?constAlerts().length:0;
  if(id==="stock")return isMed()?stockAlerts().length:0;
  if(id==="commandes")return isAdmin()?(state.commandes||[]).filter(c=>c.statut==="demandee").length:0;
@@ -1243,7 +1272,7 @@ function vResidents(){
    <span class="small">${esc(r.handicap)}</span>
    <span class="chips">${r.allergies&&r.allergies!=="Aucune connue"?`<span class="pill bad">Allergie : ${esc(r.allergies)}</span>`:""}${cont?`<span class="pill warn">Contention</span>`:""}${away?`<span class="pill acc">En famille</span>`:""}<span class="pill">Référent : ${esc(sname(r.referent))}</span></span>
   </button>`;}).join("");
- return topbar("Résidents",`${state.residents.length} personnes accompagnées`,isAdmin()?`<button class="btn primary" data-act="res-new">${icon("plus",18)} Ajouter</button>`:"")+
+ return topbar("Résidents",`${state.residents.length} personnes accompagnées`,`<button class="btn" data-act="go" data-v="projets">${icon("users",18)} Projets personnalisés</button>`+(isAdmin()?`<button class="btn primary" data-act="res-new">${icon("plus",18)} Ajouter</button>`:""))+
   (isAdmin()?"":`<div class="notice">${icon("info",18)}<span>Les dossiers sont tenus par la direction. Vous pouvez seulement changer la photo d'un résident : ouvrez son dossier puis touchez « Changer la photo ».</span></div>`)+
   `<div class="toolbar"><input type="search" id="res-search" placeholder="Rechercher un nom, une chambre…" aria-label="Rechercher un résident" value="${esc(ui.resQ)}"></div>
   <div class="grid-dash" id="res-grid">${cards}</div>`;
@@ -1255,7 +1284,7 @@ function openResident(id){
  const rv=state.rdv.filter(a=>a.rid===id&&a.statut==="prevu"&&a.date>=TODAY).sort((a,b)=>a.date.localeCompare(b.date));
  const tr=state.transmissions.filter(t=>t.rid===id).sort(byDtDesc).slice(0,5);
  const html=`<div class="row-between"><div class="who">${avatar(r,true)}<div><strong style="font-size:19px">${esc(rname(r))}</strong><span class="muted">${age(r.naissance)} ans · Chambre ${esc(r.chambre)} · ${esc(r.unite)}</span></div></div>
-  <div class="row"><label class="btn sm" for="res-photo-in">${icon("edit",16)} Changer la photo</label><input type="file" id="res-photo-in" accept="image/*" class="sr" data-rid="${id}">${r.photo?`<button class="btn sm ghost" data-act="res-nophoto" data-id="${id}">Retirer la photo</button>`:""}${isAdmin()?`<button class="btn sm" data-act="res-edit" data-id="${id}">Modifier le dossier</button>`:""}<button class="btn sm primary" data-act="tr-admin" data-r="${id}">${icon("plus",16)} Point admin</button></div></div>
+  <div class="row"><label class="btn sm" for="res-photo-in">${icon("edit",16)} Changer la photo</label><input type="file" id="res-photo-in" accept="image/*" class="sr" data-rid="${id}">${r.photo?`<button class="btn sm ghost" data-act="res-nophoto" data-id="${id}">Retirer la photo</button>`:""}${isAdmin()?`<button class="btn sm" data-act="res-edit" data-id="${id}">Modifier le dossier</button>`:""}<button class="btn sm" data-act="pp-res" data-r="${id}">Projet personnalisé</button><button class="btn sm primary" data-act="tr-admin" data-r="${id}">${icon("plus",16)} Point admin</button></div></div>
   <section class="detail-sec"><h3>Accompagnement</h3><dl class="kv">
    <dt>Né(e) le</dt><dd>${esc(fmtDate(r.naissance))}</dd>
    <dt>Situation de handicap</dt><dd>${esc(r.handicap)}</dd>
@@ -2441,6 +2470,7 @@ function renderGate(){
   <div class="gate-photo"><span id="g-prev">${pav(s||{id:"new",prenom:"?",nom:""},"md",photo)}</span><div style="display:grid;gap:6px;justify-items:start"><label class="gate-btn small" for="g-file">Choisir une photo</label><input type="file" id="g-file" accept="image/*" class="sr"><button type="button" class="gate-link" data-g="nophoto" id="g-nophoto"${photo?"":" hidden"}>Retirer la photo</button></div></div>
   ${gf("g-pre","Prénom",s&&s.prenom,'autocomplete="off"')}${gf("g-nom","Nom",s&&s.nom,'autocomplete="off"')}${gf("g-fct","Fonction",s&&s.fonction,'autocomplete="off"')}
   <label class="gf" for="g-role"><span>Rôle dans l'application</span><select id="g-role">${ROLES.map(([k,l])=>`<option value="${k}"${((s&&s.role)||"equipe")===k?" selected":""}>${esc(l)}</option>`).join("")}</select></label>
+  <label class="gcheck" for="g-menus"><input type="checkbox" id="g-menus"${s&&s.menus?" checked":""}> Peut saisir les menus de la semaine</label>
   <label class="gcheck" for="g-isadm"><input type="checkbox" id="g-isadm"${s&&s.admin?" checked":""}> Administrateur (peut gérer les profils)</label>
   ${pwdField("g-p1",s&&s.hash?"Nouveau mot de passe (laisser vide pour le garder)":"Mot de passe (6 caractères minimum)","new-password")}${pwdField("g-p2","Confirmer le mot de passe","new-password")}${err}
   <div class="gate-row" style="justify-content:flex-start"><button class="gate-btn solid" type="submit">Enregistrer</button><button class="gate-btn" type="button" data-g="manage-back">Annuler</button></div>
@@ -2488,7 +2518,7 @@ async function doEdit(){
  const e=pwdCheck(p1,p2,!(s&&s.hash));if(e)return showErr(e);
  if(s&&s.admin&&!adm&&admins().length<=1&&s.hash)return showErr("Gardez au moins un administrateur, sinon plus personne ne pourra gérer les profils.");
  const t=s||{id:"s"+uid()};
- Object.assign(t,{prenom:pre,nom,fonction:fct,admin:adm,role:$("g-role").value||"equipe"});
+ Object.assign(t,{prenom:pre,nom,fonction:fct,admin:adm,role:$("g-role").value||"equipe",menus:$("g-menus").checked});
  if(G.photo!==undefined)t.photo=G.photo;
  if(p1){t.salt=uid()+uid();t.hash=await hashPwd(p1,t.salt);}
  if(!s)state.staff.push(t);
@@ -2581,6 +2611,7 @@ function subNav(){
 }
 function vContexte(){
  const tiles=[{ic:"note",t:"Transmissions",s:"Carnet, informations entre collègues",act:'data-act="go" data-v="transmissions"',b:navBadge("transmissions")},
+  {ic:"clock",t:"Main courante de nuit",s:"Rondes, événements, synthèse du matin",act:'data-act="go" data-v="nuit"'},
   {ic:"steth",t:"Comptes rendus médicaux",s:"Après un rendez-vous médical",act:'data-act="go" data-v="cr"',b:navBadge("cr")},
   {ic:"drop",t:"Selles",s:"Suivi matin, midi et soir",act:'data-act="go" data-v="selles"',b:navBadge("selles")},
   {ic:"shield",t:"Contention",s:"Fiches et relevés de paramètres",act:'data-act="go" data-v="contention"',b:navBadge("contention")},
@@ -2984,6 +3015,7 @@ function vSante(){
  const tiles=[{ic:"pill",t:"Médicaments",s:`Aujourd'hui : ${ms.done} prise${ms.done>1?"s":""} sur ${ms.total}`,act:'data-act="go" data-v="medicaments"'},
   {ic:"steth",t:"Poids et constantes",s:"Poids, tension, température…",act:'data-act="go" data-v="constantes"',b:navBadge("constantes")},
   {ic:"home",t:"Repas et hydratation",s:"Ce qui a été mangé et bu",act:'data-act="go" data-v="repas"'},
+  {ic:"cal",t:"Menus de la semaine",s:"Les repas en images",act:'data-act="go" data-v="menus"'},
   {ic:"shield",t:"Stock de médicaments",s:"Quantités et péremptions",act:'data-act="go" data-v="stock"',b:navBadge("stock")},
   {ic:"note",t:"Fiches d'urgence",s:"À imprimer pour les secours",act:'data-act="go" data-v="dlu"'}];
  return topbar("Santé",med?"Corps médical et direction : vous pouvez saisir partout":"Choisissez ce que vous voulez consulter ou remplir")+`<div class="hub-grid">${tiles.map(hubTile).join("")}</div>`;
@@ -2993,6 +3025,158 @@ VIEWS.push({id:"sante",label:"Santé",short:"Santé",ic:"steth"},{id:"constantes
 NAV_GROUPS["g-sante"]={label:"Santé",short:"Santé",ic:"pill",items:["sante","medicaments","constantes","repas","stock","dlu"]};
 NAV_ORDER.splice(NAV_ORDER.indexOf("medicaments"),1,"g-sante");
 SUBLABEL.constantes="Poids et constantes";SUBLABEL.repas="Repas et hydratation";SUBLABEL.stock="Stock de médicaments";SUBLABEL.dlu="Fiches d'urgence";
+
+/* ---------- Main courante de nuit ---------- */
+const N_HOURS=["21","22","23","00","01","02","03","04","05","06","07"];
+const N_PRESETS=[["2h","Toutes les 2 heures",["22","00","02","04","06"]],["1h","Toutes les heures",N_HOURS],["3f","3 fois par nuit",["23","02","05"]],["2f","2 fois par nuit",["23","04"]]];
+const N_ETATS=[["dort","Dort","😴","ok"],["calme","Éveillé, calme","🙂","info"],["agite","Agité","😟","warn"],["absent","Hors du lit","🚶","bad"]];
+const N_SOINS=["Change fait","Repositionné","Boisson donnée","Rassuré","Toilettes accompagné"];
+const rondesOf=r=>{if(Array.isArray(r.rondes)&&r.rondes.length)return r.rondes;const p=N_PRESETS.find(x=>x[0]===r.rondeFreq);return p?p[2]:N_PRESETS[0][2];};
+const nightDefault=()=>new Date().getHours()<12?addDays(TODAY,-1):TODAY;
+const nDate=(night,h)=>+h<12?addDays(night,1):night;
+const rondeAt=(night,rid,h)=>LST("rondes").find(x=>x.night===night&&x.rid===rid&&x.h===h);
+function vNuit(){
+ if(!ui.nuit)ui.nuit=nightDefault();const night=ui.nuit,canSet=isAdmin()||isMed();
+ const now=new Date(),nowKey=`${TODAY}T${pad(now.getHours())}`;
+ const rows=resSorted().map(r=>{const away=isAway(r.id,night),hs=rondesOf(r);
+  return `<tr${away?' class="muted"':""}><th scope="row" class="mc-name"><div class="who">${avatar(r)}<span>${esc(rname(r))}<div class="muted small" style="font-weight:400">${esc((N_PRESETS.find(p=>p[2].join()===hs.join())||["","Rondes personnalisées"])[1])}${canSet?` · <button class="linkbtn" data-act="nuit-freq" data-r="${r.id}">changer</button>`:""}</div></span></div></th>
+  ${away?`<td colspan="${N_HOURS.length}" class="muted">En famille</td>`:N_HOURS.map(h=>{if(!hs.includes(h))return `<td class="n-off"></td>`;const x=rondeAt(night,r.id,h),e=x&&N_ETATS.find(s=>s[0]===x.etat),late=!x&&`${nDate(night,h)}T${h}`<nowKey;
+   return `<td><button class="nc${e?" "+e[3]:""}${late?" late":""}" data-act="nuit-set" data-r="${r.id}" data-h="${h}" aria-label="${esc(rname(r))}, ${h} h : ${e?e[1]:late?"ronde non notée":"à faire"}">${e?`<span aria-hidden="true">${e[2]}</span>`:late?"!":"·"}${x&&x.soins&&x.soins.length?`<i class="nc-s" title="${esc(x.soins.join(", "))}">+</i>`:""}</button></td>`;}).join("")}</tr>`;}).join("");
+ const evs=LST("nuitEv").filter(x=>x.night===night).sort((a,b)=>((+a.h<12?24:0)+ +a.h.slice(0,2)-((+b.h<12?24:0)+ +b.h.slice(0,2))));
+ const sent=LST("transmissions").find(t=>t.nuit===night);
+ return topbar("Main courante de nuit",`Nuit du ${esc(fmtDay(night,{weekday:"long",day:"numeric",month:"long"}))} au ${esc(fmtDay(addDays(night,1),{weekday:"long",day:"numeric"}))}`,`<button class="btn primary" data-act="nuit-ev">${icon("plus",18)} Noter un événement</button>`)+
+  `<div class="toolbar"><div class="datenav"><button class="btn icon" data-act="nuit-day" data-n="-1" aria-label="Nuit précédente">${icon("left")}</button><button class="btn sm" data-act="nuit-day" data-n="0">Cette nuit</button><button class="btn icon" data-act="nuit-day" data-n="1" aria-label="Nuit suivante">${icon("right")}</button></div></div>
+  <div class="chips" style="margin-bottom:10px">${N_ETATS.map(s=>`<span class="pill ${s[3]}">${s[2]} ${s[1]}</span>`).join("")}<span class="pill bad">! Ronde non notée</span><span class="pill">Case grise : pas de ronde prévue</span></div>
+  <div class="table-wrap"><table class="n-table"><thead><tr><th>Résident</th>${N_HOURS.map(h=>`<th class="num">${+h}h</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>
+  <section class="card" style="margin-top:16px"><div class="card-h"><h2>Événements de la nuit</h2></div>${evs.length?evs.map(x=>`<div class="item"><div class="tr-meta"><strong class="num" style="color:var(--fg)">${hm(x.h)}</strong>${x.imp?`<span class="pill bad">Important</span>`:""}${x.rid?`<strong>${esc(rname(R(x.rid)))}</strong>`:""}<span>par ${esc(sname(x.par))}</span></div><p class="tr-text">${esc(x.texte)}</p></div>`).join(""):`<p class="empty">Aucun événement noté.</p>`}</section>
+  <section class="card" style="margin-top:16px"><div class="card-h"><h2>Transmission à l'équipe du matin</h2>${sent?`<span class="pill ok">${icon("check",14)} Envoyée à ${hm(sent.dt.slice(11))}</span>`:""}</div>
+   <p class="muted small">La synthèse reprend les résidents agités ou hors du lit, les soins et les événements. Elle part dans le carnet de l'éducateur.</p>
+   <div class="field"><label for="nuit-mot">Votre mot pour l'équipe du matin</label><textarea id="nuit-mot" rows="3" placeholder="Ex. : nuit calme dans l'ensemble…"></textarea></div>
+   <div class="row" style="margin-top:8px"><button class="btn primary" data-act="nuit-send">${icon("send",18)} ${sent?"Renvoyer la synthèse":"Envoyer la synthèse"}</button></div></section>`;
+}
+A["nuit-day"]=d=>{ui.nuit=d.n==="0"?nightDefault():addDays(ui.nuit||nightDefault(),+d.n);render();};
+A["nuit-freq"]=d=>{if(!(isAdmin()||isMed()))return onlyDir();const r=R(d.r),cur=rondesOf(r);
+ openModal(`Rondes de nuit · ${rname(r)}`,`<p class="muted" style="margin:0 0 10px">Choisissez un rythme, ou cochez les heures une à une.</p><div class="row" style="margin-bottom:12px">${N_PRESETS.map(p=>`<button type="button" class="btn sm" data-preset="${p[0]}">${esc(p[1])}</button>`).join("")}</div>
+  <div class="rchips" id="nf-h">${N_HOURS.map(h=>`<label class="rchip"><input type="checkbox" class="sr" value="${h}"${cur.includes(h)?" checked":""}><span>${+h} h</span></label>`).join("")}</div>
+  <div class="form-actions"><button class="btn" data-act="close">Annuler</button><button class="btn primary" id="nf-ok">Enregistrer</button></div>`);
+ const box=$("nf-h");$("modal-root").querySelectorAll("[data-preset]").forEach(b=>b.addEventListener("click",()=>{const p=N_PRESETS.find(x=>x[0]===b.dataset.preset)[2];box.querySelectorAll("input").forEach(i=>i.checked=p.includes(i.value));}));
+ $("nf-ok").addEventListener("click",()=>{const hs=[...box.querySelectorAll("input:checked")].map(i=>i.value);if(!hs.length){toast("Cochez au moins une heure.");return;}r.rondes=hs;save();closeModal();render();toast("Rondes enregistrées");});};
+A["nuit-set"]=d=>{const night=ui.nuit||nightDefault(),r=R(d.r),x=rondeAt(night,d.r,d.h);
+ openModal(`${rname(r)} · ronde de ${+d.h} h`,`<div class="repq">${N_ETATS.map(s=>`<button class="repq-b ${s[3]}${x&&x.etat===s[0]?" on":""}" data-e="${s[0]}"><span aria-hidden="true">${s[2]}</span>${s[1]}</button>`).join("")}</div>
+  <span class="lbl" style="display:block;margin-top:12px">Soins faits (facultatif)</span><div class="rchips" id="nr-s">${N_SOINS.map(s=>`<label class="rchip"><input type="checkbox" class="sr" value="${esc(s)}"${x&&(x.soins||[]).includes(s)?" checked":""}><span>${esc(s)}</span></label>`).join("")}</div>
+  <div class="field" style="margin-top:10px"><label for="nr-note">Remarque (facultatif)</label><input id="nr-note" value="${esc(x&&x.note||"")}"></div>
+  <p class="muted small">Touchez l'état du résident pour enregistrer.</p>`);
+ $("modal-root").querySelectorAll("[data-e]").forEach(b=>b.addEventListener("click",()=>{let y=rondeAt(night,d.r,d.h);if(!y){y={id:"n"+uid(),night,rid:d.r,h:d.h};LST("rondes").push(y);}
+  y.etat=b.dataset.e;y.soins=[...$("nr-s").querySelectorAll("input:checked")].map(i=>i.value);y.note=$("nr-note").value.trim();y.par=state.me;y.t=`${TODAY}T${nowHM()}`;save();closeModal();render();toast("Ronde enregistrée");}));};
+A["nuit-ev"]=()=>{const night=ui.nuit||nightDefault();
+ openForm({title:"Événement de la nuit",values:{h:nowHM()},fields:[{name:"h",label:"Heure",type:"time",required:true},{name:"rid",label:"Concerne",type:"select",options:resOpts("Pas un résident en particulier")},{name:"texte",label:"Ce qui s'est passé",type:"textarea",required:true,full:true},{name:"imp",label:"Important",type:"checkbox",full:true}],
+  onSubmit:x=>{LST("nuitEv").push(Object.assign({id:"e"+uid(),night,par:state.me},x));toast("Événement noté");}});};
+A["nuit-send"]=()=>{const night=ui.nuit||nightDefault(),mot=($("nuit-mot")||{value:""}).value.trim();
+ const lines=[];resSorted().forEach(r=>{const l=LST("rondes").filter(x=>x.night===night&&x.rid===r.id);const bad=l.filter(x=>x.etat==="agite"||x.etat==="absent"),so=[...new Set(l.flatMap(x=>x.soins||[]))];
+  if(bad.length||so.length)lines.push(`${rname(r)} : ${bad.length?bad.map(x=>`${N_ETATS.find(s=>s[0]===x.etat)[1].toLowerCase()} à ${+x.h} h${x.note?" ("+x.note+")":""}`).join(", "):"nuit calme"}${so.length?" · soins : "+so.join(", ").toLowerCase():""}`);});
+ LST("nuitEv").filter(x=>x.night===night).forEach(x=>lines.push(`${hm(x.h)}${x.rid?" · "+rname(R(x.rid)):""} : ${x.texte}`));
+ const texte=[mot,lines.length?lines.join("\n"):"Rien de particulier à signaler pendant les rondes."].filter(Boolean).join("\n\n");
+ state.transmissions=LST("transmissions").filter(t=>t.nuit!==night);
+ state.transmissions.push({id:"t"+uid(),kind:"carnet",moment:"Nuit",nuit:night,dt:`${TODAY}T${nowHM()}`,par:state.me,lus:[state.me],texte,imp:LST("nuitEv").some(x=>x.night===night&&x.imp)});
+ save();render();toast("Synthèse envoyée dans le carnet de l'éducateur");};
+
+/* ---------- Projet personnalisé ---------- */
+const PP_DOM=["Autonomie au quotidien","Santé et bien-être","Communication","Vie sociale et loisirs","Vie affective et famille","Apprentissages","Citoyenneté","Autre"];
+const PP_ST={brouillon:["Brouillon","",""],avalider:["À valider par la direction","warn"],encours:["En cours","ok"],archive:["Terminé","",""]};
+const OBJ_ST={encours:["En cours","info"],atteint:["Atteint","ok"],partiel:["En partie atteint","warn"],abandonne:["Abandonné",""]};
+const ppOf=rid=>LST("projets").filter(p=>p.rid===rid).sort((a,b)=>(b.debut||"").localeCompare(a.debut||""));
+const ppCur=rid=>ppOf(rid).find(p=>p.statut!=="archive");
+const ppCanEdit=p=>{const r=R(p.rid);return isAdmin()||(r&&r.referent===state.me);};
+const ppRevSoon=()=>LST("projets").filter(p=>p.statut==="encours"&&p.revision&&daysBetween(TODAY,p.revision)<=30);
+const ppToVal=()=>LST("projets").filter(p=>p.statut==="avalider");
+function vProjets(){
+ const adm=isAdmin();
+ const cards=resSorted().map(r=>{const p=ppCur(r.id),st=p?PP_ST[p.statut]:null,mine=r.referent===state.me;
+  const rev=p&&p.revision?daysBetween(TODAY,p.revision):null;
+  return `<article class="card"><div class="row-between"><div class="who">${avatar(r)}<div><strong>${esc(rname(r))}</strong><span class="muted small">Référent(e) : ${esc(sname(r.referent))}${mine?" (vous)":""}</span></div></div>${p?`<span class="pill ${st[1]}">${esc(st[0])}</span>`:`<span class="pill">Pas de projet</span>`}</div>
+   ${p?`<p class="small" style="margin:8px 0 0">${(p.objectifs||[]).length} objectif${(p.objectifs||[]).length>1?"s":""} · ${(p.objectifs||[]).filter(o=>o.etat==="atteint").length} atteint${(p.objectifs||[]).filter(o=>o.etat==="atteint").length>1?"s":""}${p.revision?` · révision le ${esc(fmtDate(p.revision))}`:""}</p>${rev!=null&&p.statut==="encours"&&rev<=30?`<span class="pill ${rev<0?"bad":"warn"}" style="margin-top:6px">${rev<0?`Révision dépassée de ${-rev} j`:`Révision dans ${rev} j`}</span>`:""}`:""}
+   <div class="row" style="margin-top:10px">${p?`<button class="btn sm primary" data-act="pp-open" data-id="${p.id}">Ouvrir le projet</button>`:""}${!p&&(adm||mine)?`<button class="btn sm primary" data-act="pp-new" data-r="${r.id}">${icon("plus",16)} Créer le projet</button>`:""}</div></article>`;}).join("");
+ const tv=ppToVal();
+ return topbar("Projets personnalisés","Objectifs de chaque résident, observations de l'équipe et bilans")+
+  (adm&&tv.length?`<div class="notice alert">${icon("info",18)}<span>${tv.length} projet${tv.length>1?"s":""} à valider avant de démarrer.</span></div>`:"")+
+  `<div class="notice">${icon("info",18)}<span>Le référent prépare le projet ; il démarre seulement quand la direction l'a validé. Toute l'équipe peut ajouter des observations sur les objectifs.</span></div><div class="med-grid">${cards}</div>`;
+}
+function ppForm(id,rid){
+ const p=id?LST("projets").find(x=>x.id===id):null;rid=p?p.rid:rid;const r=R(rid);
+ if(p&&!ppCanEdit(p))return onlyDir();if(!p&&!(isAdmin()||r.referent===state.me))return onlyDir();
+ const objs=p?(p.objectifs||[]).map(o=>Object.assign({},o)):[{id:"o"+uid(),domaine:PP_DOM[0],texte:"",moyens:"",etat:"encours"}];
+ const orow=o=>`<div class="pp-orow" data-id="${o.id}"><div class="qtop"><div class="field"><label>Domaine</label><select class="po-dom">${PP_DOM.map(x=>`<option${x===o.domaine?" selected":""}>${esc(x)}</option>`).join("")}</select></div><div class="field"><label>État</label><select class="po-etat">${Object.keys(OBJ_ST).map(k=>`<option value="${k}"${k===o.etat?" selected":""}>${OBJ_ST[k][0]}</option>`).join("")}</select></div></div>
+  <div class="field"><label>Objectif</label><input class="po-txt" value="${esc(o.texte)}" placeholder="Ex. : se brosser les dents seul le matin"></div><div class="field"><label>Moyens</label><input class="po-moy" value="${esc(o.moyens)}" placeholder="Ex. : séquentiel en images, accompagnement verbal"></div><button type="button" class="btn sm ghost" data-orm>Retirer cet objectif</button></div>`;
+ openModal(p?"Modifier le projet personnalisé":"Nouveau projet personnalisé",`<form id="ppform" class="stack" novalidate><p class="muted" style="margin:0">${esc(rname(r))} · référent(e) ${esc(sname(r.referent))}</p>
+  <div class="qtop"><div class="field"><label for="pp-deb">Début</label><input type="date" id="pp-deb" value="${esc(p?p.debut:TODAY)}"></div><div class="field"><label for="pp-rev">Date de révision</label><input type="date" id="pp-rev" value="${esc(p?p.revision:addDays(TODAY,365))}"></div></div>
+  <div class="field"><label for="pp-att">Attentes du résident et de sa famille</label><textarea id="pp-att" rows="2">${esc(p?p.attentes||"":"")}</textarea></div>
+  <h3 style="font-size:16px;margin:4px 0 0">Objectifs</h3><div id="pp-objs" class="stack">${objs.map(orow).join("")}</div><button type="button" class="btn sm" id="pp-add">${icon("plus",16)} Ajouter un objectif</button>
+  <p class="mnote" id="pp-err" role="alert"></p>
+  <div class="form-actions"><button type="button" class="btn" data-act="close">Annuler</button><button class="btn primary" type="submit">${isAdmin()?"Enregistrer":"Envoyer à la direction pour validation"}</button></div></form>`,true);
+ const box=$("pp-objs");
+ $("pp-add").addEventListener("click",()=>box.insertAdjacentHTML("beforeend",orow({id:"o"+uid(),domaine:PP_DOM[0],texte:"",moyens:"",etat:"encours"})));
+ box.addEventListener("click",e=>{const b=e.target.closest("[data-orm]");if(b)b.closest(".pp-orow").remove();});
+ $("ppform").addEventListener("submit",e=>{e.preventDefault();
+  const o=[...box.querySelectorAll(".pp-orow")].map(rw=>({id:rw.dataset.id,domaine:rw.querySelector(".po-dom").value,etat:rw.querySelector(".po-etat").value,texte:rw.querySelector(".po-txt").value.trim(),moyens:rw.querySelector(".po-moy").value.trim()})).filter(x=>x.texte);
+  if(!o.length){$("pp-err").textContent="Ajoutez au moins un objectif.";return;}
+  const x={debut:$("pp-deb").value||TODAY,revision:$("pp-rev").value,attentes:$("pp-att").value.trim(),objectifs:o,modifPar:state.me,modifLe:TODAY};
+  const statut=isAdmin()?(p&&p.statut!=="brouillon"&&p.statut!=="avalider"?p.statut:"encours"):"avalider";
+  if(p){Object.assign(p,x,{statut});if(statut==="encours"&&isAdmin()){p.validePar=p.validePar||state.me;p.valideLe=p.valideLe||TODAY;}}
+  else LST("projets").push(Object.assign({id:"pp"+uid(),rid,creePar:state.me,bilans:[],statut},x,statut==="encours"?{validePar:state.me,valideLe:TODAY}:{}));
+  save();closeModal();render();toast(statut==="avalider"?"Projet envoyé à la direction pour validation":"Projet enregistré");});
+}
+function ppOpen(id){
+ const p=LST("projets").find(x=>x.id===id);if(!p)return;const r=R(p.rid),st=PP_ST[p.statut],obs=LST("ppObs").filter(o=>o.ppid===p.id);
+ openModal(`Projet personnalisé · ${rname(r)}`,`<div class="row-between"><span class="pill ${st[1]}">${esc(st[0])}</span><span class="muted small">Du ${esc(fmtDate(p.debut))}${p.revision?" · révision le "+esc(fmtDate(p.revision)):""}${p.valideLe?" · validé le "+esc(fmtDate(p.valideLe)):""}</span></div>
+  ${p.attentes?`<p class="small" style="margin-top:8px"><strong>Attentes :</strong> ${esc(p.attentes)}</p>`:""}
+  ${(p.objectifs||[]).map(o=>{const os=OBJ_ST[o.etat]||OBJ_ST.encours,ob=obs.filter(x=>x.oid===o.id).sort((a,b)=>b.date.localeCompare(a.date));return `<section class="pp-obj"><div class="row-between"><span class="muted small">${esc(o.domaine)}</span><span class="pill ${os[1]}">${esc(os[0])}</span></div><strong>${esc(o.texte)}</strong>${o.moyens?`<p class="muted small" style="margin:2px 0">Moyens : ${esc(o.moyens)}</p>`:""}
+   ${ob.slice(0,5).map(x=>`<p class="small pp-ob">${esc(fmtDay(x.date,{day:"numeric",month:"short"}))} · ${esc(sname(x.par))} : ${esc(x.texte)}</p>`).join("")}${p.statut==="encours"?`<button class="btn sm ghost" data-act="pp-obs" data-id="${p.id}" data-o="${o.id}">${icon("plus",14)} Ajouter une observation</button>`:""}</section>`;}).join("")}
+  <h3 style="font-size:16px;margin:14px 0 6px">Bilans</h3>${(p.bilans||[]).length?p.bilans.map(b=>`<p class="small"><strong>${esc(fmtDate(b.date))}</strong> · ${esc(sname(b.par))} : ${esc(b.texte)}</p>`).join(""):`<p class="empty">Pas encore de bilan.</p>`}
+  <div class="form-actions">${isAdmin()&&p.statut==="avalider"?`<button class="btn ok" data-act="pp-val" data-id="${p.id}">${icon("check",16)} Valider et lancer le projet</button>`:""}${ppCanEdit(p)&&p.statut!=="archive"?`<button class="btn" data-act="pp-edit" data-id="${p.id}">${icon("edit",16)} Modifier</button><button class="btn" data-act="pp-bilan" data-id="${p.id}">Écrire un bilan</button>`:""}${isAdmin()&&p.statut==="encours"?`<button class="btn ghost" data-act="pp-arch" data-id="${p.id}">Terminer ce projet</button>`:""}</div>`,true);
+}
+VIEW_FN.projets=vProjets;VIEWS.push({id:"projets",label:"Projets personnalisés",ic:"users"});
+NAV_GROUPS["g-dos"]={label:"Dossiers",short:"Dossiers",ic:"users",items:["residents","projets"]};
+NAV_ORDER.splice(NAV_ORDER.indexOf("residents"),1,"g-dos");
+A["pp-new"]=d=>{closeModal();ppForm(null,d.r);};
+A["pp-edit"]=d=>{closeModal();ppForm(d.id);};
+A["pp-open"]=d=>ppOpen(d.id);
+A["pp-res"]=d=>{const p=ppCur(d.r);closeModal();if(p)ppOpen(p.id);else ppForm(null,d.r);};
+A["pp-val"]=d=>{if(!isAdmin())return;const p=LST("projets").find(x=>x.id===d.id);ppOf(p.rid).forEach(x=>{if(x!==p&&x.statut==="encours")x.statut="archive";});p.statut="encours";p.validePar=state.me;p.valideLe=TODAY;save();closeModal();render();toast("Projet validé : il démarre");};
+A["pp-arch"]=d=>{if(!isAdmin())return;const p=LST("projets").find(x=>x.id===d.id);confirmBox("Terminer le projet","Le projet sera rangé dans l'historique. Vous pourrez en créer un nouveau.","Terminer",()=>{p.statut="archive";p.finLe=TODAY;toast("Projet terminé");});};
+A["pp-obs"]=d=>{const p=LST("projets").find(x=>x.id===d.id),o=p.objectifs.find(x=>x.id===d.o);
+ openForm({title:`Observation · ${o.texte}`,fields:[{name:"texte",label:"Ce que vous avez observé",type:"textarea",required:true,full:true,hint:"Progrès, difficultés, ce qui a aidé…"}],onSubmit:x=>{LST("ppObs").push({id:"ob"+uid(),ppid:p.id,oid:o.id,date:TODAY,texte:x.texte,par:state.me});toast("Observation ajoutée");}});};
+A["pp-bilan"]=d=>{const p=LST("projets").find(x=>x.id===d.id);if(!ppCanEdit(p))return onlyDir();
+ openForm({title:"Bilan du projet",fields:[{name:"texte",label:"Bilan",type:"textarea",required:true,full:true,hint:"Ce qui a été atteint, ce qui reste à travailler, les suites."}],onSubmit:x=>{(p.bilans=p.bilans||[]).push({date:TODAY,texte:x.texte,par:state.me});toast("Bilan enregistré");}});};
+
+/* ---------- Menus de la semaine ---------- */
+const FOOD=[["soupe","🥣"],["velouté","🥣"],["salade","🥗"],["crudit","🥕"],["carotte","🥕"],["tomate","🍅"],["concombre","🥒"],["betterave","🥗"],["oeuf","🥚"],["œuf","🥚"],["omelette","🍳"],["quiche","🥧"],["tarte","🥧"],["pizza","🍕"],["poulet","🍗"],["dinde","🍗"],["boeuf","🥩"],["bœuf","🥩"],["steak","🥩"],["rôti","🍖"],["porc","🍖"],["jambon","🍖"],["saucisse","🌭"],["poisson","🐟"],["saumon","🐟"],["cabillaud","🐟"],["colin","🐟"],["thon","🐟"],["crevette","🍤"],["pâtes","🍝"],["spaghetti","🍝"],["lasagne","🍝"],["riz","🍚"],["purée","🥔"],["pomme de terre","🥔"],["frites","🍟"],["haricot","🫛"],["petits pois","🫛"],["légume","🥦"],["brocoli","🥦"],["courgette","🥒"],["ratatouille","🍆"],["gratin","🧀"],["fromage","🧀"],["yaourt","🥛"],["laitage","🥛"],["compote","🍏"],["pomme","🍎"],["poire","🍐"],["banane","🍌"],["orange","🍊"],["fruit","🍓"],["fraise","🍓"],["gâteau","🍰"],["crème","🍮"],["flan","🍮"],["mousse","🍫"],["chocolat","🍫"],["glace","🍨"],["pain","🥖"],["crêpe","🥞"],["burger","🍔"],["couscous","🍲"],["hachis","🥧"],["ragoût","🍲"],["potage","🥣"]];
+const foodE=t=>{const s=(t||"").toLowerCase();const m=FOOD.find(([k])=>s.includes(k));return m?m[1]:"🍽️";};
+const canMenu=()=>{const s=ST(state.me);return !!s&&(s.admin||!!s.menus);};
+const MEN_R=[["midi","Midi"],["soir","Soir"]],MEN_P=[["entree","Entrée"],["plat","Plat"],["dessert","Dessert"]];
+const menuOf=d=>(state.menus||{})[d]||{};
+function menuDay(d,big){const m=menuOf(d);return MEN_R.map(([k,l])=>{const x=m[k]||{};const has=MEN_P.some(([p])=>x[p]);
+ return `<div class="menu-r"><span class="menu-l">${l}</span>${has?MEN_P.filter(([p])=>x[p]).map(([p,pl])=>`<span class="menu-p"><span class="menu-e" aria-hidden="true">${foodE(x[p])}</span><span><small>${pl}</small>${esc(x[p])}</span></span>`).join(""):`<span class="muted small">Pas encore saisi</span>`}</div>`;}).join("");}
+function vMenus(){
+ if(!ui.menWeek)ui.menWeek=mondayOf(TODAY);const mon=ui.menWeek,days=[0,1,2,3,4,5,6].map(i=>addDays(mon,i)),ok=canMenu();
+ return topbar("Menus de la semaine",`Du ${esc(fmtDay(mon,{day:"numeric",month:"long"}))} au ${esc(fmtDay(days[6],{day:"numeric",month:"long"}))}`,ok?`<button class="btn" data-act="men-copy">Recopier la semaine précédente</button>`:"")+
+  `<div class="toolbar"><div class="datenav"><button class="btn icon" data-act="men-week" data-n="-1" aria-label="Semaine précédente">${icon("left")}</button><button class="btn sm" data-act="men-week" data-n="0">Cette semaine</button><button class="btn icon" data-act="men-week" data-n="1" aria-label="Semaine suivante">${icon("right")}</button></div>${ok?`<span class="muted small">Touchez un jour pour saisir son menu.</span>`:""}</div>
+  <div class="menu-week">${days.map(d=>`<section class="menu-d${d===TODAY?" is-today":""}"${ok?` data-act="men-edit" data-d="${d}" role="button" tabindex="0"`:""}><h3>${esc(cap(fmtDay(d,{weekday:"long",day:"numeric"})))}</h3>${menuDay(d)}</section>`).join("")}</div>
+  <p class="muted small" style="margin-top:10px">Les textures (haché, mixé, eau gélifiée) sont adaptées pour chaque résident selon son dossier.</p>`;
+}
+A["men-week"]=d=>{ui.menWeek=d.n==="0"?mondayOf(TODAY):addDays(ui.menWeek||mondayOf(TODAY),7*(+d.n));render();};
+A["men-edit"]=d=>{if(!canMenu())return toast("Seules la direction et les personnes autorisées saisissent les menus.");const m=menuOf(d.d),v={};MEN_R.forEach(([k])=>MEN_P.forEach(([p])=>{v[k+"_"+p]=(m[k]||{})[p]||"";}));
+ openForm({title:`Menu · ${cap(fmtDay(d.d))}`,values:v,fields:MEN_R.flatMap(([k,l])=>MEN_P.map(([p,pl])=>({name:k+"_"+p,label:`${l} · ${pl}`}))),
+  onSubmit:x=>{state.menus=state.menus||{};const o={};MEN_R.forEach(([k])=>{o[k]={};MEN_P.forEach(([p])=>{o[k][p]=x[k+"_"+p];});});state.menus[d.d]=o;toast("Menu enregistré");}});};
+A["men-copy"]=()=>{if(!canMenu())return;const mon=ui.menWeek||mondayOf(TODAY);confirmBox("Recopier la semaine précédente","Les menus de cette semaine seront remplacés par ceux de la semaine d'avant.","Recopier",()=>{state.menus=state.menus||{};for(let i=0;i<7;i++){const src=menuOf(addDays(mon,i-7));if(Object.keys(src).length)state.menus[addDays(mon,i)]=JSON.parse(JSON.stringify(src));}toast("Semaine recopiée");});};
+VIEW_FN.menus=vMenus;VIEWS.push({id:"menus",label:"Menus de la semaine",ic:"home"});
+NAV_GROUPS["g-sante"].items.splice(NAV_GROUPS["g-sante"].items.indexOf("repas")+1,0,"menus");
+NAV_GROUPS["g-ctx"].items.splice(1,0,"nuit");
+VIEW_FN.nuit=vNuit;VIEWS.push({id:"nuit",label:"Main courante de nuit",ic:"clock"});
+SUBLABEL.nuit="Main courante de nuit";SUBLABEL.menus="Menus de la semaine";SUBLABEL.projets="Projets personnalisés";
+
+{const _vt=VIEW_FN.aujourdhui;VIEW_FN.aujourdhui=()=>{const h=_vt(),i=h.indexOf("</header>"),m=menuOf(TODAY);
+ if(i<0||!MEN_R.some(([k])=>m[k]&&MEN_P.some(([p])=>m[k][p])))return h;
+ return h.slice(0,i+9)+`<section class="card menu-today"><div class="card-h"><h2>Au menu aujourd'hui</h2><button class="btn sm ghost" data-act="go" data-v="menus">Toute la semaine</button></div>${menuDay(TODAY)}</section>`+h.slice(i+9);};}
 
 /* ---------- Partage en ligne (base de données de l'artifact) ---------- */
 var syncDb=null,syncBase={},syncRemote={},syncChunks={},syncTimer=null,syncBusy=false,syncAgain=false,syncReady=false,syncPendingRemote=null,syncRO=false,syncStatus="local";
