@@ -243,6 +243,21 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .dlu-t th{text-align:left;width:34%;vertical-align:top;padding:6px 8px;background:#f6eff2;color:#5a2d45;border:1px solid #e3d7dd;white-space:normal;letter-spacing:0}
 .dlu-t td{padding:6px 8px;border:1px solid #e3d7dd;vertical-align:top}
 .dlu-f{font-size:12px;color:#666;margin-top:8px}
+/* Horaires : postes de travail en pastel bien distincts, absences en couleurs vives */
+html .sh-M{background:#cfe2ff;color:#123f85;box-shadow:inset 0 0 0 1px #9fc2f5}
+html .sh-J{background:#ffd3e6;color:#8f1d4f;box-shadow:inset 0 0 0 1px #f5a8c9}
+html .sh-S{background:#ffe7a1;color:#6b4d00;box-shadow:inset 0 0 0 1px #f0cf6b}
+html .sh-N{background:#ddd0ff;color:#3f2296;box-shadow:inset 0 0 0 1px #b9a3f5}
+html .sh-I{background:#c6f1d6;color:#145c33;box-shadow:inset 0 0 0 1px #8fdcae}
+html .sh-L{background:#ffd5bf;color:#8a330a;box-shadow:inset 0 0 0 1px #f5ad86}
+html .sh-F{background:#c9eef3;color:#0a5e69;box-shadow:inset 0 0 0 1.5px #0a8a99}
+html .sh-R{background:#1e8e3e;color:#fff;box-shadow:inset 0 0 0 2px #126b2c;font-weight:800}
+html .sh-C{background:#e8590c;color:#fff;box-shadow:inset 0 0 0 2px #b8460a;font-weight:800}
+html .sh-A,html .sh-AM,html .sh-MA{background:#c2255c;color:#fff;font-weight:800}
+html .mc-table .fe{background:color-mix(in srgb,#e03131 30%,var(--surface))}
+html .mc-table th.fe{color:#c92a2a;border-bottom:3px solid #e03131;background:color-mix(in srgb,#e03131 22%,var(--surface))}
+html .mc-table th .fe-l{color:#c92a2a}
+.idea-autre{border-style:dashed;border-color:var(--accent)}
 #print-root{display:none}
 @media print{
  body.printing>*:not(#print-root){display:none!important}
@@ -1051,7 +1066,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 12:22";
+const BUILD_STAMP="17-11-2026 à 12:54";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -1098,7 +1113,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171222";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171254";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}scheduleSync();}
 save();
 const hNow=new Date().getHours()+new Date().getMinutes()/60;
@@ -1864,12 +1879,12 @@ function demItem(d){
  const st=d.statut==="attente"?`<span class="pill warn">En attente</span>`:d.statut==="acceptee"?`<span class="pill ok">Acceptée</span>`:`<span class="pill bad">Refusée</span>`;
  const when=d.du===d.au?`Le ${fmtDate(d.du)}`:`Du ${fmtDate(d.du)} au ${fmtDate(d.au)}`;
  const extra=d.type==="changement"?` · ${d.actuel&&SHIFTS[d.actuel]?esc(SHIFTS[d.actuel].l):"aucun horaire"} → <strong>${d.horaire&&SHIFTS[d.horaire]?esc(SHIFTS[d.horaire].l):"—"}</strong>`:(d.horaire&&SHIFTS[d.horaire]?` · souhaite : ${esc(SHIFTS[d.horaire].l)}`:"");
- return `<article class="card"><div class="row-between"><div><strong>${esc(demLabel(d.type))}</strong>${adm?` · ${esc(s?s.prenom+" "+s.nom:"Profil supprimé")}`:""}<div class="muted small">${esc(when)}${extra}</div></div>${st}</div>
+ return `<article class="card"><div class="row-between"><div><strong>${esc(demLabel(d.type))}</strong>${d.avec?` avec ${esc(sname(d.avec))}`:""}${!adm&&d.avec===state.me?` · demandée par ${esc(sname(d.sid))}`:""}${adm?` · ${esc(s?s.prenom+" "+s.nom:"Profil supprimé")}`:""}<div class="muted small">${esc(when)}${extra}</div></div>${st}</div>
   ${d.detail?`<p class="small" style="margin-top:6px">${esc(d.detail)}</p>`:""}
   ${d.reponse?`<p class="small" style="margin-top:6px"><strong>Réponse de la direction :</strong> ${esc(d.reponse)}</p>`:""}
   <p class="muted small" style="margin-top:4px">Demande envoyée le ${esc(fmtDate(d.createdAt))}</p>
   ${adm&&d.statut==="attente"?`<div class="row" style="margin-top:10px"><button class="btn sm ok" data-act="dem-ok" data-id="${d.id}">${icon("check",16)} Accepter</button><button class="btn sm bad" data-act="dem-no" data-id="${d.id}">Refuser</button></div>`:""}
-  ${!adm&&d.statut==="attente"?`<div class="row" style="margin-top:10px"><button class="btn sm ghost" data-act="dem-cancel" data-id="${d.id}">Annuler ma demande</button></div>`:""}</article>`;
+  ${!adm&&d.sid===state.me&&d.statut==="attente"?`<div class="row" style="margin-top:10px"><button class="btn sm ghost" data-act="dem-cancel" data-id="${d.id}">Annuler ma demande</button></div>`:""}</article>`;
 }
 function demLists(list,emptyTxt,doneTitle){
  const pend=list.filter(d=>d.statut==="attente").sort((a,b)=>a.du.localeCompare(b.du));
@@ -1880,8 +1895,9 @@ function demLists(list,emptyTxt,doneTitle){
 function demForm(preType){
  const types=DEM_TYPES.filter(t=>t[0]!=="changement");
  const radio=(name,opts)=>`<div class="rchips" role="radiogroup">${opts.map(([k,l])=>`<label class="rchip"><input type="radio" class="sr" name="${name}" value="${esc(k)}"><span>${esc(l)}</span></label>`).join("")}</div>`;
- openModal("Faire une demande",`<form id="dform" class="stack" novalidate>
-  <div class="field"><span class="lbl">Type de demande</span>${radio("df-type",types)}</div>
+ openModal(preType?demLabel(preType):"Faire une demande",`<form id="dform" class="stack" novalidate>
+  <div class="field"${preType?" hidden":""}><span class="lbl">Type de demande</span>${radio("df-type",types)}</div>
+  <div class="field" id="df-avw"${preType==="echange"?"":" hidden"}><label for="df-avec">Avec quel collègue ?</label><select id="df-avec"><option value="">Choisir un collègue…</option>${state.staff.filter(s=>s.id!==state.me&&!s.admin&&!["technicien","ouvrier"].includes(roleOf(s))).map(s=>`<option value="${s.id}">${esc(s.prenom+" "+s.nom)}${s.fonction?" ("+esc(s.fonction)+")":""}</option>`).join("")}</select><span class="hint">Cette personne recevra aussi la réponse de la direction.</span></div>
   <div class="qtop"><div class="field"><label for="df-du">Du</label><input type="date" id="df-du" min="${TODAY}"></div><div class="field"><label for="df-au">Au (inclus)</label><input type="date" id="df-au" min="${TODAY}"></div></div>
   <div class="field" id="df-hwrap" hidden><span class="lbl">Horaire souhaité</span>${radio("df-h",workCodes().filter(k=>k!=="F").map(k=>[k,`${SHIFTS[k].l} (${SHIFTS[k].h})`]))}</div>
   <div class="field"><label for="df-det">Précisions</label><textarea id="df-det" rows="3" placeholder="Ex. : mariage d'un proche, rendez-vous…"></textarea></div>
@@ -1892,7 +1908,7 @@ function demForm(preType){
  if(preType){const r0=f.querySelector(`input[name="df-type"][value="${preType}"]`);if(r0){r0.checked=true;$("df-hwrap").hidden=preType!=="desid";}}
  const warn=()=>{const du=$("df-du").value,w=$("df-warn");if(!du){w.hidden=true;return;}const m=monthOf(du),ph=planPhase(m);w.hidden=false;
   w.textContent=ph==="final"?`Le planning de ${monthName(m)} est définitif : il n'est plus possible de faire une demande pour ce mois.`:ph==="open"?`Le planning de ${monthName(m)} est visible et provisoire : la direction peut encore l'ajuster jusqu'au ${dShort(lockDate(m))}.`:`Le planning de ${monthName(m)} est en préparation : votre demande pourra être prise en compte avant qu'il soit visible, le ${dShort(pubDate(m))}.`;};
- f.addEventListener("change",e=>{if(e.target.name==="df-type")$("df-hwrap").hidden=e.target.value!=="desid";if(e.target.id==="df-du"){if(!$("df-au").value||$("df-au").value<e.target.value)$("df-au").value=e.target.value;warn();}});
+ f.addEventListener("change",e=>{if(e.target.name==="df-type"){$("df-hwrap").hidden=e.target.value!=="desid";$("df-avw").hidden=e.target.value!=="echange";}if(e.target.id==="df-du"){if(!$("df-au").value||$("df-au").value<e.target.value)$("df-au").value=e.target.value;warn();}});
  f.addEventListener("submit",e=>{e.preventDefault();const err=$("df-err");
   const type=rv("df-type"),du=$("df-du").value,au=$("df-au").value,h=rv("df-h"),det=$("df-det").value.trim();
   if(!type){err.textContent="Choisissez le type de demande.";return;}
@@ -1901,8 +1917,9 @@ function demForm(preType){
   if(au<du){err.textContent="La date de fin doit être après la date de début.";return;}
   if(isLocked(monthOf(du))||isLocked(monthOf(au))){err.textContent="Ce planning est définitif : il n'est plus possible de faire une demande pour ces dates.";return;}
   if(type==="desid"&&!h){err.textContent="Choisissez l'horaire souhaité.";return;}
+  if(type==="echange"&&!$("df-avec").value){err.textContent="Choisissez le collègue avec qui vous voulez échanger.";return;}
   if(type==="autre"&&!det){err.textContent="Expliquez votre demande dans les précisions.";return;}
-  state.demandes.push({id:uid(),sid:state.me,type,du,au,horaire:type==="desid"?h:"",detail:det,createdAt:TODAY,statut:"attente"});
+  state.demandes.push({id:uid(),sid:state.me,type,du,au,horaire:type==="desid"?h:"",avec:type==="echange"?$("df-avec").value:"",detail:det,createdAt:TODAY,statut:"attente"});
   save();closeModal();render();toast("Demande envoyée à la direction");});
 }
 const openChangeMonth=()=>{const cm=monthOf(TODAY);return [cm,nextMonth(cm)].find(m=>planPhase(m)==="open")||"";};
@@ -2817,7 +2834,7 @@ function vAct(){
 function actOpen(id){
  const a=state.activites.find(x=>x.id===id);if(!a)return;const p=picto(apic(a)),adm=isAdmin();
  openModal(`${p.e} ${a.titre}`,`<dl class="kv"><dt>Quand</dt><dd>${esc(cap(fmtDay(a.date)))}, de ${hm(a.debut)} à ${hm(a.fin)}</dd><dt>Lieu</dt><dd>${esc(a.lieu||"—")}</dd><dt>Véhicule</dt><dd>${esc(a.vehicule||"Aucun")}</dd><dt>Avec</dt><dd>${esc(a.anim?sname(a.anim):"—")}${(a.staff||[]).length?", "+esc(a.staff.map(sname).join(", ")):""}</dd>
-  <dt>Résidents</dt><dd>${(a.part||[]).length?esc(a.part.map(id=>rname(R(id))).join(", ")):"—"}</dd><dt>Matériel</dt><dd class="tr-text">${esc(a.materiel||"—")}</dd>${(a.objectifs||[]).length?`<dt>Objectifs</dt><dd>${a.objectifs.map(o=>`<span class="pill info">${esc(o)}</span>`).join(" ")}</dd>`:""}${a.adapt?`<dt>Adaptations, vigilance</dt><dd class="tr-text">${esc(a.adapt)}</dd>`:""}${a.notes?`<dt>Notes</dt><dd class="tr-text">${esc(a.notes)}</dd>`:""}</dl>
+  <dt>Résidents</dt><dd>${(a.part||[]).length?esc(a.part.map(id=>rname(R(id))).join(", ")):"—"}</dd>${a.idee?`<dt>L'idée</dt><dd class="tr-text">${esc(a.idee)}</dd>`:""}<dt>Matériel</dt><dd class="tr-text">${esc(a.materiel||"—")}</dd>${a.fichier?`<dt>Document joint</dt><dd><button class="btn sm" data-act="act-file" data-id="${a.id}">📎 ${esc(a.fichier.nom)}</button></dd>`:""}${(a.objectifs||[]).length?`<dt>Objectifs</dt><dd>${a.objectifs.map(o=>`<span class="pill info">${esc(o)}</span>`).join(" ")}</dd>`:""}${a.adapt?`<dt>Adaptations, vigilance</dt><dd class="tr-text">${esc(a.adapt)}</dd>`:""}${a.notes?`<dt>Notes</dt><dd class="tr-text">${esc(a.notes)}</dd>`:""}</dl>
   ${adm?`<div class="form-actions"><button class="btn bad spacer" data-act="act-del" data-id="${a.id}">Supprimer</button><button class="btn primary" data-act="act-edit" data-id="${a.id}">${icon("edit",16)} Modifier</button></div>`:""}`,true);
 }
 function vDepot(){
@@ -2827,7 +2844,8 @@ function vDepot(){
  return topbar(a?"Modifier l'activité":(adm?"Créer une activité":"Déposer une activité"),adm?"L'activité sera ajoutée directement au planning.":"Remplissez les étapes : la direction validera votre activité avant qu'elle apparaisse au planning.",`<button class="btn" data-act="dep-back">${icon("left",18)} Retour au planning</button>`)+
  `<form id="depform" class="stack" novalidate>
   <section class="cfs"><h3><span class="cfn">1</span> Une idée pour commencer ? (facultatif)</h3><span class="hint">Touchez une idée : le formulaire se remplit tout seul, vous pourrez tout changer.</span>
-   <div class="ideas">${ACT_IDEAS.map((x,i)=>`<button type="button" class="idea" data-idea="${i}"><span aria-hidden="true">${picto(pk(x.p)).e}</span>${esc(x.t)}</button>`).join("")}</div></section>
+   <div class="ideas">${ACT_IDEAS.map((x,i)=>`<button type="button" class="idea" data-idea="${i}"><span aria-hidden="true">${picto(pk(x.p)).e}</span>${esc(x.t)}</button>`).join("")}<button type="button" class="idea idea-autre" data-idea="autre"><span aria-hidden="true">✏️</span>Autre : mon idée</button></div>
+   <div class="field" id="dp-ideew"${v.idee||ui.depAutre?"":" hidden"} style="margin-top:10px"><label for="dp-idee">Expliquez votre activité : votre idée, son déroulement, ce que vous voulez apporter aux résidents</label><textarea id="dp-idee" rows="5">${esc(v.idee||"")}</textarea></div></section>
   <section class="cfs"><h3><span class="cfn">2</span> Le pictogramme et le nom de l'activité</h3>
    <div class="pcats">${PICTO_CATS.map(c=>`<button type="button" class="pcat${c[0]===cat?" on":""}" style="--pc:${c[2]}" data-pcat="${c[0]}">${esc(c[1])}</button>`).join("")}</div>
    <div class="pgrid">${PICTOS.filter(p=>p.cat===cat).map(p=>`<label class="pic"><input type="radio" class="sr" name="dp-picto" value="${p.k}"${p.k===sel?" checked":""}><span class="pic-e" aria-hidden="true">${p.e}</span><span class="pic-l">${esc(p.l)}</span></label>`).join("")}</div>
@@ -2840,16 +2858,18 @@ function vDepot(){
    <span class="lbl" style="margin-top:8px">Résidents qui participent</span>${chk("dp-part",resSorted().map(r=>[r.id,rname(r)]),v.part)}</section>
   <section class="cfs"><h3><span class="cfn">6</span> Matériel nécessaire</h3><div class="field"><textarea id="dp-mat" rows="3" placeholder="Ex. : tabliers, farine, moules…">${esc(v.materiel||"")}</textarea></div></section>
   <section class="cfs"><h3><span class="cfn">7</span> Objectifs pour les résidents</h3>${chk("dp-obj",ACT_OBJ.map(o=>[o,o]),v.objectifs)}</section>
-  <section class="cfs"><h3><span class="cfn">8</span> Adaptations et points de vigilance</h3><div class="field"><textarea id="dp-adapt" rows="3" placeholder="Ex. : ustensiles adaptés, allergies, accessibilité, nombre d'accompagnants">${esc(v.adapt||"")}</textarea></div>
+  <section class="cfs"><h3><span class="cfn">8</span> Document joint (facultatif)</h3><span class="hint">Une fiche d'activité que vous avez préparée : Word, PDF, image… (2 Mo maximum)</span>
+   <div id="dp-filebox">${depFileHtml()}</div></section>
+  <section class="cfs"><h3><span class="cfn">9</span> Adaptations et points de vigilance</h3><div class="field"><textarea id="dp-adapt" rows="3" placeholder="Ex. : ustensiles adaptés, allergies, accessibilité, nombre d'accompagnants">${esc(v.adapt||"")}</textarea></div>
    <div class="field"><label for="dp-notes">Notes (facultatif)</label><textarea id="dp-notes" rows="2">${esc(v.notes||"")}</textarea></div></section>
   <p class="mnote" id="dp-err" role="alert"></p>
   <div class="qsave"><button type="button" class="btn" data-act="dep-back">Annuler</button><button class="btn primary" type="submit">${icon("check",18)} ${a?"Enregistrer":adm?"Ajouter au planning":"Envoyer à la direction"}</button></div></form>`;
 }
 function depRead(){const f=$("depform");if(!f)return null;const mv=n=>[...f.querySelectorAll(`input[name="${n}"]:checked`)].map(i=>i.value);const pi=f.querySelector('input[name="dp-picto"]:checked')||f.querySelector('input[name="dp-picto-keep"]');
- return {picto:pi?pi.value:"",titre:$("dp-titre").value.trim(),date:$("dp-date").value,debut:$("dp-deb").value,fin:$("dp-fin").value,lieu:$("dp-lieu").value.trim(),vehicule:$("dp-veh").value,anim:$("dp-anim").value,staff:mv("dp-staff"),part:mv("dp-part"),materiel:$("dp-mat").value.trim(),objectifs:mv("dp-obj"),adapt:$("dp-adapt").value.trim(),notes:$("dp-notes").value.trim()};}
+ return {picto:pi?pi.value:"",titre:$("dp-titre").value.trim(),date:$("dp-date").value,debut:$("dp-deb").value,fin:$("dp-fin").value,lieu:$("dp-lieu").value.trim(),vehicule:$("dp-veh").value,anim:$("dp-anim").value,staff:mv("dp-staff"),part:mv("dp-part"),materiel:$("dp-mat").value.trim(),objectifs:mv("dp-obj"),adapt:$("dp-adapt").value.trim(),notes:$("dp-notes").value.trim(),idee:$("dp-idee")?$("dp-idee").value.trim():"",fichier:ui.depFile||null};}
 document.addEventListener("click",e=>{
  const c=e.target.closest("[data-pcat]");if(c&&$("depform")){ui.depDraft=Object.assign({},ui.depDraft||{},depRead());ui.depCat=c.dataset.pcat;render();return;}
- const i=e.target.closest("[data-idea]");if(i&&$("depform")){const x=ACT_IDEAS[+i.dataset.idea];ui.depDraft=Object.assign({},ui.depDraft||{},depRead(),{titre:x.t,picto:pk(x.p),lieu:x.lieu,materiel:x.mat,objectifs:x.obj.slice(),adapt:x.ad});ui.depCat=picto(pk(x.p)).cat;render();toast("Idée ajoutée : vérifiez et complétez");}
+ const i=e.target.closest("[data-idea]");if(i&&$("depform")&&i.dataset.idea==="autre"){ui.depAutre=true;$("dp-ideew").hidden=false;$("dp-idee").focus();return;}if(i&&$("depform")){const x=ACT_IDEAS[+i.dataset.idea];ui.depDraft=Object.assign({},ui.depDraft||{},depRead(),{titre:x.t,picto:pk(x.p),lieu:x.lieu,materiel:x.mat,objectifs:x.obj.slice(),adapt:x.ad});ui.depCat=picto(pk(x.p)).cat;render();toast("Idée ajoutée : vérifiez et complétez");}
 });
 document.addEventListener("submit",e=>{if(e.target.id!=="depform")return;e.preventDefault();const x=depRead(),err=$("dp-err");
  if(!x.picto)return err.textContent="Choisissez un pictogramme (étape 2).";
@@ -2862,10 +2882,10 @@ document.addEventListener("submit",e=>{if(e.target.id!=="depform")return;e.preve
  if(a){Object.assign(a,x);toast("Activité modifiée");}
  else if(isAdmin()){state.activites.push(Object.assign({id:uid(),statut:"validee",propPar:state.me},x));toast("Activité ajoutée au planning");}
  else{state.activites.push(Object.assign({id:uid(),statut:"proposee",propPar:state.me,proposeLe:TODAY},x));toast("Activité envoyée à la direction pour validation");}
- ui.depDraft=null;ui.depCat="";ui.depEditKeep="";ui.actWeek=mondayOf(x.date);save();go("activites");});
+ ui.depDraft=null;ui.depCat="";ui.depEditKeep="";ui.depFile=undefined;ui.depAutre=false;ui.actWeek=mondayOf(x.date);save();go("activites");});
 VIEW_FN.depot=vDepot;
 VIEWS.push({id:"depot",label:"Déposer une activité",ic:"cal"});
-A["dep-back"]=()=>{ui.depDraft=null;ui.depCat="";ui.depEditKeep="";ui.depEdit="";go("activites");};
+A["dep-back"]=()=>{ui.depDraft=null;ui.depCat="";ui.depEditKeep="";ui.depEdit="";ui.depFile=undefined;ui.depAutre=false;go("activites");};
 A["act-open"]=d=>actOpen(d.id);
 A["act-day"]=d=>{ui.actDay=d.d||"";if(d.d)ui.actWeek=mondayOf(d.d);render();window.scrollTo(0,0);};
 A["act-new"]=()=>go("depot");
@@ -3031,7 +3051,7 @@ function vDLU(){
 function printHtml(html){let p=$("print-root");if(!p){p=document.createElement("div");p.id="print-root";document.body.appendChild(p);}p.innerHTML=html;document.body.classList.add("printing");
  const done=()=>{document.body.classList.remove("printing");p.innerHTML="";window.removeEventListener("afterprint",done);};window.addEventListener("afterprint",done);
  try{window.print();}catch(e){toast("L'impression n'est pas disponible ici : ouvrez l'application dans votre navigateur.");done();}}
-A["dlu-open"]=d=>{const r=R(d.r);openModal(`Fiche d'urgence · ${rname(r)}`,dluHtml(r)+`<div class="form-actions">${isMed()?`<button class="btn" data-act="dlu-edit" data-r="${r.id}">${icon("edit",16)} Compléter</button>`:""}<button class="btn primary" data-act="dlu-print" data-r="${r.id}">Imprimer</button></div>`,true);};
+A["dlu-open"]=d=>{const r=R(d.r);openModal(`Fiche d'urgence · ${rname(r)}`,dluHtml(r)+`<div class="form-actions">${isMed()?`<button class="btn" data-act="dlu-edit" data-r="${r.id}">${icon("edit",16)} Compléter</button>`:""}${IS_DIR?`<button class="btn primary" data-act="dlu-print" data-r="${r.id}">Imprimer</button>`:""}</div>`,true);};
 A["dlu-print"]=d=>{const r=R(d.r);closeModal();printHtml(dluHtml(r));};
 A["dlu-edit"]=d=>{if(!isMed())return onlyMed();const r=R(d.r);
  openForm({title:`Fiche d'urgence · ${rname(r)}`,values:Object.assign({},r.dlu||{}),fields:DLU_F.map(([k,l,h])=>({name:k,label:l,type:k==="groupe"?"text":"textarea",full:true,hint:h})),
@@ -3254,9 +3274,9 @@ const PRINT_V={horaires:[".mc-table",()=>`Horaires de l'équipe · ${cap(monthNa
 const prHead=t=>`<div class="pr-h"><img src="${LOGO_MARK}" alt=""><div><h1>${esc(t)}</h1><p>Le Sakura · imprimé le ${esc(fmtDate(TODAY))} à ${nowHM().replace(":","h")}</p></div></div>`;
 A["print-view"]=()=>{const c=PRINT_V[ui.view];if(!c)return;const els=[...document.querySelectorAll(c[0])];if(!els.length)return toast("Rien à imprimer ici.");printHtml(prHead(c[1]())+els.map(e=>e.outerHTML).join(""));logJ("consult","Impression",c[1]());};
 A["print-modal"]=()=>{const s=document.querySelector("#modal-root .sheet");if(!s)return;const t=(s.querySelector("#sheet-title")||{}).textContent||"";const cl=s.cloneNode(true);cl.querySelectorAll(".sheet-h,.form-actions,button").forEach(e=>e.remove());closeModal();printHtml(prHead(t)+cl.innerHTML);logJ("consult","Impression",t);};
-Object.keys(PRINT_V).forEach(v=>{const f=VIEW_FN[v];VIEW_FN[v]=()=>{const h=f(),i=h.indexOf("</header>");return i<0?h:h.slice(0,i+9)+`<div class="print-bar"><button class="btn sm" data-act="print-view">🖨️ Imprimer / PDF</button></div>`+h.slice(i+9);};});
+if(IS_DIR)Object.keys(PRINT_V).forEach(v=>{const f=VIEW_FN[v];VIEW_FN[v]=()=>{const h=f(),i=h.indexOf("</header>");return i<0?h:h.slice(0,i+9)+`<div class="print-bar"><button class="btn sm" data-act="print-view">🖨️ Imprimer / PDF</button></div>`+h.slice(i+9);};});
 {const _om=openModal;openModal=(title,html,wide)=>{_om(title,html,wide);const want=/^(Fiche résident|Projet personnalisé ·|Suivi ·|Historique ·)/.test(title);
- if(want){const h=$("modal-root").querySelector(".sheet-h");if(h&&!h.querySelector('[data-act="print-modal"]'))h.insertAdjacentHTML("beforeend",`<button class="btn sm" data-act="print-modal">🖨️ Imprimer</button>`);}};}
+ if(want&&IS_DIR){const h=$("modal-root").querySelector(".sheet-h");if(h&&!h.querySelector('[data-act="print-modal"]'))h.insertAdjacentHTML("beforeend",`<button class="btn sm" data-act="print-modal">🖨️ Imprimer</button>`);}};}
 
 /* ---------- Historique des actions ---------- */
 const J_COL={transmissions:"Transmission",contentions:"Fiche de contention",sanctions:"Mesure éducative",retours:"Retour en famille",crs:"Compte rendu médical",residents:"Dossier résident",staff:"Profil",demandes:"Demande (congé, horaire)",activites:"Activité",agenda:"Agenda",commandes:"Commande",constantes:"Poids et constantes",repas:"Repas",hydra:"Hydratation",stock:"Stock de médicaments",projets:"Projet personnalisé",ppObs:"Observation de projet",rondes:"Ronde de nuit",nuitEv:"Événement de nuit",selles:"Selles",prescriptions:"Traitement",sbPrises:"Prise si besoin",posts:"Information de la direction",messages:"Message"};
@@ -3301,6 +3321,74 @@ VIEW_FN.journal=vJournal;VIEWS.push({id:"journal",label:"Historique des actions"
 A["j-clear"]=()=>{if(!isAdmin())return;confirmBox("Effacer l'historique","Tout l'historique des actions sera effacé définitivement. Cette action ne peut pas être annulée.","Effacer définitivement",()=>{state.journal=[];logJ("supp","Historique","Historique effacé par la direction");toast("Historique effacé");});};
 document.addEventListener("change",e=>{const id=e.target.id;if(!["j-w","j-a","j-d"].includes(id))return;ui.jF=Object.assign({},ui.jF,{[id.slice(2)]:e.target.value});render();});
 document.addEventListener("input",e=>{if(e.target.id!=="j-q")return;ui.jF=Object.assign({},ui.jF,{q:e.target.value});clearTimeout(window._jqT);window._jqT=setTimeout(render,350);});
+
+/* ---------- Version 5 : réorganisation et retours de la direction ---------- */
+/* Accueil : uniquement les informations de la direction */
+VIEW_FN.aujourdhui=vToday;
+/* Fichier joint au dépôt d'activité */
+function depFileHtml(){
+ if(ui.depFile===undefined&&ui.depEditKeep){const a=state.activites.find(x=>x.id===ui.depEditKeep);ui.depFile=a&&a.fichier?a.fichier:null;}
+ const fl=ui.depFile;
+ return fl?`<div class="row"><span class="pill info">📎 ${esc(fl.nom)} · ${Math.round(fl.taille/1024)} Ko</span><button type="button" class="btn sm ghost" id="dp-file-rm">Retirer</button></div>`
+  :`<label class="btn" for="dp-file">📎 Choisir un fichier</label><input type="file" id="dp-file" class="sr" accept=".doc,.docx,.odt,.pdf,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.jpeg,.png">`;}
+document.addEventListener("change",e=>{if(e.target.id!=="dp-file")return;const fl=e.target.files[0];if(!fl)return;
+ if(fl.size>2*1024*1024){toast("Ce fichier est trop lourd (2 Mo maximum).");e.target.value="";return;}
+ const fr=new FileReader();fr.onload=()=>{ui.depFile={nom:fl.name,type:fl.type||"application/octet-stream",taille:fl.size,data:fr.result};$("dp-filebox").innerHTML=depFileHtml();toast("Fichier ajouté");};fr.onerror=()=>toast("Impossible de lire ce fichier.");fr.readAsDataURL(fl);});
+document.addEventListener("click",e=>{if(e.target.id!=="dp-file-rm")return;ui.depFile=null;$("dp-filebox").innerHTML=depFileHtml();});
+A["act-file"]=async d=>{const a=state.activites.find(x=>x.id===d.id);if(!a||!a.fichier)return;const fl=a.fichier;
+ try{if(window.claude&&claude.use){const dl=await claude.use("downloads");if(dl){const b=await (await fetch(fl.data)).blob();await dl.save({filename:fl.nom,data:b});return;}}}catch(err){}
+ const l=document.createElement("a");l.href=fl.data;l.download=fl.nom;document.body.appendChild(l);l.click();l.remove();};
+/* Réponses aux demandes : messages pour la personne et le collègue concerné */
+const demMine=()=>state.demandes.filter(d=>d.sid===state.me||d.avec===state.me);
+const demNew=()=>demMine().filter(d=>d.statut!=="attente"&&!(d.vu||[]).includes(state.me));
+function demSeen(){let ch=false;demNew().forEach(d=>{(d.vu=d.vu||[]).push(state.me);ch=true;});if(ch)save();}
+{const _r=rappels;rappels=()=>{const l=_r();demNew().slice().reverse().forEach(d=>{const ok=d.statut==="acceptee",who=d.sid===state.me?"Votre demande":`La demande de ${sname(d.sid)} (échange avec vous)`;
+ l.unshift({lvl:ok?"info":"bad",txt:`${who} « ${demLabel(d.type)} » du ${fmtDay(d.du,{day:"numeric",month:"long"})} a été ${ok?"acceptée":"refusée"}${d.reponse?" : "+d.reponse:""}`,v:"conges#mine",ic:ok?"check":"info"});});return l;};}
+{const _g=A["rap-go"];A["rap-go"]=d=>{if(d.v==="conges#mine"){closeModal();ui.cgTab="mine";demSeen();go("conges");return;}_g(d);};}
+A["cg-tab"]=d=>{ui.cgTab=d.t;if(d.t==="mine")demSeen();render();};
+VIEW_FN.conges=()=>{
+ if(isAdmin())return vConges();
+ const tab=ui.cgTab||"new",mine=demMine(),nn=demNew().length,pend=mine.filter(d=>d.statut==="attente").length;
+ const tabs=`<div class="tr-tabs" role="tablist"><button class="tr-tab${tab==="new"?" on":""}" role="tab" aria-selected="${tab==="new"}" data-act="cg-tab" data-t="new">${icon("plus",22)}<span>Faire une demande</span></button><button class="tr-tab${tab==="mine"?" on":""}" role="tab" aria-selected="${tab==="mine"}" data-act="cg-tab" data-t="mine">${icon("check",22)}<span>Mes demandes et réponses</span>${nn?`<span class="badge">${nn}</span>`:pend?`<span class="badge" style="background:var(--warn)">${pend}</span>`:""}</button></div>`;
+ if(tab==="mine")return topbar("Congés et demandes","Vos demandes : en attente, acceptées ou refusées")+tabs+
+  `<div class="section-title" style="margin-top:0"><h2>En attente de réponse</h2></div>${(()=>{const l=mine.filter(d=>d.statut==="attente");return l.length?`<div class="med-grid">${l.map(demItem).join("")}</div>`:`<p class="empty">Aucune demande en attente.</p>`;})()}
+  <div class="section-title"><h2>Réponses de la direction</h2></div>${(()=>{const l=mine.filter(d=>d.statut!=="attente").sort((a,b)=>(b.decidedAt||"").localeCompare(a.decidedAt||""));return l.length?`<div class="med-grid">${l.map(demItem).join("")}</div>`:`<p class="empty">Pas encore de réponse.</p>`;})()}`;
+ const h=vConges(),i=h.indexOf("</header>"),k=h.indexOf('<div class="notice">',i);
+ return h.slice(0,i+9)+tabs+h.slice(i+9,k>0?k:h.length);
+};
+/* Transmissions : équipe éducative, direction, techniciens, ouvriers */
+const TR_EQ=["carnet","admin","medical"];
+trTabsFor=()=>{const s=ST(state.me);if(isLimited())return [roleOf(s)];const m=ui.trMode||"equipe";return m==="equipe"?TR_EQ:[m];};
+const TR_MODE_L={equipe:"Transmission équipe éducative",direction:"Transmission pour la direction",technicien:"Transmission pour les techniciens de surface",ouvrier:"Transmission des ouvriers"};
+A["tr-mode"]=d=>{ui.trMode=d.m;ui.trTab=d.m==="equipe"?"carnet":d.m;go("transmissions");};
+{const _vt=VIEW_FN.transmissions;VIEW_FN.transmissions=()=>{let h=_vt();const m=isLimited()?roleOf(ST(state.me)):(ui.trMode||"equipe");
+ h=h.replace(/<h1>[^<]*<\/h1>/,`<h1>${esc(TR_MODE_L[m]||"Transmissions")}</h1>`);
+ if(m==="equipe"){const s=h.indexOf('<div class="tr-tabs"'),e=s<0?-1:h.indexOf("</div>",s);
+  if(e>0)h=h.slice(0,e)+`<button class="tr-tab" data-act="go" data-v="nuit">${icon("clock",22)}<span>Équipe de nuit</span></button><button class="tr-tab" data-act="go" data-v="cr">${icon("steth",22)}<span>Comptes rendus médicaux</span>${navBadge("cr")?`<span class="badge">${navBadge("cr")}</span>`:""}</button>`+h.slice(e);
+  const l=rappels(),i=h.indexOf("</header>");if(l.length&&i>0)h=h.slice(0,i+9)+`<section class="card rap-card"><div class="card-h"><h2>${icon("info")} À faire</h2><span class="pill warn">${l.length}</span></div>${rapList(l)}</section>`+h.slice(i+9);}
+ return h;};}
+{const _s=subNav;subNav=()=>{if(["nuit","cr"].includes(ui.view)&&!isLimited())return `<button class="backlink" data-act="tr-mode" data-m="equipe">${icon("left",18)} Retour à la transmission équipe éducative</button>`;return _s();};}
+VIEW_FN.contexte=()=>{const sum=ks=>ks.reduce((n,k)=>n+trTabBadge(k),0);
+ const tiles=[{ic:"note",t:"Transmission équipe éducative",s:"Carnet, point admin, corps médical, nuit, comptes rendus médicaux",act:'data-act="tr-mode" data-m="equipe"',b:sum(TR_EQ)},
+  {ic:"shield",t:"Transmission pour la direction",s:"Informations importantes pour la direction",act:'data-act="tr-mode" data-m="direction"',b:trTabBadge("direction")},
+  {ic:"drop",t:"Transmission pour les techniciens de surface",s:"Ménage, entretien, hygiène des locaux",act:'data-act="tr-mode" data-m="technicien"',b:trTabBadge("technicien")},
+  {ic:"repair",t:"Transmission des ouvriers",s:"Réparations, travaux, matériel",act:'data-act="tr-mode" data-m="ouvrier"',b:trTabBadge("ouvrier")},
+  {ic:"repair",t:"Mesures éducatives",s:"Mesures éducatives et réparatrices",act:'data-act="go" data-v="sanctions"',b:navBadge("sanctions")},
+  {ic:"house",t:"Retours en famille",s:"Départs et retours en famille",act:'data-act="go" data-v="retours"',b:navBadge("retours")}];
+ return topbar("Contexte institutionnel","Choisissez la transmission ou la page que vous voulez ouvrir")+`<div class="hub-grid">${tiles.map(hubTile).join("")}</div>`;};
+NAV_GROUPS["g-ctx"].items=["contexte","transmissions","nuit","cr","sanctions","retours"];
+/* Santé : avec selles et contention */
+NAV_GROUPS["g-sante"].items=["sante","medicaments","constantes","repas","selles","contention","stock","dlu"];
+{const _vs=VIEW_FN.sante;VIEW_FN.sante=()=>{const h=_vs(),k=h.lastIndexOf("</div>");
+ const extra=[{ic:"drop",t:"Selles",s:"Suivi matin, midi et soir",act:'data-act="go" data-v="selles"',b:navBadge("selles")},{ic:"shield",t:"Contention",s:"Fiches et relevés de paramètres",act:'data-act="go" data-v="contention"',b:navBadge("contention")}].map(hubTile).join("");
+ return (k>0?h.slice(0,k)+extra+h.slice(k):h).replace(/<button class="hub-tile[^"]*" data-act="go" data-v="menus"[\s\S]*?<\/button>/,"");};}
+/* Planning : activités et menus de la semaine */
+NAV_GROUPS["g-plan"]={label:"Planning",short:"Planning",ic:"cal",items:["activites","menus"]};
+NAV_ORDER.splice(NAV_ORDER.indexOf("activites"),1,"g-plan");
+{const _va=VIEW_FN.activites;VIEW_FN.activites=()=>{const h=_va(),i=h.indexOf("</header>");if(i<0)return h;
+ return h.slice(0,i+9)+`<div class="tr-tabs"><button class="tr-tab on" aria-current="page">${icon("cal",22)}<span>Activités</span></button><button class="tr-tab" data-act="go" data-v="menus">🍽️<span>Menus de la semaine</span></button></div>`+h.slice(i+9);};}
+/* Dossiers après Commandes */
+NAV_ORDER.splice(NAV_ORDER.indexOf("g-dos"),1);NAV_ORDER.push("g-dos");
 
 /* ---------- Partage en ligne (base de données de l'artifact) ---------- */
 var syncDb=null,syncBase={},syncRemote={},syncChunks={},syncTimer=null,syncBusy=false,syncAgain=false,syncReady=false,syncPendingRemote=null,syncRO=false,syncStatus="local";
