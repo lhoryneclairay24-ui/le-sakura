@@ -90,7 +90,14 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .mc-table thead th:first-child{position:sticky;left:0;z-index:3;background:var(--surface)}
 .mc-table tr.me-row th.mc-name{background:var(--accent-soft)}
 .mc-td{text-align:center}
-.mc-table .we{background:var(--surface-2)}
+.mc-table .we{background:color-mix(in srgb,var(--info) 16%,var(--surface))}
+.mc-table th.we{color:var(--info);border-bottom:3px solid var(--info)}
+.mc-table .fe{background:color-mix(in srgb,var(--accent) 22%,var(--surface))}
+.mc-table th.fe{color:var(--accent);border-bottom:3px solid var(--accent)}
+.mc-table th .fe-l{display:block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+.cal-key{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.cal-key span{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600}
+.cal-key i{width:16px;height:16px;border-radius:4px;display:inline-block}
 .mc-table .today{box-shadow:inset 0 0 0 2px var(--accent)}
 .cellbtn{width:34px;height:32px;border-radius:7px;border:1px solid var(--line);font:inherit;font-weight:700;font-size:13px;cursor:pointer;padding:0}
 .cellbtn.sh-{background:var(--surface);color:var(--muted)}
@@ -404,7 +411,9 @@ td.today,th.today{background:var(--accent-soft)}
 .sh-M{background:var(--info-soft);color:var(--info)} .sh-J{background:var(--accent-soft);color:var(--accent)}
 .sh-S{background:var(--warn-soft);color:var(--warn)} .sh-N{background:var(--night-soft);color:var(--night)}
 .sh-I{background:var(--ok-soft);color:var(--ok)} .sh-L{background:var(--bad-soft);color:var(--bad)}
-.sh-F{background:var(--surface-2);color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent)} .sh-R,.sh-C,.sh-{background:var(--surface-2);color:var(--muted)}
+.sh-F{background:var(--surface-2);color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent)} .sh-{background:var(--surface-2);color:var(--muted)}
+.sh-R{background:#2b8a3e;color:#fff;box-shadow:inset 0 0 0 1.5px #1e6b2f}
+.sh-C{background:#e8590c;color:#fff;box-shadow:inset 0 0 0 1.5px #b9470a}
 .sh-cat{display:grid;gap:12px}
 .sh-row,.sh-scale{display:grid;grid-template-columns:190px minmax(0,1fr) 240px;gap:14px;align-items:center}
 .sh-name{display:grid;gap:4px;justify-items:start;font-size:14px}
@@ -504,9 +513,12 @@ textarea{min-height:96px;resize:vertical}
 
 /* Logo */
 .brand-mark{width:48px;height:48px;border-radius:12px;object-fit:cover;flex:none;background:#fbf4e9}
-.gate-logo{background:#fbf4e9;border-radius:22px;padding:8px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-.gate-logo img{display:block;width:96px;height:auto;border-radius:14px}
-.gate-logo.lg img{width:min(200px,46vw)}
+.gate-logo{position:relative;display:grid;place-items:center;border-radius:50%;width:130px;aspect-ratio:1;background:radial-gradient(circle closest-side,#fbf3ea 0 84%,rgba(251,243,234,.55) 93%,rgba(251,243,234,0) 100%)}
+.gate-logo.lg{width:min(270px,62vw)}
+.gate-logo::before{content:"";position:absolute;inset:-14%;border-radius:50%;background:radial-gradient(circle,rgba(251,244,233,.20) 0%,rgba(242,167,192,.10) 55%,transparent 72%);pointer-events:none}
+.gate-logo::after{content:"";position:absolute;inset:-6%;border-radius:50%;border:1px solid rgba(242,167,192,.28);pointer-events:none;box-shadow:0 0 0 70px rgba(242,167,192,.025),0 0 0 71px rgba(242,167,192,.10),0 0 0 160px rgba(242,167,192,.015),0 0 0 161px rgba(242,167,192,.07)}
+.gate-inner:has(.gate-logo.lg)~*,.gate:has(.gate-logo)::before{display:none}
+.gate-logo img{position:relative;display:block;width:74%;height:auto;-webkit-mask-image:radial-gradient(circle,#000 76%,transparent 84%);mask-image:radial-gradient(circle,#000 76%,transparent 84%)}
 
 /* Écran de connexion : univers prune et rose du logo, assumé dans les deux thèmes */
 body.locked .app,body.locked .tabbar{display:none}
@@ -707,7 +719,7 @@ const VIEWS=[
  {id:"medicaments",label:"Médicaments",short:"Médocs",ic:"pill"},
  {id:"selles",label:"Selles",ic:"drop"},
  {id:"contention",label:"Contention",short:"Contention",ic:"shield"},
- {id:"sanctions",label:"Sanctions réparatrices",short:"Sanctions",ic:"repair"},
+ {id:"sanctions",label:"Mesures éducatives",short:"Mesures éduc.",ic:"repair"},
  {id:"retours",label:"Retours en famille",short:"Retours",ic:"house"},
  {id:"actus",label:"Problème technique",short:"Problème tech.",ic:"chat"},
  {id:"residents",label:"Dossiers des résidents",short:"Dossiers",ic:"users"}];
@@ -861,6 +873,9 @@ function seed(){
 
 /* ---------- État ---------- */
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
+/* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
+const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
+const BUILD_STAMP="17-11-2026 à 10:30";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -907,7 +922,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171012";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171030";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}scheduleSync();}
 save();
 const hNow=new Date().getHours()+new Date().getMinutes()/60;
@@ -961,7 +976,7 @@ const isAdmin=()=>{const s=ST(state.me);return !!(s&&s.admin);};
 function topbar(title,sub,actions){
  const me=ST(state.me);
  return `<header class="topbar"><div><h1>${esc(title)}</h1>${sub?`<p class="sub">${sub}</p>`:""}</div>
-  <div class="top-actions">${actions||""}${syncPill()}${me?`<div class="me-chip">${staffAv(me)}<span>${esc(me.prenom+" "+me.nom)}</span><button class="btn sm" data-act="lock" aria-label="Verrouiller la session" title="Verrouiller">${icon("lock",18)}</button>${me.admin?`<button class="btn sm" data-act="manage">Gérer les profils</button>`:""}<button class="btn sm" data-act="logout">${icon("logout",16)} Se déconnecter</button></div>`:""}</div></header>`;
+  <div class="top-actions">${actions||""}${syncPill()}${me?`<div class="me-chip">${staffAv(me)}<span>${esc(me.prenom+" "+me.nom)}</span><button class="btn sm" data-act="lock" aria-label="Verrouiller la session" title="Verrouiller">${icon("lock",18)}</button>${me.admin&&IS_DIR?`<button class="btn sm" data-act="manage">Gérer les profils</button>`:""}</div>`:""}</div></header>`;
 }
 function render(){
  const ae=document.activeElement,aid=ae&&ae.id&&$("main").contains(ae)?ae.id:null,av=aid&&"value" in ae?ae.value:null;
@@ -1271,8 +1286,7 @@ function vCont(){
    ["Quand",`${esc(c.moments||"—")}${c.debutH&&c.finH?` <span class="pill acc">${hm(c.debutH)} – ${hm(c.finH)}</span>`:""}`,3],
    ["Surveillance",esc(c.surveillance||"—"),3],
    ["Alternatives",esc(c.alternatives||"—"),4],
-   ["Expliquée au résident",c.infoResident?"Oui":"Non",5],
-   ["Famille informée",c.infoFamille?"Oui":"Non",5]
+   ["Expliquée au résident",c.infoResident?"Oui":"Non",5]
   ].map(([k,v,s])=>`${isAdmin()?`<button class="cinfo-row" data-act="cont-edit" data-id="${c.id}" data-s="${s}" aria-label="Modifier : ${esc(k)}"><span class="k">${esc(k)}</span><span class="v">${v}</span><span class="ed">${icon("edit",16)}<span>Modifier</span></span></button>`:`<div class="cinfo-row ro"><span class="k">${esc(k)}</span><span class="v">${v}</span></div>`}`).join("")}</div>
   ${c.modifPar?`<p class="muted small" style="margin-top:6px">Dernière modification : ${esc(sname(c.modifPar))}, ${esc(dayLabel(c.modifLe.slice(0,10)).toLowerCase())} à ${hm(c.modifLe.slice(11))}</p>`:""}
   <h3 style="font-size:15px;margin:16px 0 6px">Paramètres toutes les heures</h3>
@@ -1357,7 +1371,8 @@ function contForm(id,sec,pickRid){
  openModal(c?"Modifier la fiche de contention":"Nouvelle fiche de contention",`<form id="cform2" class="stack" novalidate>
   <section class="cfs"><h3><span class="cfn">1</span> Résident et type de contention</h3>
    <div class="row-between"><div class="who">${r?avatar(r):""}<div><strong>${esc(rname(r))}</strong><span class="muted small">${r?`Chambre ${esc(r.chambre)} · ${esc(r.unite)}`:""}</span></div></div>${c?"":`<button type="button" class="btn sm ghost" id="cf-chg">Changer de résident</button>`}</div>
-   <div class="field"><span class="lbl">Type de contention</span>${radio("cf-type",CONT_TYPES.map(t=>[t,t]),v.type||"")}</div></section>
+   <div class="field"><span class="lbl">Type de contention</span>${radio("cf-type",CONT_TYPES.map(t=>[t,t]),/^Autre/.test(v.type||"")?"Autre":(v.type||""))}</div>
+   <div class="field" id="cf-typexw"${/^Autre/.test(v.type||"")?"":" hidden"}><label for="cf-typex">De quel type de contention s'agit-il ?</label><input id="cf-typex" value="${esc((v.type||"").replace(/^Autre( : )?/,""))}" placeholder="Décrivez la contention utilisée"></div></section>
   <section class="cfs"><h3><span class="cfn">2</span> Pourquoi ?</h3><span class="hint">Touchez un ou plusieurs motifs.</span>${multi("cf-mot",CONT_MOTIFS,motifs)}
    <div class="field"><label for="cf-motp">Précisions</label><textarea id="cf-motp" rows="2" placeholder="Ex. : 3 chutes en un mois lors de réveils anxieux">${esc(motifPlus)}</textarea></div></section>
   <section class="cfs"><h3><span class="cfn">3</span> Quand ?</h3>${radio("cf-hor",Object.keys(CONT_HOR).map(k=>[k,CONT_HOR[k].l]),hor)}
@@ -1366,8 +1381,7 @@ function contForm(id,sec,pickRid){
   <section class="cfs"><h3><span class="cfn">4</span> Ce qui a été essayé avant</h3>${multi("cf-alt",CONT_ALTS,alts)}
    <div class="field"><label for="cf-altp">Précisions</label><textarea id="cf-altp" rows="2">${esc(altPlus)}</textarea></div></section>
   <section class="cfs"><h3><span class="cfn">5</span> Information</h3>
-   <div class="field"><span class="lbl">Contention expliquée au résident</span>${radio("cf-ir",[["1","Oui"],["0","Non"]],yn(v.infoResident))}</div>
-   <div class="field"><span class="lbl">Famille ou représentant légal informé</span>${radio("cf-if",[["1","Oui"],["0","Non"]],yn(v.infoFamille))}</div></section>
+   <div class="field"><span class="lbl">Contention expliquée au résident</span>${radio("cf-ir",[["1","Oui"],["0","Non"]],yn(v.infoResident))}</div></section>
   <p class="mnote" id="cf-err" role="alert"></p>
   <div class="qsave"><button type="button" class="btn" data-act="close">Annuler</button><button class="btn primary" type="submit">${icon("check",18)} Enregistrer la fiche</button></div></form>`,true);
  const f=$("cform2");
@@ -1376,6 +1390,7 @@ function contForm(id,sec,pickRid){
  const rv=n=>{const i=f.querySelector(`input[name="${n}"]:checked`);return i?i.value:"";};
  const mv=n=>[...f.querySelectorAll(`input[name="${n}"]:checked`)].map(i=>i.value);
  f.addEventListener("change",e=>{
+  if(e.target.name==="cf-type"){const o=e.target.value==="Autre";$("cf-typexw").hidden=!o;if(o)$("cf-typex").focus();}
   if(e.target.name==="cf-presc"){const o=e.target.value==="__autre";$("cf-prescx").hidden=!o;if(o)$("cf-prescx").focus();}
   if(e.target.name==="cf-hor"){const h=CONT_HOR[e.target.value];if(h&&e.target.value!=="autre"){$("cf-dh").value=h.d;$("cf-fh").value=h.f;}else $("cf-dh").focus();}
   if(e.target.id==="cf-dh"||e.target.id==="cf-fh"){const i=f.querySelector('input[name="cf-hor"][value="autre"]');if(i)i.checked=true;}
@@ -1384,18 +1399,19 @@ function contForm(id,sec,pickRid){
  f.addEventListener("submit",e=>{e.preventDefault();
   const secs=f.querySelectorAll(".cfs");
   const err=(m,n)=>{$("cf-err").textContent=m;secs.forEach(s=>s.classList.remove("focus"));const el=secs[n-1];if(el){el.classList.add("focus");el.scrollIntoView({block:"start",behavior:"smooth"});}};
-  const type=rv("cf-type"),mot=mv("cf-mot"),motP=$("cf-motp").value.trim();
+  let type=rv("cf-type");const mot=mv("cf-mot"),motP=$("cf-motp").value.trim(),typeX=$("cf-typex").value.trim();
+  if(type==="Autre"){if(!typeX)return err("Vous avez choisi « Autre » : écrivez de quel type de contention il s'agit.",1);type="Autre : "+typeX;}
   const h=rv("cf-hor"),dh=$("cf-dh").value,fh=$("cf-fh").value,freq="1";
-  const al=mv("cf-alt"),alP=$("cf-altp").value.trim(),ir=rv("cf-ir"),inf=rv("cf-if");
+  const al=mv("cf-alt"),alP=$("cf-altp").value.trim(),ir=rv("cf-ir");
   if(!type)return err("Choisissez le type de contention.",1);
   if(!mot.length&&!motP)return err("Indiquez au moins un motif.",2);
   if(!h||!dh||!fh)return err("Indiquez quand la contention est appliquée (horaire de début et de fin).",3);
   if(!al.length&&!alP)return err("Indiquez ce qui a été essayé avant, ou touchez « Aucune alternative possible pour le moment ».",4);
-  if(!ir||!inf)return err("Répondez aux deux questions sur l'information.",5);
+  if(!ir)return err("Indiquez si la contention a été expliquée au résident.",5);
   const x={rid:v.rid,type,motifs:mot,motifPlus:motP,motif:mot.concat(motP?[motP]:[]).join(". "),prescripteur:c?c.prescripteur||"":"",debut:c?c.debut||TODAY:TODAY,reeval:c?c.reeval||"":"",
    horaire:h,debutH:dh,finH:fh,moments:h!=="autre"?CONT_HOR[h].m:`De ${hm(dh)} à ${hm(fh)}`,freq,
    surveillance:`${freq==="2"?"Toutes les 2 heures":"Toutes les heures"} : paramètres, installation, état cutané, confort`,
-   alts:al,altPlus:alP,alternatives:al.concat(alP?[alP]:[]).join(", "),infoResident:ir==="1",infoFamille:inf==="1",modifPar:state.me,modifLe:`${TODAY}T${nowHM()}`};
+   alts:al,altPlus:alP,alternatives:al.concat(alP?[alP]:[]).join(", "),infoResident:ir==="1",modifPar:state.me,modifLe:`${TODAY}T${nowHM()}`};
   if(c){Object.assign(c,x);toast("Fiche mise à jour");}else{state.contentions.push(Object.assign({id:"c"+uid(),active:true,surv:[],creePar:state.me},x));toast("Fiche créée");}
   save();closeModal();render();});
 }
@@ -1617,6 +1633,7 @@ function isOuvrable(d){return new Date(d+"T12:00:00").getDay()!==0&&!isHoliday(d
 const pubDate=m=>{let d=prevMonth(m)+"-10";while(!isOuvrable(d))d=addDays(d,1);return d;};
 const lockDate=m=>prevMonth(m)+"-21";
 const isLocked=m=>TODAY>lockDate(m);
+const admLocked=m=>!IS_DIR&&isLocked(m);
 const planPhase=m=>TODAY<pubDate(m)?"prep":TODAY<=lockDate(m)?"open":"final";
 const pubOf=m=>planPhase(m)!=="prep";
 const shiftShown=(sid,date)=>isAdmin()||planPhase(monthOf(date))!=="prep"?shiftAt(sid,date):"";
@@ -1628,7 +1645,8 @@ DEM_TYPES.splice(1,0,["conge_rdv","Congé pour rendez-vous médical"]);
 DEM_TYPES.push(["changement","Changement d'horaire"]);
 const monthDays=m=>{const out=[];let d=m+"-01";while(d.startsWith(m)){out.push(d);d=addDays(d,1);}return out;};
 const isWE=d=>{const w=new Date(d+"T12:00:00").getDay();return w===0||w===6;};
-const shLegend=()=>`<div class="chips">${Object.keys(SHIFTS).map(k=>`<span class="pill sh-${k}"><strong>${esc(k)}</strong>&nbsp;${esc(SHIFTS[k].l)}${SHIFTS[k].h?" · "+esc(SHIFTS[k].h):""}</span>`).join("")}</div>`;
+const dcl=d=>(isHoliday(d)?" fe":isWE(d)?" we":"");
+const shLegend=()=>`<div class="chips">${Object.keys(SHIFTS).map(k=>`<span class="pill sh-${k}"><strong>${esc(k)}</strong>&nbsp;${esc(SHIFTS[k].l)}${SHIFTS[k].h?" · "+esc(SHIFTS[k].h):""}</span>`).join("")}</div><div class="cal-key"><span><i style="background:color-mix(in srgb,var(--info) 30%,var(--surface))"></i>Week-end</span><span><i style="background:color-mix(in srgb,var(--accent) 40%,var(--surface))"></i>Jour férié</span></div>`;
 function monthCard(m){
  const ph=planPhase(m),pd=pubDate(m),ld=lockDate(m),sel=ui.hMonth===m;
  const steps=[["prep","Brouillon caché",`jusqu'au ${dShort(addDays(pd,-1))}`,"L'équipe ne le voit pas"],["open","Visible, modifiable",`du ${dShort(pd)} au ${dShort(ld)}`,"Ajusté selon les demandes"],["final","Définitif",`à partir du ${dShort(addDays(ld,1))}`,"Plus aucune modification"]];
@@ -1707,14 +1725,14 @@ function chgForm(){
   save();closeModal();render();toast("Demande de changement envoyée à la direction");});
 }
 function shiftPicker(k){
- if(!isAdmin())return;const [d,sid]=k.split("|"),s=ST(sid);if(isLocked(monthOf(d))){toast("Ce planning est définitif.");return;}
+ if(!isAdmin())return;const [d,sid]=k.split("|"),s=ST(sid);if(admLocked(monthOf(d))){toast("Ce planning est définitif.");return;}
  const cur=shiftAt(sid,d);
  openModal(`${s?s.prenom+" "+s.nom:""} · ${cap(fmtDay(d))}`,`<div class="pickgrid">${Object.keys(SHIFTS).map(c=>`<button type="button" class="pickshift sh-${c}${c===cur?" cur":""}" data-code="${c}"><strong>${esc(c)} · ${esc(SHIFTS[c].l)}</strong><span>${esc(SHIFTS[c].h||"")}</span></button>`).join("")}<button type="button" class="pickshift" data-code=""><strong>Vider la case</strong><span>Aucun horaire</span></button></div>`);
  $("modal-root").querySelectorAll("[data-code]").forEach(b=>b.addEventListener("click",()=>{const c=b.dataset.code;if(c)state.shifts[k]=c;else delete state.shifts[k];save();closeModal();render();}));
 }
 function vHor(){if(!/^\d{4}-\d{2}$/.test(ui.hMonth))ui.hMonth=nextMonth(monthOf(TODAY));if(!/^\d{4}-\d{2}$/.test(ui.hMonthS))ui.hMonthS=monthOf(TODAY);return isAdmin()?vHorAdmin():vHorStaff();}
 function vHorAdmin(){
- const m=ui.hMonth,days=monthDays(m),lk=isLocked(m),ph=planPhase(m);
+ const m=ui.hMonth,days=monthDays(m),lk=admLocked(m),ph=planPhase(m);
  const span=1560,pos=x=>(x-360)/span*100;
  const ticks=[6,9,12,15,18,21,24,27,30].map(h=>`<span style="left:${pos(h*60)}%">${h%24}h</span>`).join("");
  const trans=relays().map(([a,b])=>`<span class="sh-tr" style="left:${pos(tmin(a))}%;width:${(tmin(b)-tmin(a))/span*100}%" title="Transmissions ${hm(a)} – ${hm(b)}"></span>`).join("");
@@ -1726,11 +1744,11 @@ function vHorAdmin(){
  const cm=monthOf(TODAY),months=[cm,nextMonth(cm),nextMonth(nextMonth(cm))];
  if(!months.includes(m))months.push(m);
  let restIssues=0;
- const head=`<tr><th>Professionnel</th>${days.map(d=>`<th class="dayh${isWE(d)?" we":""}${d===TODAY?" today":""}">${+d.slice(8)}<div class="muted" style="font-weight:400">${esc(fmtDay(d,{weekday:"narrow"}))}</div></th>`).join("")}<th>Total</th></tr>`;
+ const head=`<tr><th>Professionnel</th>${days.map(d=>`<th class="dayh${dcl(d)}${d===TODAY?" today":""}">${+d.slice(8)}<div class="muted" style="font-weight:400">${esc(fmtDay(d,{weekday:"narrow"}))}</div>${isHoliday(d)?`<span class="fe-l">Férié</span>`:""}</th>`).join("")}<th>Total</th></tr>`;
  const rows=state.staff.map(s=>{let tot=0;const cells=days.map(d=>{const c=shiftAt(s.id,d);tot+=effMin(c);const r=restBefore(s.id,d),bad=r!=null&&r<660;if(bad)restIssues++;
-   return `<td class="mc-td${isWE(d)?" we":""}${d===TODAY?" today":""}${bad?" restbad":""}"><button class="cellbtn sh-${c}" data-act="hm-cell" data-k="${d}|${s.id}"${lk?" disabled":""} title="${esc(cap(fmtDay(d)))} · ${c&&SHIFTS[c]?esc(SHIFTS[c].l+(SHIFTS[c].h?" "+SHIFTS[c].h:"")):"vide"}${bad?` · repos ${fmtDur(Math.max(0,r))} seulement`:""}">${c?esc(c):"·"}</button></td>`;}).join("");
+   return `<td class="mc-td${dcl(d)}${d===TODAY?" today":""}${bad?" restbad":""}"><button class="cellbtn sh-${c}" data-act="hm-cell" data-k="${d}|${s.id}"${lk?" disabled":""} title="${esc(cap(fmtDay(d)))} · ${c&&SHIFTS[c]?esc(SHIFTS[c].l+(SHIFTS[c].h?" "+SHIFTS[c].h:"")):"vide"}${bad?` · repos ${fmtDur(Math.max(0,r))} seulement`:""}">${c?esc(c):"·"}</button></td>`;}).join("");
   return `<tr><th scope="row" class="mc-name">${esc(s.prenom+" "+s.nom)}<div class="muted small" style="font-weight:400">${esc(s.fonction||"")}</div></th>${cells}<td class="num"><span class="pill">${fmtDur(tot)}</span></td></tr>`;}).join("");
- const cov=`<tr class="sep"><th colspan="${days.length+2}">Présents aux moments clés</th></tr>`+MOMS.map(([t,l,min])=>`<tr><th scope="row" class="mc-name">${esc(l)}<div class="muted small" style="font-weight:400">${hm(t)} · min. ${min}</div></th>${days.map(d=>{const n=presentAt(d,t);return `<td class="mc-td${isWE(d)?" we":""}"><span class="covn ${n<min?"bad":"ok"}">${n}</span></td>`;}).join("")}<td></td></tr>`).join("");
+ const cov=`<tr class="sep"><th colspan="${days.length+2}">Présents aux moments clés</th></tr>`+MOMS.map(([t,l,min])=>`<tr><th scope="row" class="mc-name">${esc(l)}<div class="muted small" style="font-weight:400">${hm(t)} · min. ${min}</div></th>${days.map(d=>{const n=presentAt(d,t);return `<td class="mc-td${dcl(d)}"><span class="covn ${n<min?"bad":"ok"}">${n}</span></td>`;}).join("")}<td></td></tr>`).join("");
  const pend=state.demandes.filter(d=>d.statut==="attente").sort((a,b)=>a.du.localeCompare(b.du));
  const phasePill=ph==="prep"?`<span class="pill warn">Brouillon caché : l'équipe ne le voit pas</span>`:ph==="open"?`<span class="pill info">Visible par l'équipe · modifiable jusqu'au ${esc(dShort(lockDate(m)))}</span>`:`<span class="pill">${icon("lock",14)} Définitif</span>`;
  return topbar("Horaires de l'équipe","Créer, ajuster et suivre les plannings du mois")+
@@ -1741,7 +1759,7 @@ function vHorAdmin(){
   <div class="toolbar" style="justify-content:space-between"><div class="datenav"><button class="btn icon" data-act="hm-nav" data-n="-1" aria-label="Mois précédent">${icon("left")}</button><button class="btn sm" data-act="hm-nav" data-n="0">Mois en cours</button><button class="btn icon" data-act="hm-nav" data-n="1" aria-label="Mois suivant">${icon("right")}</button></div>
    ${lk?"":`<div class="row"><button class="btn sm" data-act="hm-copy">Recopier le mois précédent</button><button class="btn sm ghost" data-act="hm-clear">Vider ce planning</button></div>`}</div>
   ${restIssues?`<div class="notice alert">${icon("info",18)}<span>${restIssues} enchaînement${restIssues>1?"s":""} avec moins de 11 heures de repos dans ce mois (cases en rouge).</span></div>`:""}
-  <p class="muted small" style="margin:0 0 8px">${lk?"Ce planning est définitif : il ne peut plus être modifié.":"Touchez une case pour choisir l'horaire de la personne ce jour-là."}</p>
+  <p class="muted small" style="margin:0 0 8px">${lk?"Ce planning est définitif : il ne peut plus être modifié.":isLocked(m)?"Définitif pour l'équipe, mais vous pouvez toujours le modifier ici. Touchez une case pour changer l'horaire.":"Touchez une case pour choisir l'horaire de la personne ce jour-là."}</p>
   ${shLegend()}
   <div class="table-wrap" style="margin-top:10px"><table class="mc-table"><thead>${head}</thead><tbody>${rows}${cov}</tbody></table></div>
   ${catalog}`;
@@ -1755,9 +1773,9 @@ function vHorStaff(){
  let body;
  if(ph==="prep")body=`<div class="card" style="text-align:center;padding:28px 16px"><strong style="font-size:17px">Le planning de ${esc(monthName(m))} n'est pas encore visible</strong><p class="muted" style="margin-top:6px">Il le sera à partir du ${esc(fmtDay(pubDate(m)))}.</p></div>`;
  else{
-  const staff=state.staff.slice().sort((a,b)=>(b.id===state.me)-(a.id===state.me));
-  const head=`<tr><th>Professionnel</th>${days.map(d=>`<th class="dayh${isWE(d)?" we":""}${d===TODAY?" today":""}">${+d.slice(8)}<div class="muted" style="font-weight:400">${esc(fmtDay(d,{weekday:"narrow"}))}</div></th>`).join("")}</tr>`;
-  const rows=staff.map(s=>`<tr class="${s.id===state.me?"me-row":""}"><th scope="row" class="mc-name">${esc(s.prenom+" "+s.nom)}${s.id===state.me?" (vous)":""}<div class="muted small" style="font-weight:400">${esc(s.fonction||"")}</div></th>${days.map(d=>{const c=shiftAt(s.id,d);return `<td class="mc-td${isWE(d)?" we":""}${d===TODAY?" today":""}"><span class="cellro sh-${c}" title="${esc(cap(fmtDay(d)))}${c&&SHIFTS[c]?" · "+esc(SHIFTS[c].l+(SHIFTS[c].h?" "+SHIFTS[c].h:"")):""}">${c?esc(c):""}</span></td>`;}).join("")}</tr>`).join("");
+  const staff=state.staff.filter(s=>!s.admin&&!/direct/i.test(s.fonction||"")||s.id===state.me).sort((a,b)=>(b.id===state.me)-(a.id===state.me));
+  const head=`<tr><th>Professionnel</th>${days.map(d=>`<th class="dayh${dcl(d)}${d===TODAY?" today":""}">${+d.slice(8)}<div class="muted" style="font-weight:400">${esc(fmtDay(d,{weekday:"narrow"}))}</div>${isHoliday(d)?`<span class="fe-l">Férié</span>`:""}</th>`).join("")}</tr>`;
+  const rows=staff.map(s=>`<tr class="${s.id===state.me?"me-row":""}"><th scope="row" class="mc-name">${esc(s.prenom+" "+s.nom)}${s.id===state.me?" (vous)":""}<div class="muted small" style="font-weight:400">${esc(s.fonction||"")}</div></th>${days.map(d=>{const c=shiftAt(s.id,d);return `<td class="mc-td${dcl(d)}${d===TODAY?" today":""}"><span class="cellro sh-${c}" title="${esc(cap(fmtDay(d)))}${c&&SHIFTS[c]?" · "+esc(SHIFTS[c].l+(SHIFTS[c].h?" "+SHIFTS[c].h:"")):""}">${c?esc(c):""}</span></td>`;}).join("")}</tr>`).join("");
   body=`${ph==="open"?`<div class="notice" style="background:var(--warn-soft);color:var(--warn)">${icon("info",18)}<span>Planning <strong>provisoire</strong> : il peut encore changer jusqu'au ${esc(dShort(lockDate(m)))}.</span></div>`:`<div class="notice">${icon("lock",18)}<span>Planning <strong>définitif</strong>.</span></div>`}
    ${shLegend()}<div class="table-wrap" style="margin-top:10px"><table class="mc-table"><thead>${head}</thead><tbody>${rows}</tbody></table></div>`;
  }
@@ -1842,7 +1860,7 @@ function agSettings(){
   save();closeModal();render();toast("Sujets et véhicules enregistrés");});
 }
 
-/* ---------- Vue : Sanctions réparatrices ---------- */
+/* ---------- Vue : Mesures éducatives ---------- */
 const SAN_TYPES=["Excuses / temps d'échange","Réparation matérielle","Participation à une tâche utile au collectif","Médiation avec la personne concernée","Production écrite ou dessin","Autre"];
 const SAN_MANQ=["Propos insultants ou menaçants","Violence envers un résident","Violence envers un professionnel","Dégradation de matériel ou des locaux","Vol","Mise en danger d'autrui","Sortie sans autorisation","Non-respect des règles de vie collective"];
 const SAN_REGLES=["Respect des autres résidents","Respect des professionnels","Respect des locaux et du matériel","Règles de vie collective","Sécurité","Horaires et sorties"];
@@ -1859,9 +1877,7 @@ function vSanctions(){
    ["Mesure",`<strong>${esc(s.type||"—")}</strong><br>${esc(s.mesure||"")}`,4],
    ["Accompagnée par",esc(s.accomp?sname(s.accomp):"—"),4],
    ["À réaliser avant le",esc(s.echeance?fmtDate(s.echeance):"—"),4],
-   ["Expliquée au résident",yn(s.echange),5],
-   ["Famille informée",yn(s.famille),5],
-   ["Direction informée",yn(s.direction),5]
+   ["Expliquée au résident",yn(s.echange),5]
   ];
   return `<article class="card"><div class="row-between" style="margin-bottom:10px"><div class="who">${r?avatar(r):""}<div><strong>${esc(rname(r))}</strong><span class="muted small">Faits du ${esc(fmtDay(s.date,{day:"numeric",month:"long"}))}</span></div></div>${st}</div>
   <div class="cinfo">${rows.map(([k,v,n])=>`<button class="cinfo-row" data-act="san-edit" data-id="${s.id}" data-s="${n}" aria-label="Modifier : ${esc(k)}"><span class="k">${esc(k)}</span><span class="v">${v}</span><span class="ed">${icon("edit",16)}<span>Modifier</span></span></button>`).join("")}
@@ -1869,13 +1885,13 @@ function vSanctions(){
   <p class="muted small" style="margin-top:6px">Rédigée par ${esc(sname(s.par))}${s.modifPar&&s.modifLe?` · dernière modification : ${esc(sname(s.modifPar))}, ${esc(dayLabel(s.modifLe.slice(0,10)).toLowerCase())} à ${hm(s.modifLe.slice(11))}`:""}</p>
   ${s.statut==="arealiser"?`<div class="row" style="margin-top:12px"><button class="btn sm primary" data-act="san-done" data-id="${s.id}">Marquer comme réalisée</button><button class="btn sm ghost" data-act="san-drop" data-id="${s.id}">Abandonner la mesure</button></div>`:""}</article>`;};
  const empty=`<div class="card" style="text-align:center;padding:28px 16px;display:grid;gap:10px;justify-items:center"><strong style="font-size:17px">Aucune mesure en cours</strong><p class="muted" style="max-width:46ch">Touchez « Nouvelle mesure », choisissez le résident, puis répondez aux 5 questions.</p><button class="btn primary" data-act="san-new">${icon("plus",18)} Nouvelle mesure</button></div>`;
- return topbar("Sanctions réparatrices","Mesures éducatives après un manquement au règlement de fonctionnement",`<button class="btn primary" data-act="san-new">${icon("plus",18)} Nouvelle mesure</button>`)+
-  `<div class="notice">${icon("info",18)}<span>Une mesure réparatrice est éducative, proportionnée et expliquée au résident. Elle ne prive jamais de repas, de soins, de visites ou de contacts avec les proches, et n'est jamais collective.</span></div>
+ return topbar("Mesures éducatives","Après un manquement au règlement de fonctionnement",`<button class="btn primary" data-act="san-new">${icon("plus",18)} Nouvelle mesure</button>`)+
+  `<div class="notice">${icon("info",18)}<span>Une mesure éducative est réparatrice, proportionnée et expliquée au résident. Elle ne prive jamais de repas, de soins, de visites ou de contacts avec les proches, et n'est jamais collective.</span></div>
   ${open.length?`<div class="med-grid">${open.map(card).join("")}</div>`:empty}
   ${done.length?`<div class="section-title"><h2>Historique</h2></div><div class="med-grid">${done.map(card).join("")}</div>`:""}`;
 }
 function sanPick(){
- openModal("Nouvelle sanction réparatrice",`<p class="muted" style="margin:0 0 12px">Pour commencer, touchez le résident concerné.</p>
+ openModal("Nouvelle mesure éducative",`<p class="muted" style="margin:0 0 12px">Pour commencer, touchez le résident concerné.</p>
   <div class="pickres">${resSorted().map(r=>{const n=state.sanctions.filter(s=>s.statut==="arealiser"&&s.rid===r.id).length;return `<button type="button" class="pick" data-pick="${r.id}">${avatar(r)}<span><strong>${esc(rname(r))}</strong><small>Chambre ${esc(r.chambre)} · ${esc(r.unite)}</small>${n?`<span class="pill warn">${n} mesure${n>1?"s":""} en cours</span>`:""}</span></button>`;}).join("")}</div>`,true);
  $("modal-root").querySelectorAll("[data-pick]").forEach(b=>b.addEventListener("click",()=>sanForm(null,null,b.dataset.pick)));
 }
@@ -1888,7 +1904,7 @@ function sanForm(id,sec,pickRid){
  const yn=b=>b===undefined?"":(b?"1":"0");
  const radio=(name,opts,val)=>`<div class="rchips" role="radiogroup">${opts.map(([k,l])=>`<label class="rchip"><input type="radio" class="sr" name="${name}" value="${esc(k)}"${val!==""&&val!=null&&String(val)===String(k)?" checked":""}><span>${esc(l)}</span></label>`).join("")}</div>`;
  const multi=(name,opts,sel)=>`<div class="rchips">${opts.map(o=>`<label class="rchip"><input type="checkbox" class="sr" name="${name}" value="${esc(o)}"${(sel||[]).includes(o)?" checked":""}><span>${esc(o)}</span></label>`).join("")}</div>`;
- openModal(s?"Modifier la mesure":"Nouvelle sanction réparatrice",`<form id="sform2" class="stack" novalidate>
+ openModal(s?"Modifier la mesure":"Nouvelle mesure éducative",`<form id="sform2" class="stack" novalidate>
   <section class="cfs"><h3><span class="cfn">1</span> Résident et date des faits</h3>
    <div class="row-between"><div class="who">${r?avatar(r):""}<div><strong>${esc(rname(r))}</strong><span class="muted small">${r?`Chambre ${esc(r.chambre)} · ${esc(r.unite)}`:""}</span></div></div>${s?"":`<button type="button" class="btn sm ghost" id="sf-chg">Changer de résident</button>`}</div>
    <div class="field" style="max-width:240px"><label for="sf-date">Date des faits</label><input type="date" id="sf-date" value="${esc(v.date||"")}"></div></section>
@@ -1896,16 +1912,14 @@ function sanForm(id,sec,pickRid){
    <div class="field"><label for="sf-faits">Décrivez les faits</label><textarea id="sf-faits" rows="3" placeholder="Ce qui s'est passé, où, avec qui">${esc(v.faits||"")}</textarea></div></section>
   <section class="cfs"><h3><span class="cfn">3</span> Règle du règlement de fonctionnement concernée</h3>${multi("sf-regle",SAN_REGLES,regles)}
    <div class="field"><label for="sf-reglep">Précisions</label><input id="sf-reglep" value="${esc(reglePlus)}"></div></section>
-  <section class="cfs"><h3><span class="cfn">4</span> Mesure réparatrice</h3>
+  <section class="cfs"><h3><span class="cfn">4</span> Mesure éducative</h3>
    <div class="field"><span class="lbl">Type de mesure</span>${radio("sf-type",SAN_TYPES.map(t=>[t,t]),v.type)}</div>
    <div class="field"><label for="sf-mesure">Ce que le résident va faire</label><textarea id="sf-mesure" rows="3" placeholder="Ex. : aider l'agent d'entretien à repeindre le placard, deux séances de 30 minutes">${esc(v.mesure||"")}</textarea></div>
    <div class="field"><label for="sf-accomp">Accompagnée par</label><select id="sf-accomp"><option value="">Choisir un professionnel…</option>${state.staff.map(m=>`<option value="${m.id}"${m.id===v.accomp?" selected":""}>${esc(m.prenom+" "+m.nom)}${m.fonction?" ("+esc(m.fonction)+")":""}</option>`).join("")}</select></div>
    <div class="field"><label for="sf-ech">À réaliser avant le</label><input type="date" id="sf-ech" value="${esc(v.echeance||"")}" style="max-width:240px"></div>
    <div class="row">${[[0,"Aujourd'hui"],[1,"Demain"],[3,"Dans 3 jours"],[7,"Dans 1 semaine"]].map(([n,l])=>`<button type="button" class="btn sm" data-ech="${n}">${l}</button>`).join("")}</div></section>
   <section class="cfs"><h3><span class="cfn">5</span> Information</h3>
-   <div class="field"><span class="lbl">Mesure expliquée au résident</span>${radio("sf-ir",[["1","Oui"],["0","Non"]],yn(v.echange))}</div>
-   <div class="field"><span class="lbl">Famille ou représentant légal informé</span>${radio("sf-if",[["1","Oui"],["0","Non"]],yn(v.famille))}</div>
-   <div class="field"><span class="lbl">Direction informée</span>${radio("sf-id",[["1","Oui"],["0","Non"]],yn(v.direction))}</div></section>
+   <div class="field"><span class="lbl">Mesure expliquée au résident</span>${radio("sf-ir",[["1","Oui"],["0","Non"]],yn(v.echange))}</div></section>
   <p class="mnote" id="sf-err" role="alert"></p>
   <div class="qsave">${s?`<button type="button" class="btn bad spacer" id="sf-del">Supprimer</button>`:""}<button type="button" class="btn" data-act="close">Annuler</button><button class="btn primary" type="submit">${icon("check",18)} Enregistrer la mesure</button></div></form>`,true);
  const f=$("sform2"),secs=f.querySelectorAll(".cfs");
@@ -1917,7 +1931,7 @@ function sanForm(id,sec,pickRid){
  f.addEventListener("submit",e=>{e.preventDefault();
   const err=(m,n)=>{$("sf-err").textContent=m;secs.forEach(x=>x.classList.remove("focus"));const el=secs[n-1];if(el){el.classList.add("focus");el.scrollIntoView({block:"start",behavior:"smooth"});}};
   const date=$("sf-date").value,manq=mv("sf-manq"),faits=$("sf-faits").value.trim(),rg=mv("sf-regle"),rgP=$("sf-reglep").value.trim();
-  const type=rv("sf-type"),mesure=$("sf-mesure").value.trim(),accomp=$("sf-accomp").value,ech=$("sf-ech").value,ir=rv("sf-ir"),inf=rv("sf-if"),idr=rv("sf-id");
+  const type=rv("sf-type"),mesure=$("sf-mesure").value.trim(),accomp=$("sf-accomp").value,ech=$("sf-ech").value,ir=rv("sf-ir");
   if(!date)return err("Indiquez la date des faits.",1);
   if(!manq.length)return err("Touchez au moins un type de manquement.",2);
   if(!faits)return err("Décrivez les faits.",2);
@@ -1926,8 +1940,8 @@ function sanForm(id,sec,pickRid){
   if(!mesure)return err("Décrivez ce que le résident va faire.",4);
   if(!accomp)return err("Choisissez le professionnel qui accompagne la mesure.",4);
   if(!ech)return err("Indiquez avant quelle date la mesure doit être réalisée.",4);
-  if(!ir||!inf||!idr)return err("Répondez aux trois questions sur l'information.",5);
-  const x={rid:v.rid,date,manq,faits,regles:rg,reglePlus:rgP,regle:rg.concat(rgP?[rgP]:[]).join(", "),type,mesure,accomp,echeance:ech,echange:ir==="1",famille:inf==="1",direction:idr==="1",modifPar:state.me,modifLe:`${TODAY}T${nowHM()}`};
+  if(!ir)return err("Indiquez si la mesure a été expliquée au résident.",5);
+  const x={rid:v.rid,date,manq,faits,regles:rg,reglePlus:rgP,regle:rg.concat(rgP?[rgP]:[]).join(", "),type,mesure,accomp,echeance:ech,echange:ir==="1",modifPar:state.me,modifLe:`${TODAY}T${nowHM()}`};
   if(s){Object.assign(s,x);toast("Mesure modifiée");}else{state.sanctions.push(Object.assign({id:uid(),par:state.me,statut:"arealiser",bilan:""},x));toast("Mesure enregistrée");}
   save();closeModal();render();});
  const del=$("sf-del");
@@ -2248,8 +2262,8 @@ function renderGate(){
   <button class="gate-btn solid" type="submit">Créer mon compte</button></form>`;
  }else if(v==="profiles"){
   const list=state.staff.filter(s=>s.hash);
-  h=`${brand}<h1>Qui se connecte ?</h1><p class="gate-sub" style="font-size:13px">${esc((window.SAKURA_CFG&&window.SAKURA_CFG.label)||"Le Sakura")} · mise à jour du 17-11-2026 à 10:12</p><div class="profiles">${list.map(s=>`<button class="prof" data-g="pick" data-id="${s.id}">${pav(s)}<span>${esc(isNum(s)?s.prenom+" "+s.nom:s.prenom)}</span></button>`).join("")}<button class="prof" data-g="add">${`<span class="pav add" aria-hidden="true">+</span>`}<span>Ajouter</span></button></div>
-  <button class="gate-btn" data-g="manage">Gérer les profils</button>`;
+  h=`${brand}${IS_DIR&&window.SAKURA_CFG?`<p class="gate-sub" style="font-size:13px">${esc(window.SAKURA_CFG.label||"Version Direction")}${BUILD_STAMP?" · mise à jour du "+BUILD_STAMP:""}</p>`:""}<div class="profiles">${list.map(s=>`<button class="prof" data-g="pick" data-id="${s.id}">${pav(s)}<span>${esc(isNum(s)?s.prenom+" "+s.nom:s.prenom)}</span></button>`).join("")}${IS_DIR?`<button class="prof" data-g="add">${`<span class="pav add" aria-hidden="true">+</span>`}<span>Ajouter</span></button>`:""}</div>
+  ${IS_DIR?`<button class="gate-btn" data-g="manage">Gérer les profils</button>`:""}`;
  }else if(v==="login"){
   const s=ST(G.id);
   h=`${brand}<form id="g-login" class="gate-card center" novalidate>${pav(s,"md")}<div><h1>${esc(s.prenom+" "+s.nom)}</h1><p class="gate-sub">${esc(s.fonction||"")}</p></div>
@@ -2384,9 +2398,9 @@ A.backup=()=>dataBackup();
 A["cont-edit"]=d=>{if(!isAdmin()){toast("Seule la direction peut modifier une fiche de contention.");return;}contForm(d.id,d.s);};
 {const endOrig=A["cont-end"];A["cont-end"]=d=>{if(!isAdmin()){toast("Seule la direction peut lever une contention.");return;}endOrig(d);};}
 A["sh-edit"]=()=>shiftEditor();
-const NAV_GROUPS={"g-hor":{label:"Horaires",ic:"clock",items:["horaires","conges"]},"g-tr":{label:"Transmissions",ic:"note",items:["transmissions","cr","contention","sanctions","retours"]}};
-const NAV_ORDER=["aujourdhui","g-hor","agenda","activites","g-tr","medicaments","selles","actus","residents"];
-const SUBLABEL={horaires:"Planning",conges:"Congés et demandes",transmissions:"Transmissions",cr:"Comptes rendus médicaux",contention:"Contention",sanctions:"Sanctions réparatrices",retours:"Retours en famille"};
+const NAV_GROUPS={"g-ctx":{label:"Contexte institutionnel",short:"Contexte inst.",ic:"note",items:["transmissions","cr","selles","contention","sanctions","retours"]}};
+const NAV_ORDER=["aujourdhui","horaires","conges","agenda","activites","g-ctx","medicaments","residents"];
+const SUBLABEL={transmissions:"Transmissions",cr:"Comptes rendus médicaux",selles:"Selles",contention:"Contention",sanctions:"Mesures éducatives",retours:"Retours en famille"};
 var navPop="",drawerGroups={};
 function groupOf(id){return Object.keys(NAV_GROUPS).find(k=>NAV_GROUPS[k].items.includes(id))||"";}
 function grpBadge(g){return g.items.reduce((n,id)=>n+navBadge(id),0);}
@@ -2394,7 +2408,7 @@ function subLabel(id){const v=VIEWS.find(x=>x.id===id);return SUBLABEL[id]||(v?v
 function navTabs(){return NAV_ORDER.map(k=>{
  const g=NAV_GROUPS[k];
  if(g){const cur=g.items.includes(ui.view),b=grpBadge(g);
-  return `<button class="tab" data-act="go" data-v="${g.items[0]}" title="${esc(g.label)}"${cur?' aria-current="page"':""}>${icon(g.ic,22)}<span>${esc(g.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}
+  return `<button class="tab" data-act="go" data-v="${g.items[0]}" title="${esc(g.label)}"${cur?' aria-current="page"':""}>${icon(g.ic,22)}<span>${esc(g.short||g.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}
  const v=VIEWS.find(x=>x.id===k);if(!v)return "";const b=navBadge(k);
  return `<button class="tab" data-act="go" data-v="${k}" title="${esc(v.label)}"${ui.view===k?' aria-current="page"':""}>${icon(v.ic,22)}<span>${esc(v.short||v.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}).join("");}
 function drawerTree(){return NAV_ORDER.map(k=>{
@@ -2405,21 +2419,22 @@ function drawerTree(){return NAV_ORDER.map(k=>{
  return `<button class="nav-btn" data-act="go" data-v="${k}"${ui.view===k?' aria-current="page"':""}>${icon(v.ic)}<span>${esc(v.label)}</span>${b?`<span class="badge">${b}</span>`:""}</button>`;}).join("");}
 function hubTile(o){return `<button class="hub-tile${o.dis?" dis":""}" ${o.act}${o.dis?" disabled":""}>${icon(o.ic,26)}<span class="ht"><strong>${esc(o.t)}</strong><small>${esc(o.s||"")}</small></span>${o.b?`<span class="badge">${o.b}</span>`:""}</button>`;}
 function subNav(){
- const k=groupOf(ui.view);if(!k)return "";const g=NAV_GROUPS[k],adm=isAdmin();
+ const k=groupOf(ui.view);if(!k)return "";const g=NAV_GROUPS[k];
  if(ui.view!==g.items[0])return `<button class="backlink" data-act="go" data-v="${g.items[0]}">${icon("left",18)} Retour à ${esc(g.label)}</button>`;
- let tiles=[];
- if(k==="g-hor"){const om=openChangeMonth();
-  tiles=adm?[{ic:"sun",t:"Demandes de l'équipe",s:"Congés, désiderata, changements d'horaire",act:'data-act="go" data-v="conges"',b:navBadge("conges")}]
-   :[{ic:"sun",t:"Congés et demandes",s:"Désiderata, congé, rendez-vous médical…",act:'data-act="go" data-v="conges"'},
-     {ic:"plus",t:"Demander un congé",s:"Choisir les dates",act:'data-act="dem-type" data-t="conge"'},
-     {ic:"edit",t:"Changer un horaire",s:om?`Possible jusqu'au ${dShort(lockDate(om))}`:"Possible du 10 au 21 de chaque mois",act:'data-act="chg-new"',dis:!om}];}
- if(k==="g-tr")tiles=[{ic:"plus",t:"Nouvelle transmission",s:"Résident, journée, problème survenu",act:'data-act="tr-new"'},
-  {ic:"steth",t:"Comptes rendus médicaux",s:"Après un rendez-vous médical",act:'data-act="go" data-v="cr"',b:navBadge("cr")},
-  {ic:"shield",t:"Contention",s:"Fiches et relevés de paramètres",act:'data-act="go" data-v="contention"',b:navBadge("contention")},
-  {ic:"repair",t:"Sanctions réparatrices",s:"Mesures éducatives",act:'data-act="go" data-v="sanctions"',b:navBadge("sanctions")},
-  {ic:"house",t:"Retours en famille",s:"Départs et retours en famille",act:'data-act="go" data-v="retours"',b:navBadge("retours")}];
- return `<section class="hub"><h2 class="hub-h">Que voulez-vous faire ?</h2><div class="hub-grid">${tiles.map(hubTile).join("")}</div></section>`;
+ return "";
 }
+function vContexte(){
+ const tiles=[{ic:"note",t:"Transmissions",s:"Carnet, informations entre collègues",act:'data-act="go" data-v="transmissions"',b:navBadge("transmissions")},
+  {ic:"steth",t:"Comptes rendus médicaux",s:"Après un rendez-vous médical",act:'data-act="go" data-v="cr"',b:navBadge("cr")},
+  {ic:"drop",t:"Selles",s:"Suivi matin, midi et soir",act:'data-act="go" data-v="selles"',b:navBadge("selles")},
+  {ic:"shield",t:"Contention",s:"Fiches et relevés de paramètres",act:'data-act="go" data-v="contention"',b:navBadge("contention")},
+  {ic:"repair",t:"Mesures éducatives",s:"Mesures éducatives et réparatrices",act:'data-act="go" data-v="sanctions"',b:navBadge("sanctions")},
+  {ic:"house",t:"Retours en famille",s:"Départs et retours en famille",act:'data-act="go" data-v="retours"',b:navBadge("retours")}];
+ return topbar("Contexte institutionnel","Choisissez ce que vous voulez consulter ou remplir")+`<div class="hub-grid">${tiles.map(hubTile).join("")}</div>`;
+}
+VIEW_FN.contexte=vContexte;
+VIEWS.push({id:"contexte",label:"Contexte institutionnel",short:"Contexte inst.",ic:"note"});
+NAV_GROUPS["g-ctx"].items.unshift("contexte");
 A["dem-type"]=d=>demForm(d.t);
 A.grp=d=>{navPop=navPop===d.g?"":d.g;renderNav();};
 A.dgrp=d=>{const g=NAV_GROUPS[d.g],cur=g.items.includes(ui.view),open=drawerGroups[d.g]!==undefined?drawerGroups[d.g]:cur;drawerGroups[d.g]=!open;renderDrawer();};
