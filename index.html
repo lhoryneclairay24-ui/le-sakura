@@ -1097,7 +1097,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 13:55";
+const BUILD_STAMP="17-11-2026 à 13:59";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -1144,7 +1144,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171355";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171359";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}scheduleSync();}
 save();
 const hNow=new Date().getHours()+new Date().getMinutes()/60;
@@ -3484,11 +3484,11 @@ A["pa-print"]=()=>{if(!isAdmin())return;const mon=mondayOf(TODAY);
   const days=[...new Set(l.map(paDate))].sort();const title=`Point admin du ${fmtDate(x.du)} au ${fmtDate(x.au)}`;
   setTimeout(()=>{printHtml(prHead(title)+`<div class="pa-pr">${days.map(d=>`<h2>${esc(cap(fmtDay(d)))}</h2>${paTable(r,l.filter(t=>paDate(t)===d),true)}`).join("")}</div>`);logJ("consult","Impression",`${title} · ${rname(r)}`);},50);}});};
 /* Planning : onglet Administratif — grand tableau de la journée */
-const PLAN_T=[["activites","cal","Activités"],["administratif","note","Administratif"],["menus","","Menus de la semaine"]];
+const PLAN_T=[["activites","cal","Activités"],["menus","","Menus de la semaine"]];
 function planTabs(cur){return `<div class="tr-tabs">${PLAN_T.map(([v,ic,l])=>`<button class="tr-tab${v===cur?" on":""}"${v===cur?' aria-current="page"':` data-act="go" data-v="${v}"`}>${ic?icon(ic,22):"🍽️"}<span>${l}</span></button>`).join("")}</div>`;}
 {const _m=VIEW_FN.menus;VIEW_FN.menus=()=>{const h=_m(),i=h.indexOf("</header>");return i<0?h:h.slice(0,i+9)+planTabs("menus")+h.slice(i+9);};}
-NAV_GROUPS["g-plan"].items=["activites","administratif","menus"];
-{const _s=subNav;subNav=()=>NAV_GROUPS["g-plan"].items.includes(ui.view)?"":_s();}
+NAV_ORDER.splice(NAV_ORDER.indexOf("g-plan")+1,0,"administratif");
+{const _s=subNav;subNav=()=>NAV_GROUPS["g-plan"].items.includes(ui.view)||ui.view==="administratif"?"":_s();}
 TR_EQ.splice(TR_EQ.indexOf("admin"),1);
 const admOpen=d=>!isLimited()&&d<=TODAY&&d>=addDays(TODAY,-7);
 const admCan=a=>!isLimited()&&(isAdmin()||(paMine(a)&&admOpen(a.date)));
@@ -3516,9 +3516,9 @@ function vAdministratif(){
  const nav=`<div class="datenav"><button class="btn icon" data-act="adm-day" data-n="-1" aria-label="Jour précédent">${icon("left")}</button><strong>${esc(cap(fmtDay(d)))}</strong><button class="btn icon" data-act="adm-day" data-n="1" aria-label="Jour suivant">${icon("right")}</button>${d!==TODAY?`<button class="btn sm ghost" data-act="adm-day" data-n="0">Aujourd'hui</button>`:""}</div>`;
  const pr=IS_DIR&&isAdmin()?`<div class="row"><button class="btn sm" data-act="adm-print">🖨️ Imprimer la journée</button><button class="btn sm" data-act="pa-print">🖨️ Imprimer un résident</button></div>`:"";
  const info=isAdmin()?"Vous pouvez remplir, corriger ou supprimer toutes les lignes.":!admOpen(d)?(d>TODAY?"Ce jour n'est pas encore arrivé : le tableau se remplit le jour de l'activité.":"Ce jour a plus de 7 jours : il ne peut plus être rempli."):me?`Vous avez ${me} ligne${me>1?"s":""} à remplir (surlignée${me>1?"s":""}) : les résidents de vos activités.`:"Vous n'avez pas de ligne à remplir ce jour-là.";
- return topbar("Administratif","Comportement et capacités de chaque résident, pour chaque activité du planning")+planTabs("administratif")+
+ return topbar("Administratif","Comportement et capacités de chaque résident, pour chaque activité du planning")+
   `<div class="toolbar" style="justify-content:space-between">${nav}${pr}</div><div class="notice">${icon("info",18)}<span>${esc(info)}</span></div>`+admTable(d);}
-VIEW_FN.administratif=vAdministratif;VIEWS.push({id:"administratif",label:"Administratif",ic:"note"});SUBLABEL.administratif="Administratif";
+VIEW_FN.administratif=vAdministratif;VIEWS.push({id:"administratif",label:"Administratif",ic:"edit"});SUBLABEL.administratif="Administratif";
 A["adm-day"]=d=>{ui.admD=d.n==="0"?TODAY:addDays(ui.admD||TODAY,+d.n);render();};
 A["adm-print"]=()=>{if(!isAdmin())return;const d=ui.admD||TODAY,title=`Administratif · ${cap(fmtDay(d))}`;printHtml(prHead(title)+admTable(d,true));logJ("consult","Impression",title);};
 A["adm-edit"]=d=>{const a=state.activites.find(x=>x.id===d.a),r=R(d.r);if(!a||!r)return;const t=paDone(a.id,r.id);
