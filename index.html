@@ -836,6 +836,20 @@ body.locked .app,body.locked .tabbar{display:none}
 .xl-sheet.today{font-weight:700}
 .xl-sheet.on{background:var(--accent,#b04a78);border-color:var(--accent,#b04a78);color:#fff;font-weight:700}
 @media print{.xl-table{min-width:0;font-size:10.5pt}.xl-c.xl-edit{background:none}}
+.xl-table .xl-c{width:24%}
+.xl-table .xl-cp{width:200px}
+.xl-c.xl-grey,.xl-key.xl-grey{background:color-mix(in srgb,#7a7f8a 16%,var(--surface))}
+.xl-comp{display:flex;gap:2px;padding:5px 4px 0;justify-content:space-between}
+.xl-cb{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:4px 0;border:2px solid transparent;border-radius:10px;background:transparent;cursor:pointer;font:inherit;line-height:1}
+.xl-cb .e{font-size:24px;line-height:1}
+.xl-cb:hover{border-color:var(--line);background:var(--surface)}
+.xl-cb.on{border-color:var(--fg);background:var(--surface)}
+.xl-cl{padding:2px 8px 6px;font-size:12.5px;text-align:center;color:var(--muted)}
+.xl-cl.on{color:var(--fg);font-weight:700}
+.xl-cv{display:flex;align-items:center;gap:8px;padding:6px 8px}
+.xl-cv .e{font-size:26px;line-height:1}
+.xl-old{padding:4px 8px 0;font-size:12.5px;color:var(--muted);white-space:pre-wrap}
+.xl-abtn{display:block;margin-top:6px;font-size:13px}
 .pill.solid.info,.pill.solid.warn,.pill.solid.bad,.pill.solid.ok,.pill.solid.night{color:#fff}
 :root[data-theme="dark"] .pill.solid.info,:root[data-theme="dark"] .pill.solid.warn,:root[data-theme="dark"] .pill.solid.bad,:root[data-theme="dark"] .pill.solid.ok,:root[data-theme="dark"] .pill.solid.night{color:var(--bg)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pill.solid.info,:root:not([data-theme="light"]) .pill.solid.warn,:root:not([data-theme="light"]) .pill.solid.bad,:root:not([data-theme="light"]) .pill.solid.ok,:root:not([data-theme="light"]) .pill.solid.night{color:var(--bg)}}
@@ -1124,7 +1138,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 14:49";
+const BUILD_STAMP="17-11-2026 à 17:17";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -1171,7 +1185,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171449";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171717";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 /* Profils : la version à partager reprend les profils créés dans la version Direction du même appareil */
 (function(){try{const DK="lesakura-direction-v1";if(KEY===DK)return;const raw=localStorage.getItem(DK);if(!raw)return;const ds=(JSON.parse(raw)||{}).staff;if(!Array.isArray(ds))return;let ch=false;
  ds.forEach(f=>{if(!f||!f.id||!f.hash)return;const i=state.staff.findIndex(x=>x.id===f.id);if(i<0){state.staff.push(JSON.parse(JSON.stringify(f)));ch=true;}else if(JSON.stringify(state.staff[i])!==JSON.stringify(f)){state.staff[i]=JSON.parse(JSON.stringify(f));ch=true;}});
@@ -1747,7 +1761,7 @@ const unDot=()=>`<span class="unread-dot" title="Pas encore lu" aria-label="Pas 
 function trCard(t){
  const k=trKind(t),un=!DEST.includes(k)&&!t.lus.includes(state.me),time=`${un?unDot():""}<strong class="num" style="color:var(--fg)">${hm(t.dt.slice(11))}</strong>`;
  if(k==="admin"){const r=R(t.rid);
-  const rows=[["Activité ou moment",t.quand],["Comment ça s'est passé",t.deroule],["Comportement",t.comportement],["Capacités observées",t.capacites]].filter(x=>x[1]);
+  const rows=[["Activité ou moment",t.quand],["Comment ça s'est passé",t.deroule],["Attitude",t.attitude],["Comportement",compTxt(t)],["Capacités observées",t.capacites]].filter(x=>x[1]);
   return `<article class="card tr" style="margin-bottom:12px"><div class="row-between" style="margin-bottom:8px"><div class="who">${r?avatar(r):""}<div><strong>${un?unDot():""}${esc(rname(r))}</strong><span class="muted small">${hm(t.dt.slice(11))} · ${trWho(t)}</span></div></div>${t.imp?`<span class="pill bad">Important</span>`:""}</div>
    <dl class="kv">${rows.map(([a,b])=>`<dt>${esc(a)}</dt><dd class="tr-text">${esc(b)}</dd>`).join("")}</dl>${trReadFoot(t)}</article>`;}
  if(DEST.includes(k)){const done=t.statut==="fait";
@@ -3463,7 +3477,7 @@ const paDate=t=>t.adate||t.dt.slice(0,10);
 const paDone=(aid,rid)=>state.transmissions.find(t=>trKind(t)==="admin"&&t.actId===aid&&t.rid===rid);
 function paTable(r,l,print){
  const s=l.slice().sort((a,b)=>(a.adeb||a.dt.slice(11)).localeCompare(b.adeb||b.dt.slice(11)));const rows=[];
- s.forEach((t,i)=>{const rr=[["Attitude et capacités",t.capacites],["Comportement",t.comportement]];if(t.deroule)rr.unshift(["Déroulement",t.deroule]);const f=rr.filter(x=>x[1]);if(!f.length)f.push(["—",""]);
+ s.forEach((t,i)=>{const rr=[["Attitude",t.attitude],["Capacités",t.capacites],["Comportement",compTxt(t)]];if(t.deroule)rr.unshift(["Déroulement",t.deroule]);const f=rr.filter(x=>x[1]);if(!f.length)f.push(["—",""]);
   f.forEach((x,j)=>rows.push((j===0?`<th scope="row" rowspan="${f.length}" class="pa-act"><strong>Activité ${i+1} :</strong> ${esc(t.quand||"—")}${print?"":`<span class="pa-by">${esc(sname(t.par))}${isAdmin()?` · <button class="pa-lnk" data-act="tr-edit" data-id="${t.id}">Modifier</button> · <button class="pa-lnk" data-act="tr-del" data-id="${t.id}">Supprimer</button>`:""}</span>`}</th>`:"")+`<td class="pa-k">${esc(x[0])}</td><td class="pa-v">${esc(x[1])}</td>`));});
  return `<div class="table-wrap"><table class="pa-table"><tbody>${rows.map((h,i)=>`<tr>${i===0?`<td class="pa-pc" rowspan="${rows.length}">${paPhoto(r)}</td>`:""}${h}</tr>`).join("")}</tbody></table></div>`;}
 function paList(list){
@@ -3486,13 +3500,13 @@ function paFill(aid){
  const a=state.activites.find(x=>x.id===aid);if(!a)return;
  const rs=(a.part||[]).map(R).filter(Boolean);
  openModal(`Point admin · ${a.titre}`,`<form id="paf" class="stack" novalidate><p class="muted small" style="margin:0">${esc(cap(fmtDay(a.date)))}, ${hm(a.debut)}–${hm(a.fin)}. Remplissez chaque résident présent. Laissez vide un résident absent.</p>
-  ${rs.map(r=>{const t=paDone(a.id,r.id);return `<section class="pa-fr">${paPhoto(r,true)}<div class="stack" style="flex:1;min-width:0">${t?`<p class="muted small" style="margin:0">${icon("check",16)} Déjà rempli par ${esc(sname(t.par))}.</p>`:`<div class="field"><label for="pa-c-${r.id}">Comportement</label><textarea id="pa-c-${r.id}" rows="3" placeholder="Humeur, participation, relations, réactions…"></textarea></div><div class="field"><label for="pa-k-${r.id}">Capacités</label><textarea id="pa-k-${r.id}" rows="3" placeholder="Ce qu'il ou elle a mobilisé, réussi seul(e) ou avec aide…"></textarea></div>`}</div></section>`;}).join("")}
+  ${rs.map(r=>{const t=paDone(a.id,r.id);return `<section class="pa-fr">${paPhoto(r,true)}<div class="stack" style="flex:1;min-width:0">${t?`<p class="muted small" style="margin:0">${icon("check",16)} Déjà rempli par ${esc(sname(t.par))}.</p>`:`<div class="field"><label for="pa-a-${r.id}">Attitude</label><textarea id="pa-a-${r.id}" rows="2" placeholder="Humeur, motivation, participation, relations…"></textarea></div><div class="field"><label for="pa-k-${r.id}">Capacités</label><textarea id="pa-k-${r.id}" rows="2" placeholder="Ce qu'il ou elle a réussi, seul(e) ou avec aide…"></textarea></div><div class="field"><label for="pa-c-${r.id}">Comportement</label><select id="pa-c-${r.id}"><option value="">—</option>${COMP.map(c=>`<option value="${c[0]}">${c[1]} ${esc(c[2])}</option>`).join("")}</select></div>`}</div></section>`;}).join("")}
   <p class="mnote" id="pa-err" role="alert"></p>
   <div class="form-actions"><button type="button" class="btn" data-act="pa-back">Retour</button><button class="btn primary" type="submit">Enregistrer</button></div></form>`,true);
  $("paf").addEventListener("submit",ev=>{ev.preventDefault();let n=0;
-  rs.forEach(r=>{if(paDone(a.id,r.id))return;const c=$("pa-c-"+r.id).value.trim(),k=$("pa-k-"+r.id).value.trim();if(!c&&!k)return;
-   state.transmissions.push({id:"t"+uid(),kind:"admin",dt:`${TODAY}T${nowHM()}`,par:state.me,lus:[state.me],rid:r.id,actId:a.id,adate:a.date,adeb:a.debut||"",quand:a.titre,comportement:c,capacites:k,texte:[a.titre,c,k].filter(Boolean).join(" · "),imp:false});n++;});
-  if(!n){$("pa-err").textContent="Écrivez au moins le comportement ou les capacités d'un résident.";return;}
+  rs.forEach(r=>{if(paDone(a.id,r.id))return;const at=$("pa-a-"+r.id).value.trim(),c=$("pa-c-"+r.id).value,k=$("pa-k-"+r.id).value.trim();if(!at&&!c&&!k)return;
+   const t={id:"t"+uid(),kind:"admin",dt:`${TODAY}T${nowHM()}`,par:state.me,lus:[state.me],rid:r.id,actId:a.id,adate:a.date,adeb:a.debut||"",quand:a.titre,attitude:at,capacites:k,comp:c,imp:false};t.texte=admTexte(a.titre,t);state.transmissions.push(t);n++;});
+  if(!n){$("pa-err").textContent="Remplissez au moins l'attitude, les capacités ou le comportement d'un résident.";return;}
   save();closeModal();ui.trTab="admin";render();toast(n>1?`${n} points admin enregistrés`:"Point admin enregistré");});
 }
 A["pa-act"]=d=>paFill(d.id);
@@ -3503,9 +3517,10 @@ A["pa-back"]=()=>paForm();
  openForm({title:"Modifier le point admin",values:t,fields:[
   {name:"quand",label:"Activité",full:true},
   ...(t.deroule?[{name:"deroule",label:"Déroulement",type:"textarea",full:true}]:[]),
-  {name:"comportement",label:"Comportement",type:"textarea",full:true},
-  {name:"capacites",label:"Capacités",type:"textarea",full:true}
- ],submit:"Enregistrer",onSubmit:x=>{Object.assign(t,x,{texte:[x.quand,x.comportement,x.capacites].filter(Boolean).join(" · "),modifPar:state.me,modifLe:`${TODAY}T${nowHM()}`});toast("Modifié");}});};}
+  {name:"attitude",label:"Attitude",type:"textarea",full:true},
+  {name:"capacites",label:"Capacités",type:"textarea",full:true},
+  {name:"comp",label:"Comportement",type:"select",options:[["","—"]].concat(COMP.map(c=>[c[0],c[1]+" "+c[2]])),full:true}
+ ],submit:"Enregistrer",onSubmit:x=>{Object.assign(t,x,{modifPar:state.me,modifLe:`${TODAY}T${nowHM()}`});t.texte=admTexte(x.quand,t);toast("Modifié");}});};}
 A["pa-print"]=()=>{if(!isAdmin())return;const mon=mondayOf(TODAY);
  openForm({title:"Imprimer le point admin d'un résident",values:{rid:ui.trR||resSorted()[0].id,du:addDays(mon,-7),au:TODAY},fields:[
   {name:"rid",label:"Résident",type:"select",options:resOpts(),required:true,full:true},
@@ -3534,36 +3549,90 @@ function admTone(txt){const s=(txt||"").toLowerCase();if(!s.trim())return "";
  if(/pas sage|agit|oppos|énerv|enerv|col[eè]re|refus|crise|pleur|angoiss|anxi|hurl|triste|repli|provoc/.test(s))return "warn";
  return "ok";}
 const admEditable=(a,t)=>!!a&&(t?admCanFix(t,a)&&(isAdmin()||admOpen(a.date)):admCan(a));
-const XL_F=[["capacites","Attitude et capacités","Attitude pendant l'activité, ce qu'il ou elle a réussi, seul(e) ou avec aide…"],["comportement","Comportement","Ex. : sage, calme, souriant… ou pas sage, agité, agressif…"]];
+/* Comportement : un visage à choisir (vert, gris, orange, rouge) */
+const COMP=[["calme","😊","Calme","ok"],["fatigue","😴","Fatigué(e)","grey"],["anxieux","😟","Anxieux / triste","warn"],["agite","😣","Agité(e)","warn"],["agressif","😠","Agressif / agressive","bad"]];
+const compOf=k=>COMP.find(c=>c[0]===k);
+const compTone=t=>!t?"":t.comp?((compOf(t.comp)||[])[3]||""):admTone(t.comportement);
+const compTxt=t=>{if(!t)return "";const c=compOf(t.comp);return c?`${c[1]} ${c[2]}`:(t.comportement||"");};
+const admTexte=(titre,t)=>[titre,t.attitude,t.capacites,compTxt(t)].filter(Boolean).join(" · ");
+const admEmpty=t=>!t.attitude&&!t.capacites&&!t.comp&&!t.comportement;
+const XL_F=[["attitude","Attitude","Humeur, motivation, participation, relations…"],["capacites","Capacités","Ce qu'il ou elle a réussi, seul(e) ou avec aide…"]];
+function admSet(a,r,t,f,v){
+ if(!t){if(!v)return null;t={id:"t"+uid(),kind:"admin",dt:`${TODAY}T${nowHM()}`,par:state.me,lus:[state.me],rid:r.id,actId:a.id,adate:a.date,adeb:a.debut||"",quand:a.titre,attitude:"",capacites:"",comp:"",imp:false};state.transmissions.push(t);}
+ else Object.assign(t,{modifPar:state.me,modifLe:`${TODAY}T${nowHM()}`});
+ t[f]=v;t.texte=admTexte(a.titre,t);
+ if(admEmpty(t))state.transmissions=state.transmissions.filter(x=>x!==t);
+ save();return t;}
 function admTable(d,print){
  const acts=actOk().filter(a=>a.date===d&&(a.part||[]).length).sort((a,b)=>(a.debut||"").localeCompare(b.debut||""));
  const ents=state.transmissions.filter(t=>trKind(t)==="admin"&&paDate(t)===d);
- const cell=(it,r,f,ph)=>{const t=it.t,a=it.a,txt=t?t[f]||"":"",tone=f==="comportement"?admTone(txt):"";
-  const cls=`xl-c${tone?" xl-"+tone:""}`;
-  if(print)return `<td class="${cls}">${esc(txt)}</td>`;
-  if(admEditable(a,t))return `<td class="${cls} xl-edit"><textarea class="xl-in" id="xl-${a.id}-${r.id}-${f}" data-a="${a.id}" data-r="${r.id}" data-f="${f}" rows="3" placeholder="${esc(ph)}" aria-label="${esc(f==="comportement"?"Comportement":"Attitude et capacités")}, ${esc(a.titre)}">${esc(txt)}</textarea></td>`;
-  if(txt)return `<td class="${cls}"><div class="xl-t">${esc(txt)}</div></td>`;
-  return `<td class="${cls}"><div class="xl-t adm-wait">${a&&d<=TODAY?`À remplir par ${esc(admWho(a)||"l'équipe")}`:""}</div></td>`;};
+ const wait=a=>`<div class="xl-t adm-wait">${a&&d<=TODAY?`À remplir par ${esc(admWho(a)||"l'équipe")}`:""}</div>`;
+ const cell=(it,r,f,ph,lab)=>{const t=it.t,a=it.a,txt=t?t[f]||"":"";
+  if(print)return `<td class="xl-c">${esc(txt)}</td>`;
+  if(admEditable(a,t))return `<td class="xl-c xl-edit"><textarea class="xl-in" id="xl-${a.id}-${r.id}-${f}" data-a="${a.id}" data-r="${r.id}" data-f="${f}" rows="3" placeholder="${esc(ph)}" aria-label="${esc(lab)}, ${esc(a.titre)}">${esc(txt)}</textarea></td>`;
+  if(txt)return `<td class="xl-c"><div class="xl-t">${esc(txt)}</div></td>`;
+  return `<td class="xl-c">${wait(a)}</td>`;};
+ const comp=(it,r)=>{const t=it.t,a=it.a,tone=compTone(t),c=t?compOf(t.comp):null,cls=`xl-c xl-cp${tone?" xl-"+tone:""}`;
+  const old=t&&!t.comp&&t.comportement?`<div class="xl-old">${esc(t.comportement)}</div>`:"";
+  if(print)return `<td class="${cls}"><div class="xl-t">${esc(compTxt(t))}</div></td>`;
+  if(admEditable(a,t))return `<td class="${cls} xl-edit">${old}<div class="xl-comp" role="group" aria-label="Comportement, ${esc(a.titre)}">${COMP.map(x=>`<button type="button" class="xl-cb${c&&c[0]===x[0]?" on":""}" data-act="xl-comp" data-a="${a.id}" data-r="${r.id}" data-v="${x[0]}" aria-pressed="${!!(c&&c[0]===x[0])}" title="${esc(x[2])}" aria-label="${esc(x[2])}"><span class="e" aria-hidden="true">${x[1]}</span></button>`).join("")}</div><div class="xl-cl${c?" on":""}">${c?esc(c[2]):"Touchez un visage"}</div></td>`;
+  if(c)return `<td class="${cls}"><div class="xl-cv"><span class="e" aria-hidden="true">${c[1]}</span><strong>${esc(c[2])}</strong></div></td>`;
+  if(old)return `<td class="${cls}">${old}</td>`;
+  return `<td class="${cls}">${wait(a)}</td>`;};
+ const adm=!print&&isAdmin();
  const body=resSorted().map(r=>{
   const items=acts.filter(a=>a.part.includes(r.id)).map(a=>({a,t:ents.find(t=>t.actId===a.id&&t.rid===r.id)}));
-  ents.filter(t=>t.rid===r.id&&!(t.actId&&acts.some(a=>a.id===t.actId))).forEach(t=>items.push({a:null,t}));
+  ents.filter(t=>t.rid===r.id&&!(t.actId&&acts.some(a=>a.id===t.actId&&a.part.includes(r.id)))).forEach(t=>items.push({a:null,t}));
   const ph=n=>`<td class="xl-ph" rowspan="${n}">${paPhoto(r)}</td>`;
-  if(!items.length)return `<tbody><tr>${ph(1)}<td class="xl-a adm-wait" colspan="3">Pas d'activité au planning ce jour-là.</td></tr></tbody>`;
+  const add=adm?`<span class="xl-abtn"><button class="pa-lnk" data-act="adm-radd" data-r="${r.id}">+ Ajouter à une activité</button></span>`:"";
+  if(!items.length)return `<tbody><tr>${ph(1)}<td class="xl-a adm-wait" colspan="4">Pas d'activité au planning ce jour-là.${add}</td></tr></tbody>`;
   return `<tbody>${items.map((it,i)=>{const a=it.a;
-   const act=`<strong>Activité ${i+1} :</strong> ${esc(a?a.titre:(it.t.quand||""))}<span class="pa-by">${a?`${hm(a.debut)}–${hm(a.fin)}${admWho(a)?" · "+esc(admWho(a)):""}`:esc(sname(it.t.par))}</span>`;
-   return `<tr>${i===0?ph(items.length):""}<td class="xl-a">${act}</td>${XL_F.map(([f,,p])=>cell(it,r,f,p)).join("")}</tr>`;}).join("")}</tbody>`;}).join("");
- return `<div class="table-wrap"><table class="xl-table"><thead><tr><th>Résident</th><th>Activité</th><th>Attitude et capacités</th><th>Comportement</th></tr></thead>${body}</table></div>`;}
+   const tools=adm&&a?`<span class="xl-abtn"><button class="pa-lnk" data-act="adm-aedit" data-id="${a.id}">Modifier l'activité</button> · <button class="pa-lnk" data-act="adm-rdel" data-a="${a.id}" data-r="${r.id}">Retirer ce résident</button></span>`:"";
+   const act=`<strong>Activité ${i+1} :</strong> ${esc(a?a.titre:(it.t.quand||""))}<span class="pa-by">${a?`${hm(a.debut)}–${hm(a.fin)}${admWho(a)?" · "+esc(admWho(a)):""}`:esc(sname(it.t.par))}</span>${tools}${i===items.length-1?add:""}`;
+   return `<tr>${i===0?ph(items.length):""}<td class="xl-a">${act}</td>${XL_F.map(([f,l,p])=>cell(it,r,f,p,l)).join("")}${comp(it,r)}</tr>`;}).join("")}</tbody>`;}).join("");
+ return `<div class="table-wrap"><table class="xl-table"><thead><tr><th>Résident</th><th>Activité</th><th>Attitude</th><th>Capacités</th><th>Comportement</th></tr></thead>${body}</table></div>`;}
+function admActForm(a,d){
+ const pros=state.staff.filter(s=>!["technicien","ouvrier"].includes(roleOf(s))).map(s=>[s.id,s.prenom+" "+s.nom]);
+ openForm({title:a?"Modifier l'activité":"Ajouter une activité",values:a?Object.assign({},a):{date:d,debut:"14:00",fin:"16:00",anim:state.me,staff:[],part:[]},fields:[
+  {name:"titre",label:"Nom de l'activité",required:true,full:true},
+  {name:"date",label:"Jour",type:"date",required:true},
+  {name:"lieu",label:"Lieu"},
+  {name:"debut",label:"Début",type:"time",required:true},
+  {name:"fin",label:"Fin",type:"time",required:true},
+  {name:"anim",label:"Professionnel(le) responsable",type:"select",options:pros,required:true,full:true},
+  {name:"staff",label:"Autres professionnels",type:"checks",options:pros,full:true},
+  {name:"part",label:"Résidents qui participent",type:"checks",options:resSorted().map(r=>[r.id,rname(r)]),required:true,full:true,hint:"Si vous retirez un résident, ce qui a déjà été écrit pour lui reste dans la feuille."}],
+  submit:a?"Enregistrer":"Ajouter l'activité",
+  onSubmit:x=>{if(x.fin<=x.debut){toast("L'heure de fin doit être après l'heure de début.");return false;}
+   x.staff=x.staff.filter(id=>id!==x.anim);
+   if(a){Object.assign(a,x);state.transmissions.forEach(t=>{if(trKind(t)==="admin"&&t.actId===a.id){t.adate=a.date;t.adeb=a.debut||"";t.quand=a.titre;}});toast("Activité modifiée, le planning est à jour");}
+   else{const n=Object.assign({id:uid(),statut:"validee",propPar:state.me,valideLe:TODAY,objectifs:[]},x);const p=apic(n);if(p)n.picto=p;state.activites.push(n);toast("Activité ajoutée, le planning est à jour");}
+   ui.admD=x.date;},
+  onDelete:a?()=>{state.activites=state.activites.filter(y=>y.id!==a.id);toast("Activité supprimée. Ce qui a été écrit reste dans la feuille.");}:null,deleteLabel:"Supprimer l'activité"});}
+A["adm-aedit"]=d=>{if(!isAdmin())return onlyDir();const a=state.activites.find(x=>x.id===d.id);if(a)admActForm(a);};
+A["adm-anew"]=()=>{if(!isAdmin())return onlyDir();admActForm(null,ui.admD||TODAY);};
+A["adm-rdel"]=d=>{if(!isAdmin())return onlyDir();const a=state.activites.find(x=>x.id===d.a),r=R(d.r);if(!a||!r)return;
+ confirmBox("Retirer le résident",`${rname(r)} ne participera plus à « ${a.titre} ». Le planning sera mis à jour. Ce qui a déjà été écrit pour ce résident reste dans la feuille.`,"Retirer",()=>{a.part=(a.part||[]).filter(x=>x!==r.id);toast("Résident retiré de l'activité");});};
+A["adm-radd"]=d=>{if(!isAdmin())return onlyDir();const r=R(d.r),day=ui.admD||TODAY;if(!r)return;
+ const acts=actOk().filter(a=>a.date===day&&!(a.part||[]).includes(r.id)).sort((a,b)=>(a.debut||"").localeCompare(b.debut||""));
+ if(!acts.length){toast("Aucune autre activité ce jour-là : utilisez « Ajouter une activité ».");return;}
+ openForm({title:`Ajouter ${rname(r)} à une activité`,fields:[{name:"act",label:"Activité",type:"select",options:acts.map(a=>[a.id,`${hm(a.debut)}–${hm(a.fin)} · ${a.titre}`]),required:true,full:true}],submit:"Ajouter",
+  onSubmit:x=>{const a=state.activites.find(y=>y.id===x.act);if(a){a.part=(a.part||[]).concat(r.id);toast("Résident ajouté à l'activité");}}});};
+A["xl-comp"]=d=>{const a=state.activites.find(x=>x.id===d.a),r=R(d.r);if(!a||!r)return;const t=paDone(a.id,r.id);
+ if(!admEditable(a,t)){toast("Vous ne pouvez pas remplir cette case.");return;}
+ const v=t&&t.comp===d.v?"":d.v;admSet(a,r,t,"comp",v);render();
+ const c=compOf(v);toast(c?`Comportement : ${c[2]}`:"Comportement effacé");};
 function admSheets(d){const mon=mondayOf(d),days=[0,1,2,3,4,5,6].map(i=>addDays(mon,i));
  return `<div class="xl-bar"><button class="btn icon sm" data-act="adm-day" data-n="-7" aria-label="Semaine précédente">${icon("left")}</button><div class="xl-sheets" role="tablist">${days.map(x=>`<button class="xl-sheet${x===d?" on":""}${x===TODAY?" today":""}" role="tab" aria-selected="${x===d}" data-act="adm-go" data-d="${x}">${esc(cap(fmtDay(x,{weekday:"short",day:"numeric"})))}</button>`).join("")}</div><button class="btn icon sm" data-act="adm-day" data-n="7" aria-label="Semaine suivante">${icon("right")}</button>${d!==TODAY?`<button class="btn sm ghost" data-act="adm-day" data-n="0">Aujourd'hui</button>`:""}</div>`;}
 function vAdministratif(){
  if(isLimited())return topbar("Administratif","Réservé à l'équipe éducative et soignante");
  const d=ui.admD||TODAY,me=!isAdmin()&&admOpen(d)?actOk().filter(a=>a.date===d&&paMine(a)).reduce((n,a)=>n+(a.part||[]).filter(r=>!paDone(a.id,r)).length,0):0;
  if(isAdmin()){const l=state.transmissions.filter(t=>trKind(t)==="admin"&&paDate(t)===d&&!t.lus.includes(state.me));if(l.length)setTimeout(()=>{l.forEach(t=>{if(!t.lus.includes(state.me))t.lus.push(state.me);});save();},0);}
- const pr=IS_DIR&&isAdmin()?`<div class="row"><button class="btn sm" data-act="adm-print">🖨️ Imprimer la journée</button><button class="btn sm" data-act="adm-print" data-w="1">🖨️ Imprimer la semaine</button><button class="btn sm" data-act="pa-print">🖨️ Imprimer un résident</button></div>`:"";
- const info=isAdmin()?"Vous pouvez écrire et corriger dans toutes les cases.":!admOpen(d)?(d>TODAY?"Ce jour n'est pas encore arrivé : la feuille se remplit le jour de l'activité.":"Ce jour a plus de 7 jours : la feuille ne peut plus être remplie."):me?`Vous avez ${me} ligne${me>1?"s":""} à remplir : écrivez directement dans les cases blanches de vos activités. C'est enregistré dès que vous quittez la case.`:actOk().some(a=>a.date===d&&paMine(a))?"Toutes vos lignes sont remplies. Vous pouvez encore corriger ce que vous avez écrit aujourd'hui.":"Vous n'avez pas de ligne à remplir ce jour-là.";
+ const pr=(isAdmin()?`<button class="btn sm primary" data-act="adm-anew">+ Ajouter une activité</button>`:"")+(IS_DIR&&isAdmin()?`<button class="btn sm" data-act="adm-print">🖨️ Imprimer la journée</button><button class="btn sm" data-act="adm-print" data-w="1">🖨️ Imprimer la semaine</button><button class="btn sm" data-act="pa-print">🖨️ Imprimer un résident</button>`:"");
+ const info=isAdmin()?"Vous pouvez écrire et corriger dans toutes les cases, ajouter, modifier ou supprimer une activité et choisir ses résidents. Le planning est mis à jour en même temps.":!admOpen(d)?(d>TODAY?"Ce jour n'est pas encore arrivé : la feuille se remplit le jour de l'activité.":"Ce jour a plus de 7 jours : la feuille ne peut plus être remplie."):me?`Vous avez ${me} ligne${me>1?"s":""} à remplir : écrivez l'attitude et les capacités dans les cases blanches, puis touchez un visage pour le comportement. C'est enregistré tout de suite.`:actOk().some(a=>a.date===d&&paMine(a))?"Toutes vos lignes sont remplies. Vous pouvez encore corriger ce que vous avez écrit aujourd'hui.":"Vous n'avez pas de ligne à remplir ce jour-là.";
  return topbar("Administratif",esc(cap(fmtDay(d)))+" · une feuille par jour")+
-  `<div class="toolbar" style="justify-content:flex-end">${pr}</div><div class="notice">${icon("info",18)}<span>${esc(info)}</span></div>
-  <div class="xl-legend"><span class="xl-key xl-ok">Vert : bon comportement</span><span class="xl-key xl-warn">Orange : pas sage, agité, opposant…</span><span class="xl-key xl-bad">Rouge : agressivité</span></div>`+admSheets(d)+admTable(d);}
+  `<div class="toolbar" style="justify-content:flex-end">${pr?`<div class="row">${pr}</div>`:""}</div><div class="notice">${icon("info",18)}<span>${esc(info)}</span></div>
+  <div class="xl-legend">${COMP.map(c=>`<span class="xl-key xl-${c[3]}">${c[1]} ${esc(c[2])}</span>`).join("")}<span class="xl-key">😠 = alerte dans la cloche de la direction</span></div>`+admSheets(d)+admTable(d);}
 VIEW_FN.administratif=vAdministratif;VIEWS.push({id:"administratif",label:"Administratif",ic:"edit"});SUBLABEL.administratif="Administratif";
 A["adm-day"]=d=>{ui.admD=d.n==="0"?TODAY:addDays(ui.admD||TODAY,+d.n);render();};
 A["adm-go"]=d=>{ui.admD=d.d;render();};
@@ -3575,18 +3644,14 @@ document.addEventListener("change",e=>{const el=e.target;if(!el.classList||!el.c
  const a=state.activites.find(x=>x.id===el.dataset.a),r=R(el.dataset.r),f=el.dataset.f;if(!a||!r)return;let t=paDone(a.id,r.id);
  if(!admEditable(a,t)){toast("Vous ne pouvez pas remplir cette case.");return;}
  const v=el.value.trim();
- if(!t){if(!v)return;t={id:"t"+uid(),kind:"admin",dt:`${TODAY}T${nowHM()}`,par:state.me,lus:[state.me],rid:r.id,actId:a.id,adate:a.date,adeb:a.debut||"",quand:a.titre,comportement:"",capacites:"",imp:false};state.transmissions.push(t);}
- else Object.assign(t,{modifPar:state.me,modifLe:`${TODAY}T${nowHM()}`});
- t[f]=v;t.texte=[a.titre,t.capacites,t.comportement].filter(Boolean).join(" · ");
- if(!t.comportement&&!t.capacites)state.transmissions=state.transmissions.filter(x=>x!==t);
- save();
- if(f==="comportement"){const td=el.closest("td"),tone=admTone(v);td.className=`xl-c${tone?" xl-"+tone:""} xl-edit`;}
+ if(!t&&!v)return;
+ admSet(a,r,t,f,v);
  toast(v?"Enregistré":"Case vidée");});
 {const _r=rappels;rappels=()=>{const l=_r();if(isLimited()||isAdmin())return l;const H=nowHM();
  const n=actOk().filter(a=>a.date===TODAY&&paMine(a)&&(a.fin||"23:59")<=H).reduce((s,a)=>s+(a.part||[]).filter(r=>!paDone(a.id,r)).length,0);
  if(n)l.push({lvl:"info",txt:`${n} ligne${n>1?"s":""} de l'administratif à remplir aujourd'hui`,v:"administratif",ic:"note"});return l;};}
 {const _r=rappels;rappels=()=>{const l=_r();if(!isAdmin())return l;
- state.transmissions.filter(t=>trKind(t)==="admin"&&paDate(t)>=addDays(TODAY,-7)&&!t.lus.includes(state.me)&&admTone(t.comportement)==="bad").forEach(t=>l.unshift({lvl:"bad",txt:`Comportement agressif noté : ${rname(R(t.rid))} · ${t.quand||"activité"} (${dayLabel(paDate(t)).toLowerCase()}, par ${sname(t.par)})`,v:"administratif#"+paDate(t),ic:"info"}));return l;};}
+ state.transmissions.filter(t=>trKind(t)==="admin"&&paDate(t)>=addDays(TODAY,-7)&&!t.lus.includes(state.me)&&compTone(t)==="bad").forEach(t=>l.unshift({lvl:"bad",txt:`Comportement agressif noté : ${rname(R(t.rid))} · ${t.quand||"activité"} (${dayLabel(paDate(t)).toLowerCase()}, par ${sname(t.par)})`,v:"administratif#"+paDate(t),ic:"info"}));return l;};}
 {const _g=A["rap-go"];A["rap-go"]=d=>{if((d.v||"").startsWith("administratif#")){closeModal();ui.admD=d.v.slice(14);go("administratif");return;}_g(d);};}
 
 /* ---------- Partage en ligne (base de données de l'artifact) ---------- */
