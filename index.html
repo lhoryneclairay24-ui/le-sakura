@@ -893,6 +893,10 @@ body.xl-fullon{overflow:hidden}
 .xl-ed>.xl-t{padding:6px 8px}
 .xl-anim{width:100%;border:0;border-radius:0;background:transparent;font:inherit;font-weight:700;color:var(--fg);padding:8px 6px;cursor:pointer;box-shadow:none}
 .xl-anim:focus{outline:0}
+.xl-anim2{width:100%;border:0;border-radius:0;background:transparent;font:inherit;color:var(--fg);padding:8px 6px;cursor:pointer;box-shadow:none}
+.xl-anim2:focus{outline:0}
+.xl-title{display:block;width:100%;margin:4px 0 2px;padding:5px 7px;border:1px dashed var(--xg);border-radius:6px;background:var(--surface);font:inherit;font-weight:600;color:var(--fg);box-shadow:none}
+.xl-title:focus{outline:2px solid var(--xgreen);outline-offset:-1px;border-style:solid}
 .pill.solid.info,.pill.solid.warn,.pill.solid.bad,.pill.solid.ok,.pill.solid.night{color:#fff}
 :root[data-theme="dark"] .pill.solid.info,:root[data-theme="dark"] .pill.solid.warn,:root[data-theme="dark"] .pill.solid.bad,:root[data-theme="dark"] .pill.solid.ok,:root[data-theme="dark"] .pill.solid.night{color:var(--bg)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pill.solid.info,:root:not([data-theme="light"]) .pill.solid.warn,:root:not([data-theme="light"]) .pill.solid.bad,:root:not([data-theme="light"]) .pill.solid.ok,:root:not([data-theme="light"]) .pill.solid.night{color:var(--bg)}}
@@ -1181,7 +1185,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 19:42";
+const BUILD_STAMP="17-11-2026 à 19:47";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -1228,7 +1232,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171942";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171947";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 /* Profils : la version à partager reprend les profils créés dans la version Direction du même appareil */
 (function(){try{const DK="lesakura-direction-v1";if(KEY===DK)return;const raw=localStorage.getItem(DK);if(!raw)return;const ds=(JSON.parse(raw)||{}).staff;if(!Array.isArray(ds))return;let ch=false;
  ds.forEach(f=>{if(!f||!f.id||!f.hash)return;const i=state.staff.findIndex(x=>x.id===f.id);if(i<0){state.staff.push(JSON.parse(JSON.stringify(f)));ch=true;}else if(JSON.stringify(state.staff[i])!==JSON.stringify(f)){state.staff[i]=JSON.parse(JSON.stringify(f));ch=true;}});
@@ -3601,12 +3605,21 @@ const compOf=k=>COMP.find(c=>c[0]===k);
 const compTone=t=>!t?"":t.comp?((compOf(t.comp)||[])[3]||""):admTone(t.comportement);
 const compTxt=t=>{if(!t)return "";const c=compOf(t.comp);return c?`${c[1]} ${c[2]}`:(t.comportement||"");};
 const admTexte=(titre,t)=>[titre,t.attitude,t.capacites,compTxt(t)].filter(Boolean).join(" · ");
-const admEmpty=t=>!t.attitude&&!t.capacites&&!t.comp&&!t.comportement;
+const admEmpty=t=>!t.attitude&&!t.capacites&&!t.comp&&!t.comportement&&(!!t.actId||(!t.quand&&!t.anim));
+/* Lignes hors planning : une « activité libre » rattachée au résident, au jour et au numéro de ligne */
+function admFree(r,d,slot,t){return {id:t?`t:${t.id}`:`new:${r.id}:${slot}:${d}`,date:d,titre:t?(t.quand||""):"",anim:t?(t.anim||""):"",free:true,slot,tid:t?t.id:""};}
+function admAct(id){if(!id)return null;
+ if(id.startsWith("t:")){const t=state.transmissions.find(x=>x.id===id.slice(2));return t?admFree({id:t.rid},paDate(t),t.slot,t):null;}
+ if(id.startsWith("new:")){const p=id.split(":");return admFree({id:p[1]},p[3],+p[2],null);}
+ return state.activites.find(x=>x.id===id)||null;}
+function admFind(a,r){if(!a)return null;
+ if(a.free){if(a.tid)return state.transmissions.find(x=>x.id===a.tid)||null;return state.transmissions.find(t=>trKind(t)==="admin"&&!t.actId&&t.rid===r.id&&paDate(t)===a.date&&t.slot===a.slot)||null;}
+ return paDone(a.id,r.id);}
 const XL_F=[["attitude","Attitude","Humeur, motivation, participation, relations…"],["capacites","Capacités","Ce qu'il ou elle a réussi, seul(e) ou avec aide…"]];
 function admSet(a,r,t,f,v){
- if(!t){if(!v)return null;t={id:"t"+uid(),kind:"admin",dt:`${TODAY}T${nowHM()}`,par:state.me,lus:[state.me],rid:r.id,actId:a.id,adate:a.date,adeb:a.debut||"",quand:a.titre,attitude:"",capacites:"",comp:"",imp:false};state.transmissions.push(t);}
+ if(!t){if(!v)return null;t={id:"t"+uid(),kind:"admin",dt:`${TODAY}T${nowHM()}`,par:state.me,lus:[state.me],rid:r.id,actId:a.free?"":a.id,adate:a.date,adeb:a.debut||"",quand:a.free?"":a.titre,attitude:"",capacites:"",comp:"",imp:false};if(a.free){t.slot=a.slot;t.anim="";}state.transmissions.push(t);}
  else Object.assign(t,{modifPar:state.me,modifLe:`${TODAY}T${nowHM()}`});
- t[f]=v;t.texte=admTexte(a.titre,t);
+ t[f]=v;t.texte=admTexte(t.quand||a.titre,t);
  t.by=Object.assign({},t.by,{[f]:state.me});t.byAt=Object.assign({},t.byAt,{[f]:`${TODAY}T${nowHM()}`});
  if(admEmpty(t))state.transmissions=state.transmissions.filter(x=>x!==t);
  save();return t;}
@@ -3639,6 +3652,17 @@ document.addEventListener("change",e=>{const el=e.target;if(!el.classList||!el.c
  a.anim=el.value;a.staff=(a.staff||[]).filter(id=>id!==a.anim);save();
  document.querySelectorAll(`select.xl-anim[data-a="${a.id}"]`).forEach(s=>{if(s!==el)s.value=a.anim;});
  toast(`Éducateur : ${sname(a.anim)} (planning mis à jour)`);});
+function admEdFree(a,r,t,print){const nm=t&&t.anim&&ST(t.anim)?sname(t.anim):"";
+ if(!print&&admCellOk(a,t,"anim"))return `<td class="xl-ed xl-edit"><select class="xl-anim2" data-a="${a.id}" data-r="${r.id}" data-f="anim" aria-label="Éducateur qui organise, ${esc(rname(r))}"><option value="">Choisir…</option>${admPros().map(s=>`<option value="${s.id}"${t&&s.id===t.anim?" selected":""}>${esc(s.prenom+" "+s.nom)}</option>`).join("")}</select></td>`;
+ return `<td class="xl-ed"><div class="xl-t"><strong>${esc(nm||"—")}</strong></div></td>`;}
+function admTitleFree(a,r,t,print){const v=t?t.quand||"":"";
+ if(!print&&admCellOk(a,t,"quand"))return `<input class="xl-title" data-a="${a.id}" data-r="${r.id}" data-f="quand" value="${esc(v)}" placeholder="Nom de l'activité" aria-label="Nom de l'activité, ${esc(rname(r))}">`;
+ return esc(v||"—");}
+document.addEventListener("change",e=>{const el=e.target;if(!el.classList||!(el.classList.contains("xl-title")||el.classList.contains("xl-anim2")))return;
+ const a=admAct(el.dataset.a),r=R(el.dataset.r),f=el.dataset.f;if(!a||!r)return;const t=admFind(a,r);
+ if(!admCellOk(a,t,f)){toast("Vous ne pouvez pas modifier cette case.");return;}
+ const v=el.value.trim();if(!t&&!v)return;admSet(a,r,t,f,v);
+ toast(f==="anim"?(v?`Éducateur : ${sname(v)}`:"Éducateur effacé"):(v?"Activité enregistrée":"Activité effacée"));});
 const admCount=(rid,date,except)=>actOk().filter(a=>a.date===date&&a.id!==except&&(a.part||[]).includes(rid)).length;
 function admTable(d,print){
  const acts=actOk().filter(a=>a.date===d&&(a.part||[]).length).sort((a,b)=>(a.debut||"").localeCompare(b.debut||""));
@@ -3648,14 +3672,17 @@ function admTable(d,print){
  const body=resSorted().map(r=>{
   /* Toujours 3 lignes par résident : Activité 1, 2, 3 (3 activités maximum par jour) */
   const items=acts.filter(a=>a.part.includes(r.id)).slice(0,ADM_MAX).map(a=>({a,t:ents.find(t=>t.actId===a.id&&t.rid===r.id)}));
-  ents.filter(t=>t.rid===r.id&&!(t.actId&&items.some(it=>it.a&&it.a.id===t.actId))).forEach(t=>items.push({a:null,t}));
-  while(items.length<ADM_MAX)items.push({a:null,t:null,empty:true});
+  /* Lignes hors planning (activité écrite par l'équipe) puis lignes vides, toujours remplissables */
+  const frees=ents.filter(t=>t.rid===r.id&&!(t.actId&&items.some(it=>it.a&&it.a.id===t.actId))).sort((p,q)=>(p.slot||0)-(q.slot||0));
+  frees.forEach(t=>items.push({a:admFree(r,d,t.slot,t),t}));
+  const used=new Set(frees.map(t=>t.slot));let s=0;
+  while(items.length<ADM_MAX){while(used.has(s))s++;used.add(s);items.push({a:admFree(r,d,s,null),t:null});}
   const ph=n=>`<td class="xl-ph" rowspan="${n}">${paPhoto(r)}</td>`;
-  const add=adm?`<span class="xl-abtn"><button class="pa-lnk" data-act="adm-radd" data-r="${r.id}">+ Inscrire à une activité</button></span>`:"";
+  const add=adm?`<span class="xl-abtn"><button class="pa-lnk" data-act="adm-radd" data-r="${r.id}">+ Inscrire à une activité du planning</button></span>`:"";
   return `<tbody>${items.map((it,i)=>{const a=it.a,t=it.t;let row;
-   if(it.empty){row=`<tr class="xl-empty">${num()}${i===0?ph(items.length):""}<td class="xl-a"><strong>Activité ${i+1} :</strong> <span class="adm-wait">pas encore au planning</span>${add}</td><td class="xl-ed xl-off"></td><td class="xl-c xl-off"></td><td class="xl-c xl-off"></td><td class="xl-c xl-cp xl-off"></td></tr>`;y++;return row;}
-   const tools=adm&&a?`<span class="xl-abtn"><button class="pa-lnk" data-act="adm-aedit" data-id="${a.id}">Modifier l'activité</button> · <button class="pa-lnk" data-act="adm-rdel" data-a="${a.id}" data-r="${r.id}">Retirer</button></span>`:"";
-   const act=`<strong>Activité ${i+1} :</strong> ${esc(a?a.titre:(t.quand||""))}<span class="pa-by">${a?`${hm(a.debut)}–${hm(a.fin)}`:"plus au planning"}</span>${tools}`;
+   if(a.free){row=`<tr class="xl-free">${num()}${i===0?ph(items.length):""}<td class="xl-a"><strong>Activité ${i+1} :</strong> ${admTitleFree(a,r,t,print)}${print?"":`<span class="pa-by">hors planning</span>`}${!t?add:""}</td>${admEdFree(a,r,t,print)}${admTextCell(a,r,t,"attitude",d,0,y,print)}${admTextCell(a,r,t,"capacites",d,1,y,print)}${admCompCell(a,r,t,d,2,y,print)}</tr>`;y++;return row;}
+   const tools=adm?`<span class="xl-abtn"><button class="pa-lnk" data-act="adm-aedit" data-id="${a.id}">Modifier l'activité</button> · <button class="pa-lnk" data-act="adm-rdel" data-a="${a.id}" data-r="${r.id}">Retirer</button></span>`:"";
+   const act=`<strong>Activité ${i+1} :</strong> ${esc(a.titre)}<span class="pa-by">${hm(a.debut)}–${hm(a.fin)}</span>${tools}`;
    row=`<tr>${num()}${i===0?ph(items.length):""}<td class="xl-a">${act}</td>${admEdCell(a,print)}${admTextCell(a,r,t,"attitude",d,0,y,print)}${admTextCell(a,r,t,"capacites",d,1,y,print)}${admCompCell(a,r,t,d,2,y,print)}</tr>`;y++;return row;}).join("")}</tbody>`;}).join("");
  const letters=print?"":`<tr class="xl-let"><th class="xl-corner" aria-hidden="true"></th>${["A","B","C","D","E","F"].map(l=>`<th aria-hidden="true">${l}</th>`).join("")}</tr>`;
  return `<table class="xl-table${print?" xl-print":""}"><thead>${letters}<tr class="xl-head">${print?"":`<th class="xl-n" aria-label="Ligne"></th>`}<th>Résident</th><th>Activité</th><th>Éducateur</th><th>Attitude</th><th>Capacités</th><th>Comportement</th></tr></thead>${body}</table>`;}
@@ -3689,7 +3716,7 @@ A["adm-radd"]=d=>{if(!isAdmin())return onlyDir();const r=R(d.r),day=ui.admD||TOD
  if(!acts.length){toast("Aucune autre activité ce jour-là : utilisez « Ajouter une activité ».");return;}
  openForm({title:`Ajouter ${rname(r)} à une activité`,fields:[{name:"act",label:"Activité",type:"select",options:acts.map(a=>[a.id,`${hm(a.debut)}–${hm(a.fin)} · ${a.titre}`]),required:true,full:true}],submit:"Ajouter",
   onSubmit:x=>{const a=state.activites.find(y=>y.id===x.act);if(a){a.part=(a.part||[]).concat(r.id);toast("Résident ajouté à l'activité");}}});};
-A["xl-comp"]=d=>{const a=state.activites.find(x=>x.id===d.a),r=R(d.r);if(!a||!r)return;const t=paDone(a.id,r.id);
+A["xl-comp"]=d=>{const a=admAct(d.a),r=R(d.r);if(!a||!r)return;const t=admFind(a,r);
  if(!admCellOk(a,t,"comp")){toast("Vous ne pouvez pas modifier cette case.");return;}
  const v=t&&t.comp===d.v?"":d.v,nt=admSet(a,r,t,"comp",v);
  const td=document.querySelector(`.xl-table td.xl-cp[data-a="${a.id}"][data-r="${r.id}"]`);
@@ -3756,7 +3783,7 @@ A["adm-print"]=d=>{if(!isAdmin())return;const day=ui.admD||TODAY;
  const html=days.map((x,i)=>`<section class="xl-page"${i<days.length-1?' style="break-after:page;page-break-after:always"':""}>${prHead(`Administratif · ${cap(fmtDay(x))}`)}${admTable(x,true)}</section>`).join("");
  printHtml(html);logJ("consult","Impression",d&&d.w?`Administratif · semaine du ${fmtDate(days[0])}`:`Administratif · ${cap(fmtDay(day))}`);};
 document.addEventListener("change",e=>{const el=e.target;if(!el.classList||!el.classList.contains("xl-in"))return;
- const a=state.activites.find(x=>x.id===el.dataset.a),r=R(el.dataset.r),f=el.dataset.f;if(!a||!r)return;let t=paDone(a.id,r.id);
+ const a=admAct(el.dataset.a),r=R(el.dataset.r),f=el.dataset.f;if(!a||!r)return;let t=admFind(a,r);
  if(!admCellOk(a,t,f)){toast("Vous ne pouvez pas modifier cette case.");return;}
  const v=el.value.trim();
  if(!t&&!v)return;
