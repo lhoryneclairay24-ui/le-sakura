@@ -156,6 +156,45 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .ret-blk h3{font-size:14px;color:var(--accent);margin:0 0 6px}
 .not-adm .cinfo-row .ed{display:none}
 .not-adm .cinfo-row{cursor:default}
+.alert-card{border-color:var(--bad);box-shadow:inset 4px 0 0 var(--bad)}
+.cst-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 8px;flex-wrap:wrap}
+.cst-top>div{display:grid}
+.cst-big{font-size:28px;font-weight:800;font-family:var(--font-display)}
+.spark{max-width:100%}
+.cst-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+.cst-grid span{display:grid;background:var(--surface-2);border-radius:8px;padding:6px 8px}
+.cst-grid small{color:var(--muted);font-size:12px}
+.cst-grid strong{font-size:15px}
+.rep-table td{vertical-align:middle;min-width:110px}
+.repc{display:grid;justify-items:center;gap:2px;width:100%;min-height:62px;padding:6px;border:1.5px dashed var(--line);border-radius:10px;background:var(--surface);font:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--fg)}
+.repc.bad{background:var(--bad-soft);border:1.5px solid var(--bad);color:var(--bad)}
+.repc.warn{background:var(--warn-soft);border:1.5px solid var(--warn);color:var(--warn)}
+.repc.info{background:var(--info-soft);border:1.5px solid var(--info);color:var(--info)}
+.repc.ok{background:var(--ok-soft);border:1.5px solid var(--ok);color:var(--ok)}
+.repc-e{font-size:24px;line-height:1}
+.eau{display:flex;align-items:center;gap:6px;justify-content:center}
+.eau-n{font-weight:800;font-size:16px;min-width:48px;text-align:center}
+.eau-n.low{color:var(--warn)}
+.repq{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.repq-b{display:grid;justify-items:center;gap:4px;min-height:96px;border-radius:14px;border:2px solid var(--line);background:var(--surface);font:inherit;font-size:16px;font-weight:800;cursor:pointer;color:var(--fg)}
+.repq-b span{font-size:38px;line-height:1}
+.repq-b.on,.repq-b:hover{border-color:var(--accent);background:var(--accent-soft)}
+.dlu{background:#fff;color:#1d1418;border:1px solid #d9cfd4;border-radius:12px;padding:16px}
+.dlu-h{display:flex;align-items:center;gap:12px;border-bottom:3px solid #c0392b;padding-bottom:10px;margin-bottom:10px}
+.dlu-h img{width:56px;height:56px;border-radius:50%}
+.dlu-h h2{font-size:20px;margin:0;color:#c0392b}
+.dlu-h p{margin:0;font-size:13px;color:#555}
+.dlu-t{width:100%;border-collapse:collapse;font-size:14px}
+.dlu-t th{text-align:left;width:34%;vertical-align:top;padding:6px 8px;background:#f6eff2;color:#5a2d45;border:1px solid #e3d7dd;white-space:normal;letter-spacing:0}
+.dlu-t td{padding:6px 8px;border:1px solid #e3d7dd;vertical-align:top}
+.dlu-f{font-size:12px;color:#666;margin-top:8px}
+#print-root{display:none}
+@media print{
+ body.printing>*:not(#print-root){display:none!important}
+ body.printing #print-root{display:block}
+ body.printing{background:#fff}
+ .dlu{border:0;padding:0}
+}
 .cal.agx .cell{min-height:132px;cursor:zoom-in;gap:4px}
 .cal.agx .dn-l{display:none}
 .agev{display:grid;gap:1px;width:100%;text-align:left;border:0;border-left:5px solid var(--accent);background:var(--surface-2);border-radius:6px;padding:4px 6px;font:inherit;font-size:12px;color:var(--fg);cursor:pointer;min-width:0}
@@ -957,7 +996,7 @@ function seed(){
 const KEY=(window.SAKURA_CFG&&window.SAKURA_CFG.key)||"lesakura-partage-v1";
 /* Version Direction : la gestion des profils et l'horaire toujours modifiable n'existent que là (sans lanceur = version de la directrice) */
 const IS_DIR=!window.SAKURA_CFG||/direction/i.test(window.SAKURA_CFG.key||"");
-const BUILD_STAMP="17-11-2026 à 10:50";
+const BUILD_STAMP="17-11-2026 à 12:08";
 if(window.SAKURA_CFG&&window.SAKURA_CFG.title)document.title=window.SAKURA_CFG.title;
 let state;
 try{const raw=localStorage.getItem(KEY);state=raw?JSON.parse(raw):null;}catch(e){state=null;}
@@ -1004,7 +1043,7 @@ if(state.agenda.some(a=>!a.sujet)){
 }
 }
 migrate();
-(function(){const B="202611171050";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
+(function(){const B="202611171208";if(state.partageBuild===B)return;const fresh=seed().staff;["s8u3lqet","schris01"].forEach(id=>{const f=fresh.find(x=>x.id===id),s=state.staff.find(x=>x.id===id);if(!f)return;if(s)Object.assign(s,{prenom:f.prenom,nom:f.nom,fonction:f.fonction,admin:f.admin,salt:f.salt,hash:f.hash});else state.staff.push(f);});state.partageBuild=B;})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}scheduleSync();}
 save();
 const hNow=new Date().getHours()+new Date().getMinutes()/60;
@@ -1040,6 +1079,8 @@ const navBadge=id=>{
  if(id==="conges")return isAdmin()?state.demandes.filter(d=>d.statut==="attente").length:0;
  if(id==="contention"){const h=new Date().getHours();return state.contentions.filter(c=>c.active&&((c.reeval&&c.reeval<TODAY)||(inWin(c,h)&&!c.surv.some(s=>s.date===TODAY&&hourOf(s.h)===h)))).length;}
  if(id==="rdv")return state.rdv.filter(a=>a.statut==="prevu"&&a.date<TODAY).length;
+ if(id==="constantes")return isMed()?constAlerts().length:0;
+ if(id==="stock")return isMed()?stockAlerts().length:0;
  if(id==="commandes")return isAdmin()?(state.commandes||[]).filter(c=>c.statut==="demandee").length:0;
  if(id==="activites")return isAdmin()?state.activites.filter(a=>(a.statut||"validee")==="proposee").length:0;
  return 0;
@@ -2815,6 +2856,143 @@ A["cmd-no"]=d=>{if(!isAdmin())return;const c=CMDS().find(x=>x.id===d.id);if(!c)r
 A["cmd-cancel"]=d=>{state.commandes=CMDS().filter(x=>!(x.id===d.id&&x.par===state.me&&x.statut==="demandee"));save();render();toast("Demande annulée");};
 
 A["ag-day"]=d=>agDay(d.d);
+
+/* ---------- Santé : poids et constantes, repas, stock, fiches d'urgence ---------- */
+const isMed=()=>{const s=ST(state.me);return !!s&&(s.admin||roleOf(s)==="medical");};
+const onlyMed=()=>toast("Réservé au corps médical et à la direction.");
+const LST=k=>state[k]||(state[k]=[]);
+const num=v=>{const n=parseFloat(String(v==null?"":v).replace(",","."));return isNaN(n)?null:n;};
+/* Poids et constantes */
+const constOf=rid=>LST("constantes").filter(c=>c.rid===rid).sort((a,b)=>(b.date+b.h).localeCompare(a.date+a.h));
+const lastVal=(rid,k)=>{const c=constOf(rid).find(x=>x[k]!==""&&x[k]!=null);return c?{v:c[k],date:c.date,h:c.h}:null;};
+const poidsAlert=r=>{const p=lastVal(r.id,"poids");if(!p)return "";const v=num(p.v),mn=num(r.poidsMin),mx=num(r.poidsMax);if(v==null)return "";if(mn!=null&&v<mn)return "bas";if(mx!=null&&v>mx)return "haut";return "";};
+const constAlerts=()=>state.residents.filter(r=>poidsAlert(r));
+function spark(rid){const pts=constOf(rid).filter(c=>num(c.poids)!=null).slice(0,10).reverse();if(pts.length<2)return "";
+ const vs=pts.map(c=>num(c.poids)),mn=Math.min(...vs),mx=Math.max(...vs),w=150,h=40,rg=(mx-mn)||1;
+ const xy=vs.map((v,i)=>`${(i/(vs.length-1)*w).toFixed(1)},${(h-4-(v-mn)/rg*(h-8)).toFixed(1)}`).join(" ");
+ return `<svg class="spark" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="Évolution du poids : de ${vs[0]} à ${vs[vs.length-1]} kg"><polyline points="${xy}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>`;}
+function vConst(){
+ const med=isMed();
+ const cards=resSorted().map(r=>{const p=lastVal(r.id,"poids"),al=poidsAlert(r),L=k=>{const x=lastVal(r.id,k);return x?`${esc(x.v)}`:"—";};
+  const rng=(r.poidsMin||r.poidsMax)?`Seuils : ${r.poidsMin?esc(r.poidsMin):"…"} – ${r.poidsMax?esc(r.poidsMax):"…"} kg`:"Aucun seuil fixé";
+  return `<article class="card${al?" alert-card":""}"><div class="row-between"><div class="who">${avatar(r)}<div><strong>${esc(rname(r))}</strong><span class="muted small">${rng}</span></div></div>${al?`<span class="pill bad">Poids trop ${al}</span>`:""}</div>
+   <div class="cst-top"><div><span class="cst-big num">${p?esc(p.v)+" kg":"—"}</span><span class="muted small">${p?"le "+esc(fmtDay(p.date,{day:"numeric",month:"long"})):"Pas encore pesé(e)"}</span></div>${spark(r.id)}</div>
+   <div class="cst-grid"><span><small>Tension</small><strong>${L("ta")}</strong></span><span><small>Pouls</small><strong>${L("pouls")}</strong></span><span><small>Température</small><strong>${L("temp")}</strong></span><span><small>Saturation</small><strong>${L("spo2")}</strong></span><span><small>Glycémie</small><strong>${L("glyc")}</strong></span></div>
+   <div class="row" style="margin-top:10px">${med?`<button class="btn sm primary" data-act="cst-new" data-r="${r.id}">${icon("plus",16)} Saisir</button><button class="btn sm" data-act="cst-seuil" data-r="${r.id}">Seuils de poids</button>`:""}<button class="btn sm ghost" data-act="cst-hist" data-r="${r.id}">Historique</button></div></article>`;}).join("");
+ return topbar("Poids et constantes",med?"Saisie réservée au corps médical et à la direction":"En consultation : la saisie est faite par le corps médical")+
+  (constAlerts().length?`<div class="notice alert">${icon("info",18)}<span>${constAlerts().length} résident${constAlerts().length>1?"s ont":" a"} un poids en dehors de ses seuils.</span></div>`:"")+`<div class="med-grid">${cards}</div>`;
+}
+A["cst-new"]=d=>{if(!isMed())return onlyMed();const r=R(d.r);
+ openForm({title:`Saisir · ${rname(r)}`,values:{date:TODAY,h:nowHM()},fields:[
+  {name:"date",label:"Date",type:"date",required:true},{name:"h",label:"Heure",type:"time",required:true},
+  {name:"poids",label:"Poids (kg)",hint:"Ex. : 64,5"},{name:"ta",label:"Tension",hint:"Ex. : 12/8"},
+  {name:"pouls",label:"Pouls (battements/min)"},{name:"temp",label:"Température (°C)",hint:"Ex. : 37,2"},
+  {name:"spo2",label:"Saturation (%)"},{name:"glyc",label:"Glycémie (g/l)"},
+  {name:"note",label:"Remarque",type:"textarea",full:true}
+ ],onSubmit:x=>{if(!["poids","ta","pouls","temp","spo2","glyc"].some(k=>x[k])){toast("Saisissez au moins une valeur.");return false;}
+  LST("constantes").push(Object.assign({id:"v"+uid(),rid:r.id,par:state.me},x));
+  const al=poidsAlert(r);toast(al?`Attention : poids trop ${al} par rapport aux seuils`:"Enregistré");}});};
+A["cst-seuil"]=d=>{if(!isMed())return onlyMed();const r=R(d.r);
+ openForm({title:`Seuils de poids · ${rname(r)}`,values:{pmin:r.poidsMin||"",pmax:r.poidsMax||""},fields:[
+  {name:"pmin",label:"Poids minimum (kg)",hint:"Alerte si le poids passe en dessous"},{name:"pmax",label:"Poids maximum (kg)",hint:"Alerte si le poids passe au-dessus"}
+ ],onSubmit:x=>{r.poidsMin=x.pmin;r.poidsMax=x.pmax;toast("Seuils enregistrés");}});};
+A["cst-hist"]=d=>{const r=R(d.r),l=constOf(r.id).slice(0,40),c=(x,k)=>x[k]?esc(x[k]):"—";
+ openModal(`Historique · ${rname(r)}`,l.length?`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Poids</th><th>Tension</th><th>Pouls</th><th>T°</th><th>Sat.</th><th>Glyc.</th><th>Par</th></tr></thead><tbody>${l.map(x=>`<tr><td>${esc(fmtDay(x.date,{day:"numeric",month:"short"}))} ${hm(x.h)}</td><td>${c(x,"poids")}</td><td>${c(x,"ta")}</td><td>${c(x,"pouls")}</td><td>${c(x,"temp")}</td><td>${c(x,"spo2")}</td><td>${c(x,"glyc")}</td><td>${esc(sname(x.par))}</td></tr>${x.note?`<tr><td></td><td colspan="7" class="muted small">${esc(x.note)}</td></tr>`:""}`).join("")}</tbody></table></div>`:`<p class="empty">Aucune mesure.</p>`,true);};
+/* Repas et hydratation */
+const REP_M=[["pdj","Petit-déjeuner"],["midi","Midi"],["gouter","Goûter"],["soir","Soir"]];
+const REP_Q=[[0,"Rien","🚫","bad"],[1,"Un peu","🥄","warn"],[2,"La moitié","🌗","info"],[3,"Tout","✅","ok"]];
+const repOf=(rid,date,m)=>LST("repas").find(x=>x.rid===rid&&x.date===date&&x.m===m);
+const eauOf=(rid,date)=>{const e=LST("hydra").find(x=>x.rid===rid&&x.date===date);return e?e.n:0;};
+function vRepas(){
+ if(!ui.repDate)ui.repDate=TODAY;const d=ui.repDate;
+ const rows=resSorted().map(r=>{const away=isAway(r.id,d),eau=eauOf(r.id,d),fr=REP_M.some(([m])=>{const x=repOf(r.id,d,m);return x&&x.fr;});
+  return `<tr${away?' class="muted"':""}><th scope="row" class="mc-name"><div class="who">${avatar(r)}<span>${esc(rname(r))}${r.regime?`<div class="muted small" style="font-weight:400">${esc(r.regime)}</div>`:""}</span></div></th>
+   ${away?`<td colspan="${REP_M.length+1}" class="muted">En famille</td>`:REP_M.map(([m,l])=>{const x=repOf(r.id,d,m),q=x?REP_Q[x.q]:null;return `<td><button class="repc${q?" "+q[3]:""}" data-act="rep-set" data-r="${r.id}" data-m="${m}" aria-label="${esc(l)} : ${q?q[1]:"non noté"}">${q?`<span class="repc-e" aria-hidden="true">${q[2]}</span><span>${q[1]}</span>`:`<span class="muted">Noter</span>`}${x&&x.fr?`<span class="pill bad">Fausse route</span>`:""}</button></td>`;}).join("")+
+   `<td><div class="eau"><button class="btn icon sm" data-act="rep-eau" data-r="${r.id}" data-n="-1" aria-label="Retirer un verre">−</button><span class="eau-n${eau<6?" low":""}" aria-label="${eau} verres">💧 ${eau}</span><button class="btn icon sm" data-act="rep-eau" data-r="${r.id}" data-n="1" aria-label="Ajouter un verre">+</button></div></td>`}</tr>`;}).join("");
+ return topbar("Repas et hydratation","Touchez une case pour noter ce que le résident a mangé")+
+  `<div class="toolbar"><div class="datenav"><button class="btn icon" data-act="rep-day" data-n="-1" aria-label="Jour précédent">${icon("left")}</button><strong>${esc(cap(fmtDay(d)))}</strong><button class="btn icon" data-act="rep-day" data-n="1" aria-label="Jour suivant">${icon("right")}</button>${d!==TODAY?`<button class="btn sm ghost" data-act="rep-day" data-n="0">Aujourd'hui</button>`:""}</div></div>
+  <div class="chips" style="margin-bottom:10px">${REP_Q.map(q=>`<span class="pill ${q[3]}">${q[2]} ${q[1]}</span>`).join("")}<span class="pill">💧 verres d'eau (au moins 6 par jour)</span></div>
+  <div class="table-wrap"><table class="rep-table"><thead><tr><th>Résident</th>${REP_M.map(m=>`<th>${m[1]}</th>`).join("")}<th>Eau</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+A["rep-day"]=d=>{ui.repDate=d.n==="0"?TODAY:addDays(ui.repDate||TODAY,+d.n);render();};
+A["rep-eau"]=d=>{const date=ui.repDate||TODAY;let e=LST("hydra").find(x=>x.rid===d.r&&x.date===date);if(!e){e={id:"h"+uid(),rid:d.r,date,n:0};state.hydra.push(e);}e.n=Math.max(0,e.n+(+d.n));e.par=state.me;save();render();};
+A["rep-set"]=d=>{const date=ui.repDate||TODAY,r=R(d.r),ml=REP_M.find(x=>x[0]===d.m)[1],x=repOf(d.r,date,d.m);
+ openModal(`${ml} · ${rname(r)}`,`<div class="repq">${REP_Q.map(q=>`<button class="repq-b ${q[3]}${x&&x.q===q[0]?" on":""}" data-q="${q[0]}"><span aria-hidden="true">${q[2]}</span>${q[1]}</button>`).join("")}</div>
+  <label class="check-inline" style="margin-top:12px"><input type="checkbox" id="rep-fr"${x&&x.fr?" checked":""}> Fausse route (le résident s'est étouffé ou a toussé en mangeant)</label>
+  <div class="field" style="margin-top:10px"><label for="rep-note">Remarque (facultatif)</label><input id="rep-note" value="${esc(x&&x.note||"")}" placeholder="Ex. : n'a pas aimé le plat, mixé refusé"></div>
+  ${x?`<div class="form-actions"><button class="btn ghost" id="rep-del">Effacer</button></div>`:""}`);
+ const mr=$("modal-root");mr.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{let y=repOf(d.r,date,d.m);if(!y){y={id:"m"+uid(),rid:d.r,date,m:d.m};state.repas.push(y);}y.q=+b.dataset.q;y.fr=$("rep-fr").checked;y.note=$("rep-note").value.trim();y.par=state.me;
+  if(y.fr){LST("transmissions").push({id:"t"+uid(),kind:"medical",statut:"afaire",dt:`${TODAY}T${nowHM()}`,par:state.me,lus:[state.me],objet:`Fausse route : ${rname(r)}`,texte:`${ml} du ${fmtDate(date)}.${y.note?" "+y.note:""}`,imp:true});toast("Enregistré · le corps médical est prévenu de la fausse route");}else toast("Enregistré");
+  save();closeModal();render();}));
+ const del=$("rep-del");if(del)del.addEventListener("click",()=>{state.repas=state.repas.filter(y=>!(y.rid===d.r&&y.date===date&&y.m===d.m));save();closeModal();render();});};
+/* Stock de médicaments */
+const stockSt=s=>{const q=num(s.qte)||0,sv=num(s.seuil);const out=[];if(s.peremp){const n=daysBetween(TODAY,s.peremp);if(n<0)out.push(["bad","Périmé"]);else if(n<=30)out.push(["warn",`Périme dans ${n} j`]);}if(q<=0)out.push(["bad","Rupture"]);else if(sv!=null&&q<=sv)out.push(["warn","Stock bas"]);return out;};
+const stockAlerts=()=>LST("stock").filter(s=>stockSt(s).length);
+function vStock(){
+ const med=isMed(),l=LST("stock").slice().sort((a,b)=>(stockSt(b).length-stockSt(a).length)||a.nom.localeCompare(b.nom));
+ const rows=l.map(s=>{const st=stockSt(s);return `<tr><th scope="row"><strong>${esc(s.nom)}</strong> ${esc(s.dosage||"")}<div class="muted small" style="font-weight:400">${esc(s.forme||"")}${s.lot?" · lot "+esc(s.lot):""}</div></th><td class="num"><strong style="font-size:17px">${esc(s.qte)}</strong> <span class="muted small">${esc(s.unite||"")}</span></td><td class="num">${esc(s.seuil||"—")}</td><td>${s.peremp?esc(fmtDate(s.peremp)):"—"}</td><td>${st.map(([c,t])=>`<span class="pill ${c}">${t}</span>`).join(" ")||`<span class="pill ok">OK</span>`}</td>
+  <td>${med?`<div class="row" style="flex-wrap:nowrap"><button class="btn sm" data-act="stk-mv" data-id="${s.id}" data-n="1" aria-label="Entrée en stock">+ Entrée</button><button class="btn sm" data-act="stk-mv" data-id="${s.id}" data-n="-1" aria-label="Sortie du stock">− Sortie</button><button class="btn sm ghost" data-act="stk-edit" data-id="${s.id}" aria-label="Modifier">${icon("edit",16)}</button></div>`:""}</td></tr>`;}).join("");
+ return topbar("Stock de médicaments",med?"Quantités, seuils d'alerte et dates de péremption":"En consultation : le stock est géré par le corps médical",med?`<button class="btn primary" data-act="stk-new">${icon("plus",18)} Ajouter un médicament</button>`:"")+
+  (stockAlerts().length?`<div class="notice alert">${icon("info",18)}<span>${stockAlerts().length} médicament${stockAlerts().length>1?"s":""} à surveiller (stock bas, rupture ou péremption proche).</span></div>`:"")+
+  (l.length?`<div class="table-wrap"><table><thead><tr><th>Médicament</th><th>Quantité</th><th>Alerte sous</th><th>Péremption</th><th>État</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="empty">Aucun médicament en stock pour le moment.</p>`);
+}
+function stkForm(id){if(!isMed())return onlyMed();const s=id?LST("stock").find(x=>x.id===id):null;
+ openForm({title:s?"Modifier le médicament":"Ajouter un médicament",values:s||{unite:"comprimés"},fields:[
+  {name:"nom",label:"Nom",required:true},{name:"dosage",label:"Dosage",hint:"Ex. : 500 mg"},
+  {name:"forme",label:"Forme",hint:"Comprimé, sirop, gouttes…"},{name:"unite",label:"Unité de comptage",hint:"comprimés, flacons, boîtes…"},
+  {name:"qte",label:"Quantité en stock",required:true},{name:"seuil",label:"Alerte quand il reste",hint:"Ex. : 20"},
+  {name:"peremp",label:"Date de péremption",type:"date"},{name:"lot",label:"Numéro de lot"},
+  {name:"note",label:"Remarque",type:"textarea",full:true}
+ ],onDelete:s?()=>{state.stock=LST("stock").filter(x=>x.id!==s.id);toast("Médicament retiré du stock");}:null,
+ onSubmit:x=>{if(num(x.qte)==null){toast("La quantité doit être un nombre.");return false;}if(s){Object.assign(s,x);toast("Enregistré");}else{LST("stock").push(Object.assign({id:"s"+uid(),hist:[]},x));toast("Ajouté au stock");}}});}
+A["stk-new"]=()=>stkForm();
+A["stk-edit"]=d=>stkForm(d.id);
+A["stk-mv"]=d=>{if(!isMed())return onlyMed();const s=LST("stock").find(x=>x.id===d.id);if(!s)return;const inn=d.n==="1";
+ openForm({title:`${inn?"Entrée":"Sortie"} · ${s.nom}`,fields:[{name:"q",label:`Quantité (${s.unite||"unités"})`,required:true},{name:"motif",label:"Motif",hint:inn?"Livraison pharmacie…":"Distribution, perte, péremption…",full:true}],
+  onSubmit:x=>{const q=num(x.q);if(q==null||q<=0){toast("Indiquez une quantité positive.");return false;}s.qte=String(Math.max(0,(num(s.qte)||0)+(inn?q:-q)));(s.hist=s.hist||[]).push({d:`${TODAY}T${nowHM()}`,delta:inn?q:-q,motif:x.motif,par:state.me});toast(`Stock : ${s.qte} ${s.unite||""}`);}});};
+/* Fiche d'urgence (DLU) */
+const DLU_F=[["medecin","Médecin traitant (nom et téléphone)"],["pathos","Pathologies et diagnostics"],["antec","Antécédents (opérations, hospitalisations)"],["risques","Risques particuliers","Ex. : épilepsie, fausses routes, fugue, troubles du comportement"],["apparei","Appareillages","Lunettes, appareils auditifs, prothèse dentaire, fauteuil, sonde…"],["habitudes","Habitudes et ce qui rassure","Sommeil, objet rassurant, ce qui l'apaise ou l'angoisse"],["confiance","Personne de confiance (nom et téléphone)"],["tuteur","Représentant légal / tuteur (nom et téléphone)"],["directives","Directives anticipées","Existent-elles ? Où sont-elles rangées ?"],["groupe","Groupe sanguin"]];
+const dluFill=r=>{const d=r.dlu||{};return DLU_F.filter(([k])=>d[k]).length;};
+function dluHtml(r){const d=r.dlu||{},ps=activePresc(TODAY).filter(p=>p.rid===r.id),cs=LST("contentions").filter(c=>c.active&&c.rid===r.id),pd=lastVal(r.id,"poids");
+ const row=(a,b)=>`<tr><th>${esc(a)}</th><td>${b?esc(b).replace(/\n/g,"<br>"):"—"}</td></tr>`;
+ return `<div class="dlu"><div class="dlu-h"><img src="${LOGO_MARK}" alt=""><div><h2>Document de liaison d'urgence</h2><p>Le Sakura · FAM · imprimé le ${esc(fmtDate(TODAY))}</p></div></div>
+  <table class="dlu-t"><tbody>${row("Nom",rname(r))}${row("Né(e) le",r.naissance?fmtDate(r.naissance)+` (${age(r.naissance)} ans)`:"")}${row("Chambre",r.chambre)}${row("Poids",pd?pd.v+" kg (le "+fmtDate(pd.date)+")":"")}
+  <tr><th>Allergies</th><td><strong>${esc(r.allergies||"—")}</strong></td></tr>${row("Situation de handicap",r.handicap)}${row("Communication",r.communication)}${row("Mobilité",r.mobilite)}${row("Alimentation",r.regime)}
+  ${DLU_F.map(([k,l])=>row(l,d[k])).join("")}
+  <tr><th>Traitements en cours</th><td>${ps.length?ps.map(p=>`${esc(p.nom)} ${esc(p.dose)} : ${p.sb?"si besoin"+(p.indication?" ("+esc(p.indication)+")":""):p.moments.map(m=>MOMENTS[m].label).join(", ")}`).join("<br>"):"Aucun"}</td></tr>
+  ${cs.length?`<tr><th>Contention</th><td>${cs.map(c=>esc(c.type+" · "+(c.moments||""))).join("<br>")}</td></tr>`:""}
+  ${row("Famille",[r.famNom,r.famLien,r.famTel].filter(Boolean).join(" · "))}</tbody></table>
+  <p class="dlu-f">Mis à jour ${d.majLe?"le "+esc(fmtDate(d.majLe))+" par "+esc(sname(d.majPar)):"—"} · Établissement : Le Sakura</p></div>`;}
+function vDLU(){
+ const med=isMed();
+ const cards=resSorted().map(r=>{const n=dluFill(r),d=r.dlu||{};return `<article class="card"><div class="row-between"><div class="who">${avatar(r)}<div><strong>${esc(rname(r))}</strong><span class="muted small">${d.majLe?"Mise à jour le "+esc(fmtDate(d.majLe)):"Jamais remplie"}</span></div></div>${n>=6?`<span class="pill ok">Complète</span>`:`<span class="pill warn">À compléter (${n}/${DLU_F.length})</span>`}</div>
+  <div class="row" style="margin-top:10px"><button class="btn sm primary" data-act="dlu-open" data-r="${r.id}">Voir et imprimer</button>${med?`<button class="btn sm" data-act="dlu-edit" data-r="${r.id}">${icon("edit",16)} Compléter</button>`:""}</div></article>`;}).join("");
+ return topbar("Fiches d'urgence (DLU)","À imprimer et donner aux secours ou à l'hôpital en cas de transfert")+
+  `<div class="notice">${icon("info",18)}<span>La fiche reprend automatiquement le dossier du résident, ses allergies, ses traitements en cours et sa contention. ${med?"Complétez les informations médicales.":"Le corps médical complète les informations médicales."}</span></div><div class="med-grid">${cards}</div>`;
+}
+function printHtml(html){let p=$("print-root");if(!p){p=document.createElement("div");p.id="print-root";document.body.appendChild(p);}p.innerHTML=html;document.body.classList.add("printing");
+ const done=()=>{document.body.classList.remove("printing");p.innerHTML="";window.removeEventListener("afterprint",done);};window.addEventListener("afterprint",done);
+ try{window.print();}catch(e){toast("L'impression n'est pas disponible ici : ouvrez l'application dans votre navigateur.");done();}}
+A["dlu-open"]=d=>{const r=R(d.r);openModal(`Fiche d'urgence · ${rname(r)}`,dluHtml(r)+`<div class="form-actions">${isMed()?`<button class="btn" data-act="dlu-edit" data-r="${r.id}">${icon("edit",16)} Compléter</button>`:""}<button class="btn primary" data-act="dlu-print" data-r="${r.id}">Imprimer</button></div>`,true);};
+A["dlu-print"]=d=>{const r=R(d.r);closeModal();printHtml(dluHtml(r));};
+A["dlu-edit"]=d=>{if(!isMed())return onlyMed();const r=R(d.r);
+ openForm({title:`Fiche d'urgence · ${rname(r)}`,values:Object.assign({},r.dlu||{}),fields:DLU_F.map(([k,l,h])=>({name:k,label:l,type:k==="groupe"?"text":"textarea",full:true,hint:h})),
+  onSubmit:x=>{r.dlu=Object.assign({},x,{majLe:TODAY,majPar:state.me});toast("Fiche d'urgence enregistrée");}});};
+/* Onglet Santé */
+function vSante(){
+ const med=isMed(),ms=medStats(TODAY);
+ const tiles=[{ic:"pill",t:"Médicaments",s:`Aujourd'hui : ${ms.done} prise${ms.done>1?"s":""} sur ${ms.total}`,act:'data-act="go" data-v="medicaments"'},
+  {ic:"steth",t:"Poids et constantes",s:"Poids, tension, température…",act:'data-act="go" data-v="constantes"',b:navBadge("constantes")},
+  {ic:"home",t:"Repas et hydratation",s:"Ce qui a été mangé et bu",act:'data-act="go" data-v="repas"'},
+  {ic:"shield",t:"Stock de médicaments",s:"Quantités et péremptions",act:'data-act="go" data-v="stock"',b:navBadge("stock")},
+  {ic:"note",t:"Fiches d'urgence",s:"À imprimer pour les secours",act:'data-act="go" data-v="dlu"'}];
+ return topbar("Santé",med?"Corps médical et direction : vous pouvez saisir partout":"Choisissez ce que vous voulez consulter ou remplir")+`<div class="hub-grid">${tiles.map(hubTile).join("")}</div>`;
+}
+Object.assign(VIEW_FN,{sante:vSante,constantes:vConst,repas:vRepas,stock:vStock,dlu:vDLU});
+VIEWS.push({id:"sante",label:"Santé",short:"Santé",ic:"steth"},{id:"constantes",label:"Poids et constantes",ic:"steth"},{id:"repas",label:"Repas et hydratation",ic:"home"},{id:"stock",label:"Stock de médicaments",ic:"shield"},{id:"dlu",label:"Fiches d'urgence",ic:"note"});
+NAV_GROUPS["g-sante"]={label:"Santé",short:"Santé",ic:"pill",items:["sante","medicaments","constantes","repas","stock","dlu"]};
+NAV_ORDER.splice(NAV_ORDER.indexOf("medicaments"),1,"g-sante");
+SUBLABEL.constantes="Poids et constantes";SUBLABEL.repas="Repas et hydratation";SUBLABEL.stock="Stock de médicaments";SUBLABEL.dlu="Fiches d'urgence";
 
 /* ---------- Partage en ligne (base de données de l'artifact) ---------- */
 var syncDb=null,syncBase={},syncRemote={},syncChunks={},syncTimer=null,syncBusy=false,syncAgain=false,syncReady=false,syncPendingRemote=null,syncRO=false,syncStatus="local";
